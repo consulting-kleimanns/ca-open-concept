@@ -15,9 +15,17 @@ class CamperEntity(Entity):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, controller: CamperController, key: str) -> None:
+    def __init__(
+        self,
+        controller: CamperController,
+        key: str,
+        translation_key: str | None = None,
+        placeholders: dict[str, str] | None = None,
+    ) -> None:
         self.controller = controller
-        self._attr_translation_key = key
+        self._attr_translation_key = translation_key or key
+        if placeholders:
+            self._attr_translation_placeholders = placeholders
         self._attr_unique_id = f"{controller.entry.entry_id}_{key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, controller.entry.entry_id)},

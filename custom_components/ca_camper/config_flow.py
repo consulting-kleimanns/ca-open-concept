@@ -10,6 +10,8 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    CONF_DELAY_OFF,
+    CONF_DELAY_ON,
     CONF_GENERATOR_MIN_SOC,
     CONF_GENERATOR_SOC,
     CONF_LANDSTROM,
@@ -17,13 +19,18 @@ from .const import (
     CONF_LIMIT_LANDSTROM,
     CONF_LIMIT_V2L,
     CONF_LOADS,
+    CONF_MARGIN,
     CONF_V2L,
+    DEFAULT_DELAY_OFF,
+    DEFAULT_DELAY_ON,
     DEFAULT_GENERATOR_MIN_SOC,
     DEFAULT_LIMIT_GENERATOR,
     DEFAULT_LIMIT_LANDSTROM,
     DEFAULT_LIMIT_V2L,
+    DEFAULT_MARGIN,
     DOMAIN,
     LOAD_BUS,
+    LOAD_FLEXIBLE,
     LOAD_NAME,
     LOAD_NOMINAL,
     LOAD_POWER,
@@ -38,6 +45,14 @@ def _watt(max_w: int = 10000) -> selector.NumberSelector:
     return selector.NumberSelector(
         selector.NumberSelectorConfig(
             min=0, max=max_w, step=50, unit_of_measurement="W", mode=selector.NumberSelectorMode.BOX
+        )
+    )
+
+
+def _seconds(max_s: int) -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, max=max_s, step=1, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX
         )
     )
 
@@ -75,6 +90,15 @@ def _sources_schema(defaults: dict[str, Any]) -> vol.Schema:
                 CONF_LIMIT_GENERATOR,
                 default=defaults.get(CONF_LIMIT_GENERATOR, DEFAULT_LIMIT_GENERATOR),
             ): _watt(),
+            vol.Required(CONF_MARGIN, default=defaults.get(CONF_MARGIN, DEFAULT_MARGIN)): _watt(
+                2000
+            ),
+            vol.Required(
+                CONF_DELAY_OFF, default=defaults.get(CONF_DELAY_OFF, DEFAULT_DELAY_OFF)
+            ): _seconds(60),
+            vol.Required(
+                CONF_DELAY_ON, default=defaults.get(CONF_DELAY_ON, DEFAULT_DELAY_ON)
+            ): _seconds(3600),
         }
     )
 
@@ -126,6 +150,7 @@ class CamperOptionsFlow(OptionsFlow):
                     LOAD_POWER: user_input.get(LOAD_POWER),
                     LOAD_BUS: user_input[LOAD_BUS],
                     LOAD_NOMINAL: float(user_input[LOAD_NOMINAL]),
+                    LOAD_FLEXIBLE: bool(user_input.get(LOAD_FLEXIBLE, False)),
                 }
                 options[CONF_LOADS] = [*loads, load]
                 return self.async_create_entry(data=options)
@@ -145,6 +170,7 @@ class CamperOptionsFlow(OptionsFlow):
                     )
                 ),
                 vol.Required(LOAD_NOMINAL, default=0): _watt(),
+                vol.Required(LOAD_FLEXIBLE, default=False): selector.BooleanSelector(),
             }
         )
         return self.async_show_form(step_id="add_load", data_schema=schema, errors=errors)

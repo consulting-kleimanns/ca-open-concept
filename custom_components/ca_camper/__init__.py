@@ -1,6 +1,7 @@
 """CA Camper Energiemanager – Open-Concept-Logik für den vollelektrischen Camper.
 
-Die Integration misst und zeigt an, sie schaltet nichts. Sie nutzt vorhandene Entitäten
+Die Integration misst und zeigt an. Schalten darf sie nur Verbraucher „nur mit Reserve“
+(z. B. Boiler-Heizstab, Laden des Solargenerators). Sie nutzt vorhandene Entitäten
 (z. B. Shelly-Schalter und -Leistungsmessung, Ladestand des Solargenerators,
 Landstrom-/V2L-Erkennung) und bildet darauf die Vorrangschaltungen und die
 Leistungsbilanz je Bus aus dem Elektroplan ab.
@@ -14,7 +15,7 @@ from homeassistant.core import HomeAssistant
 
 from .controller import CamperController
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.SWITCH]
 
 type CamperConfigEntry = ConfigEntry[CamperController]
 

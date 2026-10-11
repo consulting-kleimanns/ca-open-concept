@@ -7,7 +7,9 @@ Bildet den Open-Concept-Elektroplan ab:
 Hängt der Komfortbus am Primärbus, teilen sich beide Busse die Grenze der aktiven Quelle.
 Hängt er am Solargenerator, sind Verbraucher des Primärbusses spannungslos.
 
-Die Integration misst und zeigt nur an; sie schaltet keine Verbraucher.
+Verbraucher mit fester Nutzung (Induktion, DauerShower, Kühlschrank …) werden nie geschaltet.
+Verbraucher „nur mit Reserve“ (Boiler-Heizstab, Laden des Solargenerators) erhalten eine
+Freigabe, solange die Grenze der speisenden Quelle sie zusätzlich trägt.
 """
 
 from __future__ import annotations
@@ -57,6 +59,15 @@ class Load:
     bus: Bus
     is_on: bool
     power_w: float  # gemessene oder nominale Leistung, wenn eingeschaltet
+    nominal_w: float = 0.0  # Nennleistung – Bedarf, wenn (noch) nichts gemessen wird
+    flexible: bool = False  # „nur mit Reserve“: läuft nur, solange die Quelle ihn trägt
+
+    @property
+    def demand_w(self) -> float:
+        """Leistung, die der Verbraucher beim Laufen beansprucht."""
+        if self.is_on and self.power_w > 0:
+            return self.power_w
+        return self.nominal_w
 
 
 @dataclass(frozen=True)
@@ -139,3 +150,42 @@ def compute_balance(sources: SourceState, loads: list[Load], limits: Limits) -> 
         overload=limit > 0 and load > limit,
         unpowered_loads=unpowered,
     )
+
+
+def _powered(sources: SourceState, bus: Bus) -> Source:
+    """Quelle, die einen Bus gerade speist."""
+    return sources.primaer if bus is Bus.PRIMAER else sources.komfort
+
+
+def compute_releases(
+    sources: SourceState, loads: list[Load], limits: Limits, margin_w: float
+) -> dict[str, bool]:
+    """Freigabe je Verbraucher „nur mit Reserve“.
+
+    Feste Verbraucher zählen mit ihrer aktuellen Leistung. Die Reserve-Verbraucher werden in der
+    konfigurierten Reihenfolge (= Priorität) hinzugenommen, solange Last + Bedarf + Sicherheitsabstand
+    die Grenze der gemeinsamen Quelle nicht übersteigen. Ein laufender Verbraucher zählt mit seiner
+    Messung, ein ausgeschalteter mit seiner Nennleistung.
+    """
+    releases: dict[str, bool] = {}
+    groups: dict[Source, float] = {}
+    for load in loads:
+        src = _powered(sources, load.bus)
+        if src is Source.KEINE:
+            continue
+        if not load.flexible and load.is_on:
+            groups[src] = groups.get(src, 0.0) + load.power_w
+
+    for load in loads:
+        if not load.flexible:
+            continue
+        src = _powered(sources, load.bus)
+        if src is Source.KEINE:
+            releases[load.load_id] = False
+            continue
+        used = groups.get(src, 0.0)
+        ok = used + load.demand_w + margin_w <= limits.for_source(src)
+        releases[load.load_id] = ok
+        if ok:
+            groups[src] = used + load.demand_w
+    return releases
