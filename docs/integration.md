@@ -9,18 +9,24 @@ Solargenerators. Feste Verbraucher (Induktion, DauerShower, Kühlschrank, Steckd
 | Funktion | Entität (Name) |
 |---|---|
 | Quelle des Primärbusses (Landstrom → V2L) | Quelle Primärbus (Landstrom, V2L, Keine) |
-| Quelle des Komfortbusses (Primärbus → Solargenerator) | Quelle Komfortbus (Landstrom, V2L, Solargenerator, Keine) |
+| Quelle des Komfortbusses (Solargenerator → Primärbus) | Quelle Komfortbus (Solargenerator, Landstrom, V2L, Keine) |
 | Leistung je Bus | Leistung Primärbus, Leistung Komfortbus |
-| Grenze und Reserve der aktiven Quelle | Leistungsgrenze, Leistungsreserve |
+| Grenze und Reserve je Bus | Grenze/Reserve Primärbus, Grenze/Reserve Komfortbus |
 | Warnung, Attribut „spannungslose Verbraucher“ | Überlast |
-| Freigabe je Verbraucher „nur mit Reserve“, Attribute „verbraucher“, „pausiert“ | Freigabe ‹Name› |
+| Freigabe je Verbraucher „nur mit Reserve“, Attribute „verbraucher“, „pausiert“ (beim Laden zusätzlich „laden_aus_fahrzeug“) | Freigabe ‹Name› |
 | Automatisches Pausieren/Wiedereinschalten ein/aus (Vorgabe: ein) | Freigabesteuerung |
 
 Alle Entitäten hängen am Gerät „CA Camper“; die Entitäts-IDs bildet Home Assistant aus den Namen in der Systemsprache.
 
-**Leistungsbilanz:** Hat der Primärbus eine Quelle (Landstrom oder V2L), versorgt sie laut Vorrangschaltung VS2 auch den
-Komfortbus – Grenze und Reserve beziehen sich dann auf beide Busse zusammen. Ohne Primärbus speist der Solargenerator
-nur den Komfortbus; eingeschaltete Primärbus-Verbraucher werden als „spannungslos“ gemeldet.
+**Leistungsbilanz:** Im Normalfall zwei unabhängige Kreise – der Primärbus hängt an Landstrom oder V2L, der Komfortbus am
+Solargenerator; jeder Bus hat seine eigene Grenze und Reserve. Liegt der Solargenerator unter seiner Reserve, speist der
+Primärbus laut VS2 auch den Komfortbus; dann teilen sich beide Busse dessen Grenze. Ohne Landstrom/V2L werden
+eingeschaltete Primärbus-Verbraucher als „spannungslos“ gemeldet.
+
+**Laden aus der Fahrzeugbatterie:** Der Verbraucher *Laden Solargenerator* lädt über V2L nur, wenn der Ladestand des
+Solargenerators unter *Laden aus dem Fahrzeug unter* (Vorgabe 30 %) fällt, und dann bis *Laden aus dem Fahrzeug bis*
+(Vorgabe 80 %). Über Landstrom lädt er jederzeit, sobald Reserve da ist. Den Schalter dafür einfach eingeschaltet lassen –
+die Integration pausiert und startet ihn selbst.
 
 **Freigabe nach Reserve:** Feste Verbraucher zählen mit ihrer aktuellen Leistung. Danach werden die Verbraucher
 „nur mit Reserve“ in der Reihenfolge, in der sie angelegt wurden (= Priorität), hinzugenommen, solange
@@ -51,9 +57,11 @@ solange der Schalter an ist.
 | Fahrzeug-V2L aktiv | Binärsensor für die V2L-Einspeisung (ebenfalls z. B. über einen Schwellenwert-Helfer). |
 | Ladestand Solargenerator | Batterie-Sensor (%) des Solargenerators, sofern eine Integration ihn liefert. |
 | Reserve Solargenerator | Unter diesem Ladestand gilt der Solargenerator als nicht verfügbar. |
-| Grenzen | Dauerleistung je Quelle. Vorgaben: Landstrom 2.300 W (10 A), V2L 3.500 W, Solargenerator 3.600 W (FOSSiBOT F3600 Pro) – **mit den Daten des eigenen Fahrzeugs und Geräts prüfen.** |
+| Grenzen | Dauerleistung je Quelle. Vorgaben: Landstrom 2.300 W (10 A), V2L 3.700 W, Solargenerator 3.600 W (FOSSiBOT F3600 Pro) – **mit den Daten des eigenen Fahrzeugs und Geräts prüfen.** |
 | Sicherheitsabstand | Reserve, die frei bleibt, bevor ein Reserve-Verbraucher freigegeben wird (Vorgabe 200 W). |
 | Verzögerung Pause / Wiederanlauf | Vorgaben 2 s / 30 s. Die Pause-Verzögerung muss kürzer sein als die Überlastabschaltung der Quelle. |
+| Laden Solargenerator | Schalter des Verbrauchers, der den Solargenerator lädt (als „nur mit Reserve“ anlegen). |
+| Laden aus dem Fahrzeug unter / bis | Vorgaben 30 % / 80 % Ladestand des Solargenerators. |
 
 ### Schritt 2: Verbraucher (Optionen → Verbraucher hinzufügen)
 

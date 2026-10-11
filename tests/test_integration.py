@@ -10,6 +10,7 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.ca_camper.const import (
+    CONF_CHARGE_SWITCH,
     CONF_GENERATOR_MIN_SOC,
     CONF_GENERATOR_SOC,
     CONF_LANDSTROM,
@@ -36,6 +37,7 @@ DATA = {
     CONF_LIMIT_LANDSTROM: 2300,
     CONF_LIMIT_V2L: 3500,
     CONF_LIMIT_GENERATOR: 3600,
+    CONF_CHARGE_SWITCH: "input_boolean.laden",
 }
 
 
@@ -58,6 +60,7 @@ OPTIONS = {
         _load("Boiler", "input_boolean.boiler", "primaer", 1000, flexible=True),
         _load("DauerShower", "input_boolean.dusche", "komfort", 2400),
         _load("Kühlschrank", "input_boolean.kuehlschrank", "komfort", 60),
+        _load("Laden", "input_boolean.laden", "primaer", 1500, flexible=True),
     ],
 }
 
@@ -66,7 +69,7 @@ def _base_states(hass: HomeAssistant, landstrom="off", v2l="on", soc="80"):
     hass.states.async_set("binary_sensor.landstrom", landstrom)
     hass.states.async_set("binary_sensor.v2l", v2l)
     hass.states.async_set("sensor.generator_soc", soc)
-    for sw in ("induktion", "boiler", "dusche", "kuehlschrank"):
+    for sw in ("induktion", "boiler", "dusche", "kuehlschrank", "laden"):
         hass.states.async_set(f"input_boolean.{sw}", "off")
     hass.states.async_set("sensor.induktion_power", "0")
 
@@ -116,7 +119,7 @@ async def test_options_flow_add_and_remove_load(hass: HomeAssistant) -> None:
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
-    assert len(entry.options[CONF_LOADS]) == 5
+    assert len(entry.options[CONF_LOADS]) == 6
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
@@ -126,14 +129,15 @@ async def test_options_flow_add_and_remove_load(hass: HomeAssistant) -> None:
         result["flow_id"], {"loads": ["switch.steckdose_heck"]}
     )
     await hass.async_block_till_done()
-    assert len(entry.options[CONF_LOADS]) == 4
+    assert len(entry.options[CONF_LOADS]) == 5
 
 
 async def test_sources_and_power(hass: HomeAssistant) -> None:
     await _setup(hass)
     assert hass.states.get("sensor.ca_camper_primary_bus_source").state == "v2l"
-    assert hass.states.get("sensor.ca_camper_comfort_bus_source").state == "v2l"
-    assert float(hass.states.get("sensor.ca_camper_power_limit").state) == 3500
+    assert hass.states.get("sensor.ca_camper_comfort_bus_source").state == "solargenerator"
+    assert float(hass.states.get("sensor.ca_camper_primary_bus_limit").state) == 3500
+    assert float(hass.states.get("sensor.ca_camper_comfort_bus_limit").state) == 3600
 
     hass.states.async_set("input_boolean.induktion", "on")
     hass.states.async_set("sensor.induktion_power", "1800")
@@ -141,7 +145,8 @@ async def test_sources_and_power(hass: HomeAssistant) -> None:
     await hass.async_block_till_done()
     assert float(hass.states.get("sensor.ca_camper_primary_bus_power").state) == 1800
     assert float(hass.states.get("sensor.ca_camper_comfort_bus_power").state) == 60
-    assert float(hass.states.get("sensor.ca_camper_power_headroom").state) == 1640
+    assert float(hass.states.get("sensor.ca_camper_primary_bus_headroom").state) == 1700
+    assert float(hass.states.get("sensor.ca_camper_comfort_bus_headroom").state) == 3540
 
     hass.states.async_set("binary_sensor.landstrom", "on")
     await hass.async_block_till_done()
@@ -152,7 +157,6 @@ async def test_sources_and_power(hass: HomeAssistant) -> None:
     await hass.async_block_till_done()
     assert hass.states.get("sensor.ca_camper_primary_bus_source").state == "keine"
     assert hass.states.get("sensor.ca_camper_comfort_bus_source").state == "solargenerator"
-    assert float(hass.states.get("sensor.ca_camper_power_limit").state) == 3600
     attrs = hass.states.get("binary_sensor.ca_camper_overload").attributes
     assert attrs["spannungslose_verbraucher"] == ["input_boolean.induktion"]
 
@@ -176,7 +180,7 @@ async def test_fixed_loads_are_never_switched(hass: HomeAssistant) -> None:
     calls = _record_switch_calls(hass)
     await _setup(hass, landstrom="on")  # 2300 W
     hass.states.async_set("input_boolean.induktion", "on")
-    hass.states.async_set("sensor.induktion_power", "2000")
+    hass.states.async_set("sensor.induktion_power", "3000")
     hass.states.async_set("input_boolean.dusche", "on")
     await hass.async_block_till_done()
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=60))
@@ -238,6 +242,41 @@ async def test_auto_release_switch_off_disables_switching(hass: HomeAssistant) -
     assert hass.states.get("binary_sensor.ca_camper_release_boiler").state == "off"
     assert calls == []
     assert hass.states.get("input_boolean.boiler").state == "on"
+
+
+async def test_charging_from_vehicle_only_below_threshold(hass: HomeAssistant) -> None:
+    calls = _record_switch_calls(hass)
+    await _setup(hass)  # V2L, Ladestand 80 %
+    release = "binary_sensor.ca_camper_release_laden"
+    hass.states.async_set("input_boolean.laden", "on")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "off"
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=3))
+    await hass.async_block_till_done()
+    assert hass.states.get("input_boolean.laden").state == "off"
+
+    # Ladestand unter 30 % -> Laden aus der Fahrzeugbatterie
+    hass.states.async_set("sensor.generator_soc", "25")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "on"
+    assert hass.states.get(release).attributes["laden_aus_fahrzeug"] is True
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
+    await hass.async_block_till_done()
+    assert hass.states.get("input_boolean.laden").state == "on"
+
+    # lädt weiter bis 80 %, dann Pause
+    hass.states.async_set("sensor.generator_soc", "60")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "on"
+    hass.states.async_set("sensor.generator_soc", "80")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "off"
+
+    # Landstrom lädt jederzeit
+    hass.states.async_set("binary_sensor.landstrom", "on")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "on"
+    assert [c.service for c in calls] == ["turn_off", "turn_on"]
 
 
 async def test_unload(hass: HomeAssistant) -> None:

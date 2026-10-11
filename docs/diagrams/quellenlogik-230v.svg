@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto" role="img" aria-label="230-Volt-Quellenlogik: Landstrom vor Renault V2L ergibt den Primärbus; Primärbus vor Solargenerator ergibt den Komfortbus; Solar lädt den Solargenerator; Home Assistant misst und schaltet jeden Verbraucher über Shelly">
+<svg viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto" role="img" aria-label="230-Volt-Quellenlogik: Landstrom vor Renault V2L ergibt den Primärbus; Solargenerator vor Primärbus ergibt den Komfortbus; Solar lädt den Solargenerator; Home Assistant misst und schaltet jeden Verbraucher über Shelly">
 <defs><marker id="caA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#B6C0CA"/></marker></defs>
 <rect width="1200" height="760" fill="#1d2733"/>
 <g font-family="system-ui, sans-serif" fill="none" stroke-width="2">
@@ -33,7 +33,7 @@
 <path d="M250 393 L588 390" stroke="#6FBF73" marker-end="url(#caA)"/>
 <rect x="950" y="200" width="230" height="110" rx="6" stroke="#DEBE8F"/>
 <text x="1065" y="244" fill="#DEBE8F" stroke="none" font-size="22" font-weight="600" text-anchor="middle">VS2</text>
-<text x="1065" y="274" fill="#B6C0CA" stroke="none" font-size="16" text-anchor="middle">Primärbus vor Generator</text>
+<text x="1065" y="274" fill="#B6C0CA" stroke="none" font-size="16" text-anchor="middle">Generator vor Primärbus</text>
 <path d="M880 170 L948 225" stroke="#B6C0CA" marker-end="url(#caA)"/>
 <path d="M880 390 L948 290" stroke="#B6C0CA" marker-end="url(#caA)"/>
 <rect x="950" y="370" width="230" height="200" rx="6" stroke="#E96B21"/>

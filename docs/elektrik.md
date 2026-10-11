@@ -5,12 +5,12 @@
 ## 230-V-Quellenlogik
 - VS1: Landstrom (Prio 1) vor Fahrzeug-V2L (Prio 2) → Primärbus
 - Primärbus: Induktion 3.000 W (AC-01), Boiler SafeBoil 10 l mit Heizstab 230 V/1.000 W (AC-02, bei Bedarf), Laden Solargenerator (AC-03, bei Bedarf)
-- VS2: Primärbus (Prio 1) vor Ausgang Solargenerator (Prio 2) → Komfortbus
+- VS2: Ausgang Solargenerator (Prio 1) vor Primärbus (Prio 2) → Komfortbus. Im Normalfall sind das zwei unabhängige Kreise: Primärbus an Landstrom/V2L (V2L 3,7 kW), Komfortbus am Solargenerator (3,6 kW). Erst wenn der Solargenerator unter seiner Reserve liegt, übernimmt der Primärbus den Komfortbus.
 - Komfortbus: DauerShower 2.0 Durchlauferhitzer ≤ 2,4 kW (AC-05), Kühlschrank Dometic RC10.4T.70 (AC-06), Steckdosen Heck (AC-07) und Trennwand (AC-08), Shelly Wall (AC-09, Dauerversorgung)
 - Solar: Dach → DC-Trennstelle/Sicherung → MPPT-Eingang des Solargenerators; keine Verbindung zur 230-V-Verteilung
-- Laden: Der Solargenerator lädt über Solar, bei Bedarf zusätzlich über Landstrom oder Fahrzeug (AC-03). Der Boiler heizt mit Solarüberschuss, bei Bedarf mit dem 1.000-W-Heizstab (AC-02).
+- Laden: Der Solargenerator lädt über Solar, bei Bedarf zusätzlich über Landstrom oder Fahrzeug (AC-03). Kochen (5–15 min) und Duschen (~10 min) sind kurze Lastspitzen; dazwischen wird nachgeladen. **Aus der Fahrzeugbatterie lädt er nur, wenn sein Ladestand unter 30 % fällt** (dann bis 80 %); über Landstrom jederzeit. Der Boiler heizt mit Solarüberschuss, bei Bedarf mit dem 1.000-W-Heizstab (AC-02).
 - Jeder Verbraucher eigener Shelly-Kanal, Messung und Szenen in Home Assistant; kein zusätzliches Lastrelais
-- **Freigabe nach Reserve:** Boiler-Heizstab (AC-02) und Laden des Solargenerators (AC-03) laufen nur, solange die speisende Quelle sie zusätzlich trägt (Sicherheitsabstand 200 W). Sonst pausiert Home Assistant sie und schaltet sie wieder ein, sobald die Reserve stabil reicht. Reihenfolge: erst Boiler, dann Laden.
+- **Freigabe nach Reserve:** Boiler-Heizstab (AC-02) und Laden des Solargenerators (AC-03) laufen nur, solange die speisende Quelle sie zusätzlich trägt (Sicherheitsabstand 200 W) – z. B. pausieren sie, während gekocht wird, und laufen danach weiter. Reihenfolge: erst Boiler, dann Laden.
 - **Feste Verbraucher** (Induktion, DauerShower, Kühlschrank, Steckdosen, Shelly Wall) werden nie geschaltet. Die Verriegelung DauerShower ↔ Boiler aus Entwurf v5 entfällt.
 
 ## Solargenerator
@@ -43,6 +43,6 @@ PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung 
 - Kühlschrank-Anschlussart
 - Shelly-Modelle je Abgang
 - Boiler mit Solarüberschuss: Anschluss und Steuerung des 12-V-Heizstabs (200 W) bzw. Überschussregelung
-- Leistungsbilanz der festen Verbraucher je Quelle: Induktion 3.000 W liegt allein über Landstrom 10 A (2.300 W); Induktion + DauerShower (5.400 W) liegen über V2L (3.500 W), solange der Komfortbus über VS2 am Primärbus hängt
+- Landstrom mit nur 10 A (2.300 W): Induktion 3.000 W nur mit reduzierter Leistungsstufe; ab 16 A (3.600 W) ohne Einschränkung
 - Einbindung Klimaanlage und Infrarotpaneel (siehe [heizung.md](heizung.md)) – Plan v6
 - Möbellayout: Plan basiert auf dem Grundriss „Kompakter Allrounder“ (Variante für Boxer/Ducato L2); Anpassung an den Master wird dokumentiert

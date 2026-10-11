@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 – 2026-10-11
+
+### Geändert
+- **VS2: Solargenerator vor Primärbus.** Normalfall zwei unabhängige Kreise (Primärbus an Landstrom/V2L, Komfortbus am Solargenerator); der Primärbus übernimmt den Komfortbus nur, wenn der Solargenerator unter seiner Reserve liegt.
+- Grenze und Reserve je Bus: neue Sensoren „Grenze/Reserve Primärbus“ und „Grenze/Reserve Komfortbus“ ersetzen „Leistungsgrenze“ und „Leistungsreserve“ (alte Entitäten bitte entfernen).
+- Vorgabe V2L 3.700 W.
+- Ausgeschaltete Reserve-Verbraucher belegen keine Reserve mehr; nur laufende oder pausierte.
+
+### Neu
+- **Laden aus der Fahrzeugbatterie nur bei niedrigem Ladestand:** Optionen „Laden Solargenerator“, „Laden aus dem Fahrzeug unter“ (30 %) und „bis“ (80 %). Über Landstrom wird jederzeit geladen.
+
 ## 0.3.0 – 2026-10-11
 
 ### Neu

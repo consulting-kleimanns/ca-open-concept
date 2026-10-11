@@ -14,7 +14,7 @@ Elektroplan, Wasseranlage, Heizung/Klima und eine Home-Assistant-Integration, di
 | Elektroplan (230 V, 12 V, 24 V, Solar) | [docs/elektrik.md](docs/elektrik.md) | Entwurf v5 |
 | Wasseranlage | [docs/wasser.md](docs/wasser.md) | v9 |
 | Heizung und Klima | [docs/heizung.md](docs/heizung.md) | Entwurf |
-| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.3.0 |
+| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.4.0 |
 
 ![230-V-Quellenlogik](docs/diagrams/quellenlogik-230v.svg)
 
@@ -24,8 +24,9 @@ Die Integration nutzt Entitäten, die andere Integrationen bereits liefern
 (Shelly-Schalter und -Leistungsmessung, Ladestand des Solargenerators, Landstrom-/V2L-Erkennung, Truma über BlueBattery,
 Infrarot-Paneel) und setzt die Logik des Elektroplans um:
 
-- **Vorrangschaltungen:** welche Quelle gerade welchen Bus speist (Landstrom vor V2L → Primärbus; Primärbus vor Solargenerator → Komfortbus)
-- **Leistung je Bus, Leistungsgrenze und Reserve** der aktiven Quelle
+- **Vorrangschaltungen:** welche Quelle gerade welchen Bus speist (Landstrom vor V2L → Primärbus; Solargenerator vor Primärbus → Komfortbus – im Normalfall zwei unabhängige Kreise)
+- **Leistung, Grenze und Reserve je Bus**
+- **Laden aus der Fahrzeugbatterie** nur, wenn der Solargenerator unter 30 % fällt (bis 80 %); Landstrom lädt jederzeit
 - **Freigabe nach Reserve:** Boiler-Heizstab und Laden des Solargenerators laufen nur, wenn die Quelle sie zusätzlich trägt – sonst Pause, danach automatischer Wiederanlauf
 - **Feste Verbraucher** (Induktion, DauerShower, Kühlschrank …) werden nie geschaltet; für sie gibt es eine **Überlast-Warnung**
 
