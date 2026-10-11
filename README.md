@@ -14,7 +14,7 @@ Elektroplan, Wasseranlage, Heizung/Klima und eine Home-Assistant-Integration, di
 | Elektroplan (230 V, 12 V, 24 V, Solar) | [docs/elektrik.md](docs/elektrik.md) | Entwurf v5 |
 | Wasseranlage | [docs/wasser.md](docs/wasser.md) | v9 |
 | Heizung und Klima | [docs/heizung.md](docs/heizung.md) | Entwurf |
-| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.2.0 |
+| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.3.0 |
 
 ![230-V-Quellenlogik](docs/diagrams/quellenlogik-230v.svg)
 
@@ -22,11 +22,12 @@ Elektroplan, Wasseranlage, Heizung/Klima und eine Home-Assistant-Integration, di
 
 Die Integration nutzt Entitäten, die andere Integrationen bereits liefern
 (Shelly-Schalter und -Leistungsmessung, Ladestand des Solargenerators, Landstrom-/V2L-Erkennung, Truma über BlueBattery,
-Infrarot-Paneel) und macht die Logik des Elektroplans sichtbar – sie **misst und zeigt an, sie schaltet nichts**:
+Infrarot-Paneel) und setzt die Logik des Elektroplans um:
 
 - **Vorrangschaltungen:** welche Quelle gerade welchen Bus speist (Landstrom vor V2L → Primärbus; Primärbus vor Solargenerator → Komfortbus)
 - **Leistung je Bus, Leistungsgrenze und Reserve** der aktiven Quelle
-- **Überlast-Warnung** als Kontrolle der Auslegung – beide Kreise sind so ausgelegt, dass sie auch bei Volllast unter ihrer Grenze bleiben
+- **Freigabe nach Reserve:** Boiler-Heizstab und Laden des Solargenerators laufen nur, wenn die Quelle sie zusätzlich trägt – sonst Pause, danach automatischer Wiederanlauf
+- **Feste Verbraucher** (Induktion, DauerShower, Kühlschrank …) werden nie geschaltet; für sie gibt es eine **Überlast-Warnung**
 
 Installation über HACS (benutzerdefiniertes Repository, Kategorie *Integration*), dann
 **Einstellungen → Geräte & Dienste → Integration hinzufügen → CA Camper Energiemanager**.
@@ -56,4 +57,4 @@ Könighaus u. a.) gehören ihren Inhabern und werden nur beschreibend genannt; e
 
 *English summary:* Open standard for a fully electric camper van based on the Renault Master E-Tech: wiring plan,
 water system, heating, and a Home Assistant custom integration (`ca_camper`) that shows source priority,
-per-bus power, limit and headroom on top of existing entities (monitoring only, it switches nothing). Docs CC BY-SA 4.0, code Apache-2.0.
+per-bus power, limit and headroom on top of existing entities, and pauses "headroom-only" loads (boiler heater, generator charging) when the source cannot carry them; fixed loads are never switched. Docs CC BY-SA 4.0, code Apache-2.0.

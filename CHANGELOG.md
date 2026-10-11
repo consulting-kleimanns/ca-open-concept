@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 – 2026-10-11
+
+### Neu
+- **Freigabe nach Reserve:** Verbraucher können als „nur mit Reserve“ markiert werden (Boiler-Heizstab, Laden Solargenerator).
+  Sie erhalten je einen Binärsensor „Freigabe ‹Name›“ und werden ohne Reserve pausiert und danach automatisch wieder eingeschaltet.
+- Schalter „Freigabesteuerung“ (Zustand bleibt über Neustarts), Optionen Sicherheitsabstand (200 W), Verzögerung Pause (2 s) und Wiederanlauf (30 s).
+- Feste Verbraucher werden weiterhin nie geschaltet.
+
+### Dokumentation
+- Elektroplan: Boiler und Laden laufen nur mit Reserve; offener Punkt Leistungsbilanz der festen Verbraucher (Induktion am Landstrom, Induktion + DauerShower an V2L).
+
 ## 0.2.0 – 2026-10-11
 
 ### Geändert

@@ -1,8 +1,8 @@
 # Home-Assistant-Integration „CA Camper Energiemanager“ (`ca_camper`)
 
-Die Integration **misst und zeigt an – sie schaltet nichts.** Beide 230-V-Kreise sind so ausgelegt, dass sie auch dann
-unter ihrer Grenze bleiben, wenn alle Verbraucher gleichzeitig laufen. Die Integration macht sichtbar, woher der Strom
-gerade kommt und wie viel Reserve bleibt, und warnt, falls die Auslegung im Betrieb doch nicht aufgeht.
+Die Integration macht sichtbar, woher der Strom gerade kommt, wie viel Reserve bleibt, und warnt bei Überlast.
+**Schalten darf sie nur Verbraucher „nur mit Reserve“** – im Open Concept der Boiler-Heizstab und das Laden des
+Solargenerators. Feste Verbraucher (Induktion, DauerShower, Kühlschrank, Steckdosen …) schaltet sie nie.
 
 ## Entitäten
 
@@ -13,12 +13,22 @@ gerade kommt und wie viel Reserve bleibt, und warnt, falls die Auslegung im Betr
 | Leistung je Bus | Leistung Primärbus, Leistung Komfortbus |
 | Grenze und Reserve der aktiven Quelle | Leistungsgrenze, Leistungsreserve |
 | Warnung, Attribut „spannungslose Verbraucher“ | Überlast |
+| Freigabe je Verbraucher „nur mit Reserve“, Attribute „verbraucher“, „pausiert“ | Freigabe ‹Name› |
+| Automatisches Pausieren/Wiedereinschalten ein/aus (Vorgabe: ein) | Freigabesteuerung |
 
 Alle Entitäten hängen am Gerät „CA Camper“; die Entitäts-IDs bildet Home Assistant aus den Namen in der Systemsprache.
 
 **Leistungsbilanz:** Hat der Primärbus eine Quelle (Landstrom oder V2L), versorgt sie laut Vorrangschaltung VS2 auch den
 Komfortbus – Grenze und Reserve beziehen sich dann auf beide Busse zusammen. Ohne Primärbus speist der Solargenerator
 nur den Komfortbus; eingeschaltete Primärbus-Verbraucher werden als „spannungslos“ gemeldet.
+
+**Freigabe nach Reserve:** Feste Verbraucher zählen mit ihrer aktuellen Leistung. Danach werden die Verbraucher
+„nur mit Reserve“ in der Reihenfolge, in der sie angelegt wurden (= Priorität), hinzugenommen, solange
+Last + Bedarf + Sicherheitsabstand die Grenze der Quelle nicht überschreiten. Ein laufender Verbraucher zählt mit seiner
+Messung, ein ausgeschalteter mit seiner Nennleistung. Fehlt die Freigabe länger als die *Verzögerung Pause* (Vorgabe 2 s),
+schaltet die Integration ihn aus und merkt ihn als „pausiert“; ist die Freigabe die *Verzögerung Wiederanlauf*
+(Vorgabe 30 s) lang stabil, schaltet sie ihn wieder ein. Einen Reserve-Verbraucher einzuschalten heißt also „bei Bedarf
+laufen lassen“ – die Integration sorgt dafür, dass er nur läuft, wenn Platz ist.
 
 **Leistung eines Verbrauchers:** gemessene Leistung, wenn ein Leistungssensor zugeordnet ist, sonst die Nennleistung,
 solange der Schalter an ist.
@@ -42,27 +52,34 @@ solange der Schalter an ist.
 | Ladestand Solargenerator | Batterie-Sensor (%) des Solargenerators, sofern eine Integration ihn liefert. |
 | Reserve Solargenerator | Unter diesem Ladestand gilt der Solargenerator als nicht verfügbar. |
 | Grenzen | Dauerleistung je Quelle. Vorgaben: Landstrom 2.300 W (10 A), V2L 3.500 W, Solargenerator 3.600 W (FOSSiBOT F3600 Pro) – **mit den Daten des eigenen Fahrzeugs und Geräts prüfen.** |
+| Sicherheitsabstand | Reserve, die frei bleibt, bevor ein Reserve-Verbraucher freigegeben wird (Vorgabe 200 W). |
+| Verzögerung Pause / Wiederanlauf | Vorgaben 2 s / 30 s. Die Pause-Verzögerung muss kürzer sein als die Überlastabschaltung der Quelle. |
 
 ### Schritt 2: Verbraucher (Optionen → Verbraucher hinzufügen)
 
-Nach Elektroplan – Nennleistungen nach Datenblatt eintragen, besser einen Leistungssensor zuordnen:
+Nach Elektroplan – Nennleistungen nach Datenblatt eintragen, besser einen Leistungssensor zuordnen.
+Reserve-Verbraucher in der gewünschten Priorität anlegen (zuerst Boiler, dann Laden):
 
-| ID | Verbraucher | Bus |
-|---|---|---|
-| AC-01 | Induktionskochfeld 3.000 W | Primär |
-| AC-02 | Boiler SafeBoil, Heizstab 1.000 W | Primär |
-| AC-03 | Laden Solargenerator | Primär |
-| AC-05 | DauerShower Durchlauferhitzer 2,4 kW | Komfort |
-| AC-06 | Kühlschrank | Komfort |
-| AC-07/08 | Steckdosen | Komfort |
-| AC-09 | Shelly Wall | Komfort |
-| – | Klimaanlage Truma Saphir | offen (Plan v6) |
-| – | Infrarotpaneel 450 W | offen (Plan v6) |
+| ID | Verbraucher | Bus | Nur mit Reserve |
+|---|---|---|---|
+| AC-01 | Induktionskochfeld 3.000 W | Primär | nein |
+| AC-02 | Boiler SafeBoil, Heizstab 1.000 W | Primär | **ja** |
+| AC-03 | Laden Solargenerator (bis 2.200 W) | Primär | **ja** |
+| AC-05 | DauerShower Durchlauferhitzer 2,4 kW | Komfort | nein |
+| AC-06 | Kühlschrank | Komfort | nein |
+| AC-07/08 | Steckdosen | Komfort | nein |
+| AC-09 | Shelly Wall | Komfort | nein (Dauerversorgung) |
+| – | Klimaanlage Truma Saphir | offen (Plan v6) | – |
+| – | Infrarotpaneel 450 W | offen (Plan v6) | – |
+
+Ladeleistung des Solargenerators am Gerät (App) auf einen Wert begrenzen, der zur Quelle passt, und diesen Wert als
+Nennleistung eintragen.
 
 ## Beispiel: Benachrichtigung bei Überlast
 
 Automation im UI anlegen: Auslöser *Entität → Zustand* auf „Überlast“ mit Zustand „an“ (z. B. für 5 Sekunden),
-Aktion *Benachrichtigung senden*. Schlägt die Warnung im Betrieb an, stimmt die Auslegung oder eine Grenze nicht.
+Aktion *Benachrichtigung senden*. Die Überlast-Warnung betrifft nur feste Verbraucher – Reserve-Verbraucher werden
+vorher pausiert.
 
 ## Entwicklung
 

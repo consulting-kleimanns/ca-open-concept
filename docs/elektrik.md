@@ -10,7 +10,8 @@
 - Solar: Dach → DC-Trennstelle/Sicherung → MPPT-Eingang des Solargenerators; keine Verbindung zur 230-V-Verteilung
 - Laden: Der Solargenerator lädt über Solar, bei Bedarf zusätzlich über Landstrom oder Fahrzeug (AC-03). Der Boiler heizt mit Solarüberschuss, bei Bedarf mit dem 1.000-W-Heizstab (AC-02).
 - Jeder Verbraucher eigener Shelly-Kanal, Messung und Szenen in Home Assistant; kein zusätzliches Lastrelais
-- **Auslegung:** Beide Kreise bleiben auch dann unter ihrer Grenze, wenn alle Verbraucher gleichzeitig laufen. Es gibt weder Verriegelung noch Lastabwurf (gegenüber Entwurf v5 entfällt die Verriegelung DauerShower ↔ Boiler).
+- **Freigabe nach Reserve:** Boiler-Heizstab (AC-02) und Laden des Solargenerators (AC-03) laufen nur, solange die speisende Quelle sie zusätzlich trägt (Sicherheitsabstand 200 W). Sonst pausiert Home Assistant sie und schaltet sie wieder ein, sobald die Reserve stabil reicht. Reihenfolge: erst Boiler, dann Laden.
+- **Feste Verbraucher** (Induktion, DauerShower, Kühlschrank, Steckdosen, Shelly Wall) werden nie geschaltet. Die Verriegelung DauerShower ↔ Boiler aus Entwurf v5 entfällt.
 
 ## Solargenerator
 FOSSiBOT F3600 Pro: 3.840 Wh, 3.600 W AC-Dauerleistung (3 × 230 V), AC-Laden bis 2.200 W, Solar bis 2.000 W, USV-Umschaltung 10 ms, 37,8 kg (Herstellerangaben laut Presse).
@@ -42,6 +43,6 @@ PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung 
 - Kühlschrank-Anschlussart
 - Shelly-Modelle je Abgang
 - Boiler mit Solarüberschuss: Anschluss und Steuerung des 12-V-Heizstabs (200 W) bzw. Überschussregelung
-- Leistungsbilanz je Kreis mit allen Verbrauchern (Nachweis der Auslegung), inkl. Boiler-Leistung und Ladeleistung Solargenerator
+- Leistungsbilanz der festen Verbraucher je Quelle: Induktion 3.000 W liegt allein über Landstrom 10 A (2.300 W); Induktion + DauerShower (5.400 W) liegen über V2L (3.500 W), solange der Komfortbus über VS2 am Primärbus hängt
 - Einbindung Klimaanlage und Infrarotpaneel (siehe [heizung.md](heizung.md)) – Plan v6
 - Möbellayout: Plan basiert auf dem Grundriss „Kompakter Allrounder“ (Variante für Boxer/Ducato L2); Anpassung an den Master wird dokumentiert
