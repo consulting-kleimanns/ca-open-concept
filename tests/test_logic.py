@@ -68,3 +68,50 @@ def test_ueberlast_wird_nur_gemeldet():
     s = logic.resolve_sources(True, False, True)  # 2300 W Landstrom
     b = logic.compute_balance(s, [_load("induktion", Bus.PRIMAER, 3000)], LIMITS)
     assert b.overload and b.headroom_w == -700
+
+
+def _flex(load_id, bus, nominal, on=False, power=0.0):
+    return Load(load_id, bus, on, power if on else 0.0, nominal_w=nominal, flexible=True)
+
+
+def test_freigabe_boiler_und_laden_bei_reserve():
+    s = logic.resolve_sources(False, True, True)  # V2L 3500 W
+    loads = [
+        _load("kuehlschrank", Bus.KOMFORT, 60),
+        _flex("boiler", Bus.PRIMAER, 1000),
+        _flex("laden", Bus.PRIMAER, 2200),
+    ]
+    r = logic.compute_releases(s, loads, LIMITS, margin_w=200)
+    # 60 + 1000 + 200 <= 3500 -> Boiler frei; 1060 + 2200 + 200 = 3460 <= 3500 -> Laden frei
+    assert r == {"boiler": True, "laden": True}
+
+
+def test_freigabe_induktion_hat_vorrang():
+    s = logic.resolve_sources(False, True, True)
+    loads = [
+        _load("induktion", Bus.PRIMAER, 2800),
+        _flex("boiler", Bus.PRIMAER, 1000, on=True, power=1000),
+        _flex("laden", Bus.PRIMAER, 2200),
+    ]
+    r = logic.compute_releases(s, loads, LIMITS, margin_w=200)
+    assert r == {"boiler": False, "laden": False}
+
+
+def test_freigabe_reihenfolge_ist_prioritaet():
+    s = logic.resolve_sources(True, False, True)  # Landstrom 2300 W
+    loads = [_flex("boiler", Bus.PRIMAER, 1000), _flex("laden", Bus.PRIMAER, 2200)]
+    r = logic.compute_releases(s, loads, LIMITS, margin_w=200)
+    assert r == {"boiler": True, "laden": False}
+
+
+def test_freigabe_laufender_verbraucher_zaehlt_gemessen():
+    s = logic.resolve_sources(True, False, True)
+    loads = [_flex("laden", Bus.PRIMAER, 2200, on=True, power=1500)]
+    assert logic.compute_releases(s, loads, LIMITS, margin_w=200) == {"laden": True}
+
+
+def test_keine_freigabe_ohne_quelle_des_busses():
+    s = logic.resolve_sources(False, False, True)  # nur Solargenerator -> Primärbus spannungslos
+    loads = [_flex("boiler", Bus.PRIMAER, 1000), _flex("steckdose", Bus.KOMFORT, 500)]
+    r = logic.compute_releases(s, loads, LIMITS, margin_w=200)
+    assert r == {"boiler": False, "steckdose": True}

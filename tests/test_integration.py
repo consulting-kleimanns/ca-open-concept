@@ -1,10 +1,13 @@
 """Integrationstests gegen einen echten Home-Assistant-Kern."""
 
+from datetime import timedelta
+
 import pytest
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.data_entry_flow import FlowResultType
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.ca_camper.const import (
     CONF_GENERATOR_MIN_SOC,
@@ -36,22 +39,25 @@ DATA = {
 }
 
 
-def _load(name, switch, bus, nominal, power=None):
+def _load(name, switch, bus, nominal, power=None, flexible=False):
     return {
         "name": name,
         "switch_entity": switch,
         "power_entity": power,
         "bus": bus,
         "nominal_w": nominal,
+        "flexible": flexible,
     }
 
 
 OPTIONS = {
     CONF_LOADS: [
-        _load("Induktion", "switch.induktion", "primaer", 3000, power="sensor.induktion_power"),
-        _load("Boiler", "switch.boiler", "primaer", 1000),
-        _load("DauerShower", "switch.dusche", "komfort", 2400),
-        _load("Kühlschrank", "switch.kuehlschrank", "komfort", 60),
+        _load(
+            "Induktion", "input_boolean.induktion", "primaer", 3000, power="sensor.induktion_power"
+        ),
+        _load("Boiler", "input_boolean.boiler", "primaer", 1000, flexible=True),
+        _load("DauerShower", "input_boolean.dusche", "komfort", 2400),
+        _load("Kühlschrank", "input_boolean.kuehlschrank", "komfort", 60),
     ],
 }
 
@@ -61,7 +67,7 @@ def _base_states(hass: HomeAssistant, landstrom="off", v2l="on", soc="80"):
     hass.states.async_set("binary_sensor.v2l", v2l)
     hass.states.async_set("sensor.generator_soc", soc)
     for sw in ("induktion", "boiler", "dusche", "kuehlschrank"):
-        hass.states.async_set(f"switch.{sw}", "off")
+        hass.states.async_set(f"input_boolean.{sw}", "off")
     hass.states.async_set("sensor.induktion_power", "0")
 
 
@@ -129,9 +135,9 @@ async def test_sources_and_power(hass: HomeAssistant) -> None:
     assert hass.states.get("sensor.ca_camper_comfort_bus_source").state == "v2l"
     assert float(hass.states.get("sensor.ca_camper_power_limit").state) == 3500
 
-    hass.states.async_set("switch.induktion", "on")
+    hass.states.async_set("input_boolean.induktion", "on")
     hass.states.async_set("sensor.induktion_power", "1800")
-    hass.states.async_set("switch.kuehlschrank", "on")
+    hass.states.async_set("input_boolean.kuehlschrank", "on")
     await hass.async_block_till_done()
     assert float(hass.states.get("sensor.ca_camper_primary_bus_power").state) == 1800
     assert float(hass.states.get("sensor.ca_camper_comfort_bus_power").state) == 60
@@ -148,29 +154,90 @@ async def test_sources_and_power(hass: HomeAssistant) -> None:
     assert hass.states.get("sensor.ca_camper_comfort_bus_source").state == "solargenerator"
     assert float(hass.states.get("sensor.ca_camper_power_limit").state) == 3600
     attrs = hass.states.get("binary_sensor.ca_camper_overload").attributes
-    assert attrs["spannungslose_verbraucher"] == ["switch.induktion"]
+    assert attrs["spannungslose_verbraucher"] == ["input_boolean.induktion"]
 
 
-async def test_overload_is_reported_but_nothing_is_switched(hass: HomeAssistant) -> None:
+def _record_switch_calls(hass: HomeAssistant) -> list[ServiceCall]:
     calls: list[ServiceCall] = []
 
     async def _record(call: ServiceCall) -> None:
         calls.append(call)
+        state = "on" if call.service == "turn_on" else "off"
+        ids = call.data["entity_id"]
+        for entity_id in [ids] if isinstance(ids, str) else ids:
+            hass.states.async_set(entity_id, state)
 
-    for domain, service in (("homeassistant", "turn_off"), ("switch", "turn_off")):
-        hass.services.async_register(domain, service, _record)
+    for service in ("turn_on", "turn_off"):
+        hass.services.async_register("input_boolean", service, _record)
+    return calls
 
+
+async def test_fixed_loads_are_never_switched(hass: HomeAssistant) -> None:
+    calls = _record_switch_calls(hass)
     await _setup(hass, landstrom="on")  # 2300 W
-    hass.states.async_set("switch.induktion", "on")
+    hass.states.async_set("input_boolean.induktion", "on")
     hass.states.async_set("sensor.induktion_power", "2000")
-    hass.states.async_set("switch.boiler", "on")
-    hass.states.async_set("switch.dusche", "on")
+    hass.states.async_set("input_boolean.dusche", "on")
+    await hass.async_block_till_done()
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=60))
     await hass.async_block_till_done()
 
     assert hass.states.get("binary_sensor.ca_camper_overload").state == "on"
-    assert hass.states.get("switch.boiler").state == "on"
-    assert hass.states.get("switch.dusche").state == "on"
+    assert hass.states.get("input_boolean.induktion").state == "on"
+    assert hass.states.get("input_boolean.dusche").state == "on"
     assert calls == []
+
+
+async def test_reserve_load_paused_and_resumed(hass: HomeAssistant) -> None:
+    calls = _record_switch_calls(hass)
+    await _setup(hass)  # V2L 3500 W
+    release = "binary_sensor.ca_camper_release_boiler"
+    hass.states.async_set("input_boolean.boiler", "on")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "on"
+
+    # Kochen: 3000 W Induktion -> Boiler hat keine Reserve mehr
+    hass.states.async_set("input_boolean.induktion", "on")
+    hass.states.async_set("sensor.induktion_power", "3000")
+    await hass.async_block_till_done()
+    assert hass.states.get(release).state == "off"
+    assert calls == []  # erst nach der Verzögerung
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=3))
+    await hass.async_block_till_done()
+    assert [c.service for c in calls] == ["turn_off"]
+    assert hass.states.get("input_boolean.boiler").state == "off"
+    assert hass.states.get(release).attributes["pausiert"] is True
+
+    # Kochen beendet -> nach stabiler Reserve wieder an
+    hass.states.async_set("input_boolean.induktion", "off")
+    hass.states.async_set("sensor.induktion_power", "0")
+    await hass.async_block_till_done()
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=31))
+    await hass.async_block_till_done()
+    assert [c.service for c in calls] == ["turn_off", "turn_on"]
+    assert hass.states.get("input_boolean.boiler").state == "on"
+    assert hass.states.get(release).attributes["pausiert"] is False
+
+
+async def test_auto_release_switch_off_disables_switching(hass: HomeAssistant) -> None:
+    calls = _record_switch_calls(hass)
+    await _setup(hass)
+    await hass.services.async_call(
+        "switch",
+        "turn_off",
+        {"entity_id": "switch.ca_camper_automatic_release"},
+        blocking=True,
+    )
+    calls.clear()
+    hass.states.async_set("input_boolean.boiler", "on")
+    hass.states.async_set("input_boolean.induktion", "on")
+    hass.states.async_set("sensor.induktion_power", "3000")
+    await hass.async_block_till_done()
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=60))
+    await hass.async_block_till_done()
+    assert hass.states.get("binary_sensor.ca_camper_release_boiler").state == "off"
+    assert calls == []
+    assert hass.states.get("input_boolean.boiler").state == "on"
 
 
 async def test_unload(hass: HomeAssistant) -> None:
