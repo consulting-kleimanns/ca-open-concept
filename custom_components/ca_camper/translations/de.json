@@ -1,0 +1,159 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Quellen und Grenzen",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Bluetti (Komfortbus). Die Grenzen bitte mit den Werten des eigenen Fahrzeugs prüfen.",
+        "data": {
+          "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
+          "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
+          "bluetti_soc_entity": "Ladestand Bluetti",
+          "bluetti_min_soc": "Reserve Bluetti",
+          "limit_landstrom_w": "Grenze Landstrom",
+          "limit_v2l_w": "Grenze V2L",
+          "limit_bluetti_w": "Grenze Bluetti-Ausgang",
+          "shed_delay_s": "Verzögerung Lastabwurf"
+        },
+        "data_description": {
+          "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
+          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
+          "shed_delay_s": "Überlast muss so lange anstehen, bevor abgeschaltet wird."
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "CA Camper",
+        "menu_options": {
+          "add_load": "Verbraucher hinzufügen",
+          "remove_load": "Verbraucher entfernen",
+          "add_interlock": "Verriegelung hinzufügen",
+          "remove_interlock": "Verriegelung entfernen",
+          "sources": "Quellen und Grenzen"
+        }
+      },
+      "add_load": {
+        "title": "Verbraucher hinzufügen",
+        "data": {
+          "name": "Name",
+          "switch_entity": "Schalter (Shelly-Kanal)",
+          "power_entity": "Leistungsmessung (optional)",
+          "bus": "Bus",
+          "priority": "Priorität (1 = zuletzt abwerfen, 10 = zuerst)",
+          "nominal_w": "Nennleistung (ohne Messung)",
+          "sheddable": "Darf abgeworfen werden"
+        }
+      },
+      "remove_load": {
+        "title": "Verbraucher entfernen",
+        "data": {
+          "loads": "Verbraucher"
+        }
+      },
+      "add_interlock": {
+        "title": "Verriegelung hinzufügen",
+        "description": "Die beiden Verbraucher werden nie gleichzeitig eingeschaltet; der zuletzt eingeschaltete gewinnt. Ersetzt keine elektrische Schutzeinrichtung.",
+        "data": {
+          "entity_a": "Verbraucher A",
+          "entity_b": "Verbraucher B"
+        }
+      },
+      "remove_interlock": {
+        "title": "Verriegelung entfernen",
+        "data": {
+          "interlocks": "Verriegelungen"
+        }
+      },
+      "sources": {
+        "title": "Quellen und Grenzen",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Bluetti (Komfortbus). Die Grenzen bitte mit den Werten des eigenen Fahrzeugs prüfen.",
+        "data": {
+          "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
+          "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
+          "bluetti_soc_entity": "Ladestand Bluetti",
+          "bluetti_min_soc": "Reserve Bluetti",
+          "limit_landstrom_w": "Grenze Landstrom",
+          "limit_v2l_w": "Grenze V2L",
+          "limit_bluetti_w": "Grenze Bluetti-Ausgang",
+          "shed_delay_s": "Verzögerung Lastabwurf"
+        },
+        "data_description": {
+          "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
+          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
+          "shed_delay_s": "Überlast muss so lange anstehen, bevor abgeschaltet wird."
+        }
+      }
+    },
+    "error": {
+      "already_configured": "Dieser Schalter ist bereits zugeordnet.",
+      "same_entity": "Bitte zwei verschiedene Verbraucher wählen."
+    },
+    "abort": {
+      "no_loads": "Noch keine Verbraucher angelegt.",
+      "no_interlocks": "Noch keine Verriegelungen angelegt."
+    }
+  },
+  "selector": {
+    "bus": {
+      "options": {
+        "primaer": "Primärbus (Landstrom/V2L)",
+        "komfort": "Komfortbus (auch Bluetti)"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "quelle_primaerbus": {
+        "name": "Quelle Primärbus",
+        "state": {
+          "landstrom": "Landstrom",
+          "v2l": "V2L",
+          "bluetti": "Bluetti",
+          "keine": "Keine"
+        }
+      },
+      "quelle_komfortbus": {
+        "name": "Quelle Komfortbus",
+        "state": {
+          "landstrom": "Landstrom",
+          "v2l": "V2L",
+          "bluetti": "Bluetti",
+          "keine": "Keine"
+        }
+      },
+      "leistung_primaerbus": {
+        "name": "Leistung Primärbus"
+      },
+      "leistung_komfortbus": {
+        "name": "Leistung Komfortbus"
+      },
+      "leistungsgrenze": {
+        "name": "Leistungsgrenze"
+      },
+      "leistungsreserve": {
+        "name": "Leistungsreserve"
+      },
+      "letzte_aktion": {
+        "name": "Letzte Aktion"
+      }
+    },
+    "binary_sensor": {
+      "ueberlast": {
+        "name": "Überlast"
+      }
+    },
+    "switch": {
+      "load_management": {
+        "name": "Lastmanagement"
+      },
+      "interlock": {
+        "name": "Verriegelung"
+      }
+    }
+  }
+}
