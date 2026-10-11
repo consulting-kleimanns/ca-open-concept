@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Quellen und Grenzen",
-        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Die Integration misst und zeigt an – sie schaltet nichts.",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
         "data": {
           "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
           "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
@@ -11,12 +11,18 @@
           "generator_min_soc": "Reserve Solargenerator",
           "limit_landstrom_w": "Grenze Landstrom",
           "limit_v2l_w": "Grenze V2L",
-          "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)"
+          "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)",
+          "release_margin_w": "Sicherheitsabstand zur Grenze",
+          "release_delay_off_s": "Verzögerung Pause",
+          "release_delay_on_s": "Verzögerung Wiederanlauf"
         },
         "data_description": {
           "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
           "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
-          "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro."
+          "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro.",
+          "release_margin_w": "Reserve, die frei bleibt, bevor ein Verbraucher „nur mit Reserve“ freigegeben wird.",
+          "release_delay_off_s": "So lange darf ein Reserve-Verbraucher ohne Freigabe laufen, bevor er pausiert wird.",
+          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird."
         }
       }
     },
@@ -41,7 +47,11 @@
           "switch_entity": "Schalter (Shelly-Kanal)",
           "power_entity": "Leistungsmessung (optional)",
           "bus": "Bus",
-          "nominal_w": "Nennleistung (ohne Messung)"
+          "nominal_w": "Nennleistung (ohne Messung)",
+          "flexible": "Nur mit Reserve (Boiler, Laden …)"
+        },
+        "data_description": {
+          "flexible": "Läuft nur, solange die speisende Quelle ihn zusätzlich trägt, sonst Pause. Für Verbraucher, die nie geschaltet werden dürfen, aus lassen."
         }
       },
       "remove_load": {
@@ -52,7 +62,7 @@
       },
       "sources": {
         "title": "Quellen und Grenzen",
-        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Die Integration misst und zeigt an – sie schaltet nichts.",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
         "data": {
           "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
           "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
@@ -60,12 +70,18 @@
           "generator_min_soc": "Reserve Solargenerator",
           "limit_landstrom_w": "Grenze Landstrom",
           "limit_v2l_w": "Grenze V2L",
-          "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)"
+          "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)",
+          "release_margin_w": "Sicherheitsabstand zur Grenze",
+          "release_delay_off_s": "Verzögerung Pause",
+          "release_delay_on_s": "Verzögerung Wiederanlauf"
         },
         "data_description": {
           "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
           "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
-          "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro."
+          "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro.",
+          "release_margin_w": "Reserve, die frei bleibt, bevor ein Verbraucher „nur mit Reserve“ freigegeben wird.",
+          "release_delay_off_s": "So lange darf ein Reserve-Verbraucher ohne Freigabe laufen, bevor er pausiert wird.",
+          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird."
         }
       }
     },
@@ -120,6 +136,14 @@
     "binary_sensor": {
       "ueberlast": {
         "name": "Überlast"
+      },
+      "freigabe": {
+        "name": "Freigabe {name}"
+      }
+    },
+    "switch": {
+      "freigabesteuerung": {
+        "name": "Freigabesteuerung"
       }
     }
   }

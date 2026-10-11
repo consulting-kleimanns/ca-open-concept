@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). The integration measures and displays only – it does not switch anything.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
@@ -11,12 +11,18 @@
           "generator_min_soc": "Solar generator reserve",
           "limit_landstrom_w": "Shore power limit",
           "limit_v2l_w": "V2L limit",
-          "limit_generator_w": "Solar generator limit (continuous AC)"
+          "limit_generator_w": "Solar generator limit (continuous AC)",
+          "release_margin_w": "Safety margin to the limit",
+          "release_delay_off_s": "Pause delay",
+          "release_delay_on_s": "Restart delay"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
           "limit_v2l_w": "Continuous V2L output per vehicle data.",
-          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro."
+          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro.",
+          "release_margin_w": "Headroom kept free before a load “only with headroom” is released.",
+          "release_delay_off_s": "Time a headroom load may run without release before it is paused.",
+          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again."
         }
       }
     },
@@ -41,7 +47,11 @@
           "switch_entity": "Switch (Shelly channel)",
           "power_entity": "Power sensor (optional)",
           "bus": "Bus",
-          "nominal_w": "Rated power (without sensor)"
+          "nominal_w": "Rated power (without sensor)",
+          "flexible": "Only with headroom (boiler, charging …)"
+        },
+        "data_description": {
+          "flexible": "Released only while the feeding source can carry it in addition; paused otherwise. Leave off for loads that must never be switched."
         }
       },
       "remove_load": {
@@ -52,7 +62,7 @@
       },
       "sources": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). The integration measures and displays only – it does not switch anything.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
@@ -60,12 +70,18 @@
           "generator_min_soc": "Solar generator reserve",
           "limit_landstrom_w": "Shore power limit",
           "limit_v2l_w": "V2L limit",
-          "limit_generator_w": "Solar generator limit (continuous AC)"
+          "limit_generator_w": "Solar generator limit (continuous AC)",
+          "release_margin_w": "Safety margin to the limit",
+          "release_delay_off_s": "Pause delay",
+          "release_delay_on_s": "Restart delay"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
           "limit_v2l_w": "Continuous V2L output per vehicle data.",
-          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro."
+          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro.",
+          "release_margin_w": "Headroom kept free before a load “only with headroom” is released.",
+          "release_delay_off_s": "Time a headroom load may run without release before it is paused.",
+          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again."
         }
       }
     },
@@ -120,6 +136,14 @@
     "binary_sensor": {
       "ueberlast": {
         "name": "Overload"
+      },
+      "freigabe": {
+        "name": "Release {name}"
+      }
+    },
+    "switch": {
+      "freigabesteuerung": {
+        "name": "Automatic release"
       }
     }
   }
