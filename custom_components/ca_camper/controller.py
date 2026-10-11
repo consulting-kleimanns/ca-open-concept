@@ -17,6 +17,7 @@ from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, Home
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 
 from .const import (
+    CONF_CHARGE_SWITCH,
     CONF_DELAY_OFF,
     CONF_DELAY_ON,
     CONF_GENERATOR_MIN_SOC,
@@ -28,6 +29,8 @@ from .const import (
     CONF_LOADS,
     CONF_MARGIN,
     CONF_V2L,
+    CONF_V2L_CHARGE_START,
+    CONF_V2L_CHARGE_STOP,
     DEFAULT_DELAY_OFF,
     DEFAULT_DELAY_ON,
     DEFAULT_GENERATOR_MIN_SOC,
@@ -35,6 +38,8 @@ from .const import (
     DEFAULT_LIMIT_LANDSTROM,
     DEFAULT_LIMIT_V2L,
     DEFAULT_MARGIN,
+    DEFAULT_V2L_CHARGE_START,
+    DEFAULT_V2L_CHARGE_STOP,
     LOAD_BUS,
     LOAD_FLEXIBLE,
     LOAD_NOMINAL,
@@ -47,10 +52,12 @@ from .logic import (
     Bus,
     Limits,
     Load,
+    Source,
     compute_balance,
     compute_releases,
     generator_available,
     resolve_sources,
+    v2l_charge_needed,
 )
 
 
@@ -73,6 +80,10 @@ class CamperController:
         self.margin_w = float(cfg.get(CONF_MARGIN, DEFAULT_MARGIN))
         self.delay_off = float(cfg.get(CONF_DELAY_OFF, DEFAULT_DELAY_OFF))
         self.delay_on = float(cfg.get(CONF_DELAY_ON, DEFAULT_DELAY_ON))
+        self.charge_switch: str | None = cfg.get(CONF_CHARGE_SWITCH)
+        self.v2l_start = float(cfg.get(CONF_V2L_CHARGE_START, DEFAULT_V2L_CHARGE_START))
+        self.v2l_stop = float(cfg.get(CONF_V2L_CHARGE_STOP, DEFAULT_V2L_CHARGE_STOP))
+        self.v2l_charge = False
         self.loads_cfg: list[dict[str, Any]] = list(entry.options.get(CONF_LOADS, []))
         self.balance: Balance | None = None
         self.releases: dict[str, bool] = {}
@@ -175,14 +186,22 @@ class CamperController:
 
     @callback
     def _recompute(self) -> None:
+        soc = self._number(self._generator_soc)
         sources = resolve_sources(
             landstrom=self._is_on(self._landstrom),
             v2l=self._is_on(self._v2l),
-            generator_ok=generator_available(self._number(self._generator_soc), self._min_soc),
+            generator_ok=generator_available(soc, self._min_soc),
         )
         loads = self._loads()
         self.balance = compute_balance(sources, loads, self.limits)
-        self.releases = compute_releases(sources, loads, self.limits, self.margin_w)
+        # Laden aus der Fahrzeugbatterie nur bei niedrigem Ladestand; Landstrom lädt jederzeit.
+        self.v2l_charge = v2l_charge_needed(soc, self.v2l_start, self.v2l_stop, self.v2l_charge)
+        blocked: frozenset[str] = frozenset()
+        if self.charge_switch and sources.primaer is Source.V2L and not self.v2l_charge:
+            blocked = frozenset({self.charge_switch})
+        self.releases = compute_releases(
+            sources, loads, self.limits, self.margin_w, blocked, frozenset(self.paused)
+        )
         if self.auto_enabled:
             self._plan_actions()
         for update in list(self._listeners):

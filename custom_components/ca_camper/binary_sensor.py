@@ -64,7 +64,10 @@ class ReleaseSensor(CamperEntity, BinarySensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Geschalteter Verbraucher und ob er von der Freigabesteuerung pausiert ist."""
-        return {
+        attrs: dict[str, Any] = {
             "verbraucher": self._switch,
             "pausiert": self._switch in self.controller.paused,
         }
+        if self._switch == self.controller.charge_switch:
+            attrs["laden_aus_fahrzeug"] = self.controller.v2l_charge
+        return attrs

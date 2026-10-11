@@ -10,6 +10,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    CONF_CHARGE_SWITCH,
     CONF_DELAY_OFF,
     CONF_DELAY_ON,
     CONF_GENERATOR_MIN_SOC,
@@ -21,6 +22,8 @@ from .const import (
     CONF_LOADS,
     CONF_MARGIN,
     CONF_V2L,
+    CONF_V2L_CHARGE_START,
+    CONF_V2L_CHARGE_STOP,
     DEFAULT_DELAY_OFF,
     DEFAULT_DELAY_ON,
     DEFAULT_GENERATOR_MIN_SOC,
@@ -28,6 +31,8 @@ from .const import (
     DEFAULT_LIMIT_LANDSTROM,
     DEFAULT_LIMIT_V2L,
     DEFAULT_MARGIN,
+    DEFAULT_V2L_CHARGE_START,
+    DEFAULT_V2L_CHARGE_STOP,
     DOMAIN,
     LOAD_BUS,
     LOAD_FLEXIBLE,
@@ -38,7 +43,7 @@ from .const import (
 )
 
 SWITCHABLE = ["switch", "light", "input_boolean"]
-SOURCE_ENTITIES = (CONF_LANDSTROM, CONF_V2L, CONF_GENERATOR_SOC)
+SOURCE_ENTITIES = (CONF_LANDSTROM, CONF_V2L, CONF_GENERATOR_SOC, CONF_CHARGE_SWITCH)
 
 
 def _watt(max_w: int = 10000) -> selector.NumberSelector:
@@ -54,6 +59,12 @@ def _seconds(max_s: int) -> selector.NumberSelector:
         selector.NumberSelectorConfig(
             min=0, max=max_s, step=1, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX
         )
+    )
+
+
+def _percent() -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(min=0, max=100, step=1, unit_of_measurement="%")
     )
 
 
@@ -99,6 +110,17 @@ def _sources_schema(defaults: dict[str, Any]) -> vol.Schema:
             vol.Required(
                 CONF_DELAY_ON, default=defaults.get(CONF_DELAY_ON, DEFAULT_DELAY_ON)
             ): _seconds(3600),
+            opt(CONF_CHARGE_SWITCH): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=SWITCHABLE)
+            ),
+            vol.Required(
+                CONF_V2L_CHARGE_START,
+                default=defaults.get(CONF_V2L_CHARGE_START, DEFAULT_V2L_CHARGE_START),
+            ): _percent(),
+            vol.Required(
+                CONF_V2L_CHARGE_STOP,
+                default=defaults.get(CONF_V2L_CHARGE_STOP, DEFAULT_V2L_CHARGE_STOP),
+            ): _percent(),
         }
     )
 

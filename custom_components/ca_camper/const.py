@@ -17,6 +17,9 @@ CONF_LIMIT_GENERATOR: Final = "limit_generator_w"
 CONF_MARGIN: Final = "release_margin_w"
 CONF_DELAY_OFF: Final = "release_delay_off_s"
 CONF_DELAY_ON: Final = "release_delay_on_s"
+CONF_CHARGE_SWITCH: Final = "charge_switch_entity"  # Laden Solargenerator
+CONF_V2L_CHARGE_START: Final = "v2l_charge_start_soc"
+CONF_V2L_CHARGE_STOP: Final = "v2l_charge_stop_soc"
 
 # Verbraucher (entry.options)
 CONF_LOADS: Final = "loads"
@@ -31,11 +34,13 @@ LOAD_FLEXIBLE: Final = "flexible"  # „nur mit Reserve“
 
 # Vorgaben – Werte des eigenen Fahrzeugs und Geräts prüfen und anpassen
 DEFAULT_LIMIT_LANDSTROM: Final = 2300  # 10-A-Absicherung am Stellplatz
-DEFAULT_LIMIT_V2L: Final = 3500
+DEFAULT_LIMIT_V2L: Final = 3700  # V2L-Dauerleistung Renault Master E-Tech
 DEFAULT_LIMIT_GENERATOR: Final = 3600  # z. B. FOSSiBOT F3600 Pro, AC-Dauerleistung
 DEFAULT_GENERATOR_MIN_SOC: Final = 10
 DEFAULT_MARGIN: Final = 200  # Sicherheitsabstand zur Grenze
 DEFAULT_DELAY_OFF: Final = 2  # s bis zur Pause eines Reserve-Verbrauchers
 DEFAULT_DELAY_ON: Final = 30  # s stabile Reserve, bevor er wieder anläuft
+DEFAULT_V2L_CHARGE_START: Final = 30  # % – Laden aus dem Fahrzeug erst darunter
+DEFAULT_V2L_CHARGE_STOP: Final = 80  # % – Laden aus dem Fahrzeug bis hierhin
 
 ON_STATES: Final = frozenset({"on", "true", "home", "connected", "open"})

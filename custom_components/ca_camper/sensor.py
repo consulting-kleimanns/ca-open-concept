@@ -64,19 +64,34 @@ SENSORS: tuple[CamperSensorDescription, ...] = (
         value_fn=_bal(lambda b: round(b.power_komfort_w, 1)),
     ),
     CamperSensorDescription(
-        key="leistungsgrenze",
+        key="grenze_primaerbus",
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
         suggested_display_precision=0,
-        value_fn=_bal(lambda b: round(b.limit_w, 1)),
+        value_fn=_bal(lambda b: round(b.limit_primaer_w, 1)),
     ),
     CamperSensorDescription(
-        key="leistungsreserve",
+        key="reserve_primaerbus",
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
         suggested_display_precision=0,
-        value_fn=_bal(lambda b: round(b.headroom_w, 1)),
+        value_fn=_bal(lambda b: round(b.headroom_primaer_w, 1)),
+    ),
+    CamperSensorDescription(
+        key="grenze_komfortbus",
+        device_class=SensorDeviceClass.POWER,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        suggested_display_precision=0,
+        value_fn=_bal(lambda b: round(b.limit_komfort_w, 1)),
+    ),
+    CamperSensorDescription(
+        key="reserve_komfortbus",
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        suggested_display_precision=0,
+        value_fn=_bal(lambda b: round(b.headroom_komfort_w, 1)),
     ),
 )
 
