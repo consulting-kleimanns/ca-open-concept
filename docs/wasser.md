@@ -6,7 +6,7 @@
 - Befüllung: 40-mm-Wellrohr mit Entlüftung
 - Frisch: Tank → Lilie Aufschraubfilter → Lilie LP4142 (11,3 l/min, 2,1 bar) → WM Aquatec UV-8 eco → Kaltwasserverteilung
 - Kalt: 12/18 mm blau → Küche, DauerShower, Boiler; Absperrventile je Zweig
-- Warm: Boiler 230 V (Fahrerseite, Bettmodul) → 12/18 mm rot → Küche, DauerShower
+- Warm: Boiler PEKAWAY SafeBoil 10 l, Edelstahl (Heizstäbe 230 V/1.000 W und 12 V/200 W, Warmluftanschluss, Sicherheitsventil 3 bar/95 °C; Fahrerseite, Bettmodul) → 12/18 mm rot → Küche, DauerShower
 - Abwasser: Küche + Dusche → oberer Tank → DN40 → elektrischer Kugelhahn → Bodendurchführung; 19-mm-Entlüftung
 
 ## Montage-Reihenfolge

@@ -50,7 +50,7 @@ Nach Elektroplan – Nennleistungen nach Datenblatt eintragen, besser einen Leis
 | ID | Verbraucher | Bus |
 |---|---|---|
 | AC-01 | Induktionskochfeld 3.000 W | Primär |
-| AC-02 | Boiler 230 V | Primär |
+| AC-02 | Boiler SafeBoil, Heizstab 1.000 W | Primär |
 | AC-03 | Laden Solargenerator | Primär |
 | AC-05 | DauerShower Durchlauferhitzer 2,4 kW | Komfort |
 | AC-06 | Kühlschrank | Komfort |

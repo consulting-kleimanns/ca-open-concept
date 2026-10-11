@@ -4,10 +4,11 @@
 
 ## 230-V-Quellenlogik
 - VS1: Landstrom (Prio 1) vor Fahrzeug-V2L (Prio 2) → Primärbus
-- Primärbus: Induktion 3.000 W (AC-01), Boiler 230 V (AC-02), Laden Solargenerator (AC-03)
+- Primärbus: Induktion 3.000 W (AC-01), Boiler SafeBoil 10 l mit Heizstab 230 V/1.000 W (AC-02, bei Bedarf), Laden Solargenerator (AC-03, bei Bedarf)
 - VS2: Primärbus (Prio 1) vor Ausgang Solargenerator (Prio 2) → Komfortbus
 - Komfortbus: DauerShower 2.0 Durchlauferhitzer ≤ 2,4 kW (AC-05), Kühlschrank Dometic RC10.4T.70 (AC-06), Steckdosen Heck (AC-07) und Trennwand (AC-08), Shelly Wall (AC-09, Dauerversorgung)
 - Solar: Dach → DC-Trennstelle/Sicherung → MPPT-Eingang des Solargenerators; keine Verbindung zur 230-V-Verteilung
+- Laden: Der Solargenerator lädt über Solar, bei Bedarf zusätzlich über Landstrom oder Fahrzeug (AC-03). Der Boiler heizt mit Solarüberschuss, bei Bedarf mit dem 1.000-W-Heizstab (AC-02).
 - Jeder Verbraucher eigener Shelly-Kanal, Messung und Szenen in Home Assistant; kein zusätzliches Lastrelais
 - **Auslegung:** Beide Kreise bleiben auch dann unter ihrer Grenze, wenn alle Verbraucher gleichzeitig laufen. Es gibt weder Verriegelung noch Lastabwurf (gegenüber Entwurf v5 entfällt die Verriegelung DauerShower ↔ Boiler).
 
@@ -40,6 +41,7 @@ PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung 
 - 12-V-Quelle (Netzteil oder Batteriebezug)
 - Kühlschrank-Anschlussart
 - Shelly-Modelle je Abgang
+- Boiler mit Solarüberschuss: Anschluss und Steuerung des 12-V-Heizstabs (200 W) bzw. Überschussregelung
 - Leistungsbilanz je Kreis mit allen Verbrauchern (Nachweis der Auslegung), inkl. Boiler-Leistung und Ladeleistung Solargenerator
 - Einbindung Klimaanlage und Infrarotpaneel (siehe [heizung.md](heizung.md)) – Plan v6
 - Möbellayout: Plan basiert auf dem Grundriss „Kompakter Allrounder“ (Variante für Boxer/Ducato L2); Anpassung an den Master wird dokumentiert

@@ -10,6 +10,7 @@
 
 ### Dokumentation
 - Elektroplan: Verriegelung DauerShower ↔ Boiler entfällt, Solargenerator FOSSiBOT F3600 Pro.
+- Boiler PEKAWAY SafeBoil 10 l (230 V/1.000 W + 12 V/200 W); Solargenerator lädt über Solar, bei Bedarf über Landstrom/Fahrzeug.
 
 ## 0.1.0 – 2026-10-11
 
