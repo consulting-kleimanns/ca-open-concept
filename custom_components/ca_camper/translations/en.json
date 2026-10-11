@@ -3,21 +3,20 @@
     "step": {
       "user": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before Bluetti (comfort bus). Check the limits against your own vehicle.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). The integration measures and displays only – it does not switch anything.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
-          "bluetti_soc_entity": "Bluetti state of charge",
-          "bluetti_min_soc": "Bluetti reserve",
+          "generator_soc_entity": "Solar generator state of charge",
+          "generator_min_soc": "Solar generator reserve",
           "limit_landstrom_w": "Shore power limit",
           "limit_v2l_w": "V2L limit",
-          "limit_bluetti_w": "Bluetti output limit",
-          "shed_delay_s": "Load shedding delay"
+          "limit_generator_w": "Solar generator limit (continuous AC)"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
           "limit_v2l_w": "Continuous V2L output per vehicle data.",
-          "shed_delay_s": "Overload must persist this long before loads are shed."
+          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro."
         }
       }
     },
@@ -32,8 +31,6 @@
         "menu_options": {
           "add_load": "Add load",
           "remove_load": "Remove load",
-          "add_interlock": "Add interlock",
-          "remove_interlock": "Remove interlock",
           "sources": "Sources and limits"
         }
       },
@@ -44,9 +41,7 @@
           "switch_entity": "Switch (Shelly channel)",
           "power_entity": "Power sensor (optional)",
           "bus": "Bus",
-          "priority": "Priority (1 = shed last, 10 = first)",
-          "nominal_w": "Rated power (without sensor)",
-          "sheddable": "May be shed"
+          "nominal_w": "Rated power (without sensor)"
         }
       },
       "remove_load": {
@@ -55,54 +50,37 @@
           "loads": "Loads"
         }
       },
-      "add_interlock": {
-        "title": "Add interlock",
-        "description": "The two loads are never on at the same time; the last one switched on wins. Does not replace electrical protection.",
-        "data": {
-          "entity_a": "Load A",
-          "entity_b": "Load B"
-        }
-      },
-      "remove_interlock": {
-        "title": "Remove interlock",
-        "data": {
-          "interlocks": "Interlocks"
-        }
-      },
       "sources": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before Bluetti (comfort bus). Check the limits against your own vehicle.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). The integration measures and displays only – it does not switch anything.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
-          "bluetti_soc_entity": "Bluetti state of charge",
-          "bluetti_min_soc": "Bluetti reserve",
+          "generator_soc_entity": "Solar generator state of charge",
+          "generator_min_soc": "Solar generator reserve",
           "limit_landstrom_w": "Shore power limit",
           "limit_v2l_w": "V2L limit",
-          "limit_bluetti_w": "Bluetti output limit",
-          "shed_delay_s": "Load shedding delay"
+          "limit_generator_w": "Solar generator limit (continuous AC)"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
           "limit_v2l_w": "Continuous V2L output per vehicle data.",
-          "shed_delay_s": "Overload must persist this long before loads are shed."
+          "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro."
         }
       }
     },
     "error": {
-      "already_configured": "This switch is already mapped.",
-      "same_entity": "Please choose two different loads."
+      "already_configured": "This switch is already mapped."
     },
     "abort": {
-      "no_loads": "No loads configured yet.",
-      "no_interlocks": "No interlocks configured yet."
+      "no_loads": "No loads configured yet."
     }
   },
   "selector": {
     "bus": {
       "options": {
         "primaer": "Primary bus (shore/V2L)",
-        "komfort": "Comfort bus (also Bluetti)"
+        "komfort": "Comfort bus (also solar generator)"
       }
     }
   },
@@ -113,7 +91,7 @@
         "state": {
           "landstrom": "Shore power",
           "v2l": "V2L",
-          "bluetti": "Bluetti",
+          "solargenerator": "Solar generator",
           "keine": "None"
         }
       },
@@ -122,7 +100,7 @@
         "state": {
           "landstrom": "Shore power",
           "v2l": "V2L",
-          "bluetti": "Bluetti",
+          "solargenerator": "Solar generator",
           "keine": "None"
         }
       },
@@ -137,22 +115,11 @@
       },
       "leistungsreserve": {
         "name": "Power headroom"
-      },
-      "letzte_aktion": {
-        "name": "Last action"
       }
     },
     "binary_sensor": {
       "ueberlast": {
         "name": "Overload"
-      }
-    },
-    "switch": {
-      "load_management": {
-        "name": "Load management"
-      },
-      "interlock": {
-        "name": "Interlock"
       }
     }
   }

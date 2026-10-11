@@ -26,12 +26,11 @@ wohl – das spart Energie. Die Tanks liegen im beheizten Innenraum.
   dort die Truma-**Combi**-Heizung; ob die **Saphir**-Klimaanlage über denselben Weg steuerbar ist, wird am ersten
   Fahrzeug geprüft.
 - **Infrarot:** Einbindung über die WLAN-Schnittstelle des Paneels; welche Integration passt, wird geprüft.
-- **CA Camper Energiemanager:** Klimaanlage und Infrarot werden als Verbraucher mit Priorität eingetragen, damit sie
-  bei knapper Leistung kontrolliert abgeworfen werden (z. B. Infrarot vor Kühlschrank).
+- **CA Camper Energiemanager:** Klimaanlage und Infrarot werden als Verbraucher eingetragen und je Bus mitgemessen.
 
 ## Offen
 
 - Modell der Klimaanlage: Saphir **compact** (laut Händler nur Kühlen) oder Saphir **comfort RC** (Kühlen und Heizen).
 - Einbindung von Klimaanlage und Infrarotpaneel in die Busstruktur (Primär- oder Komfortbus) – Elektroplan v6.
 - Leistungsaufnahme beider Geräte im Betrieb am ersten Fahrzeug messen.
-- Anlaufstrom der Klimaanlage gegen V2L- und Bluetti-Ausgang prüfen.
+- Anlaufstrom der Klimaanlage gegen V2L und Solargenerator prüfen.

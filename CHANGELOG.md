@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 – 2026-10-11
+
+### Geändert
+- Integration misst und zeigt nur noch an: **Verriegelung und Lastabwurf entfernt** (Auslegung: beide Kreise bleiben auch bei Volllast unter ihrer Grenze).
+- Solargenerator statt „Bluetti“: Optionen `generator_soc_entity`, `generator_min_soc`, `limit_generator_w` (Vorgabe 3.600 W, z. B. FOSSiBOT F3600 Pro).
+- Entfernt: Schalter Lastmanagement/Verriegelung, Sensor „Letzte Aktion“, Ereignisse `ca_camper_load_shed`/`ca_camper_interlock`, Priorität und „abwerfbar“ bei Verbrauchern.
+- Überlast-Binärsensor bleibt als reine Warnung.
+
+### Dokumentation
+- Elektroplan: Verriegelung DauerShower ↔ Boiler entfällt, Solargenerator FOSSiBOT F3600 Pro.
+
 ## 0.1.0 – 2026-10-11
 
 ### Integration `ca_camper`

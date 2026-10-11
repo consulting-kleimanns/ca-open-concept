@@ -4,12 +4,15 @@
 
 ## 230-V-Quellenlogik
 - VS1: Landstrom (Prio 1) vor Fahrzeug-V2L (Prio 2) → Primärbus
-- Primärbus: Induktion 3.000 W (AC-01), Boiler 230 V (AC-02), Laden Bluetti AC200MAX (AC-03)
-- VS2: Primärbus (Prio 1) vor Bluetti AC-Out (Prio 2) → Komfortbus
+- Primärbus: Induktion 3.000 W (AC-01), Boiler 230 V (AC-02), Laden Solargenerator (AC-03)
+- VS2: Primärbus (Prio 1) vor Ausgang Solargenerator (Prio 2) → Komfortbus
 - Komfortbus: DauerShower 2.0 Durchlauferhitzer ≤ 2,4 kW (AC-05), Kühlschrank Dometic RC10.4T.70 (AC-06), Steckdosen Heck (AC-07) und Trennwand (AC-08), Shelly Wall (AC-09, Dauerversorgung)
-- Solar: Dach → DC-Trennstelle/Sicherung → Bluetti MPPT; keine Verbindung zur 230-V-Verteilung
-- Jeder Verbraucher eigener Shelly-Kanal, Logik in Home Assistant; kein zusätzliches Lastrelais
-- Verriegelung: DauerShower (AC-05) und Boiler (AC-02) nie gleichzeitig
+- Solar: Dach → DC-Trennstelle/Sicherung → MPPT-Eingang des Solargenerators; keine Verbindung zur 230-V-Verteilung
+- Jeder Verbraucher eigener Shelly-Kanal, Messung und Szenen in Home Assistant; kein zusätzliches Lastrelais
+- **Auslegung:** Beide Kreise bleiben auch dann unter ihrer Grenze, wenn alle Verbraucher gleichzeitig laufen. Es gibt weder Verriegelung noch Lastabwurf (gegenüber Entwurf v5 entfällt die Verriegelung DauerShower ↔ Boiler).
+
+## Solargenerator
+FOSSiBOT F3600 Pro: 3.840 Wh, 3.600 W AC-Dauerleistung (3 × 230 V), AC-Laden bis 2.200 W, Solar bis 2.000 W, USV-Umschaltung 10 ms, 37,8 kg (Herstellerangaben laut Presse).
 
 ## 12 V DC
 DC12-01 DauerShower 12 V (10 A, Sicherung typ. 15 A) · DC12-02 Pumpe Dusche/Abwasser (5–10 A) · DC12-03 Frischwasserpumpe (10 A) ·
@@ -20,7 +23,7 @@ DC12-07 Mischarmatur-Mikroschalter (1–3 A, keine 230-V-Last)
 DC24-Q Wandler + Sicherungsblock · DC24-01…04 LED-Lichtbänder je Zone, Shelly-Dimmkanal
 
 ## Solar
-PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung · PV-04 MPPT-Eingang Bluetti
+PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung · PV-04 MPPT-Eingang Solargenerator
 
 ## Checkliste
 - Shelly-Modelle je Abgang nach Dauerstrom, Einschaltstrom, AC/DC-Eignung und Einbauart auswählen.
@@ -29,7 +32,7 @@ PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung 
 - Jede Leitung an beiden Enden mit ihrer ID beschriften.
 - DauerShower doppelt einplanen: AC-05 (Durchlauferhitzer) und DC12-01/02 (12 V, Pumpe).
 - Shelly Wall so versorgen, dass sie nicht durch eine Szene spannungslos wird.
-- Bluetti-Eingang, -Ausgang und Solareingang physisch und in der Beschriftung trennen.
+- Eingang, Ausgang und Solareingang des Solargenerators physisch und in der Beschriftung trennen.
 - Mischarmatur nur über 12-V-Mikroschalter anschließen – keine 230-V-Zuleitung.
 - Anschlussart des Kühlschranks am gelieferten Gerät prüfen.
 
@@ -37,5 +40,6 @@ PV-01 Dachmodule · PV-02 Dachdurchführung · PV-03 DC-Trennstelle + Sicherung 
 - 12-V-Quelle (Netzteil oder Batteriebezug)
 - Kühlschrank-Anschlussart
 - Shelly-Modelle je Abgang
+- Leistungsbilanz je Kreis mit allen Verbrauchern (Nachweis der Auslegung), inkl. Boiler-Leistung und Ladeleistung Solargenerator
 - Einbindung Klimaanlage und Infrarotpaneel (siehe [heizung.md](heizung.md)) – Plan v6
 - Möbellayout: Plan basiert auf dem Grundriss „Kompakter Allrounder“ (Variante für Boxer/Ducato L2); Anpassung an den Master wird dokumentiert

@@ -14,28 +14,25 @@ Elektroplan, Wasseranlage, Heizung/Klima und eine Home-Assistant-Integration, di
 | Elektroplan (230 V, 12 V, 24 V, Solar) | [docs/elektrik.md](docs/elektrik.md) | Entwurf v5 |
 | Wasseranlage | [docs/wasser.md](docs/wasser.md) | v9 |
 | Heizung und Klima | [docs/heizung.md](docs/heizung.md) | Entwurf |
-| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.1.0 |
+| Home-Assistant-Integration `ca_camper` | [custom_components/ca_camper](custom_components/ca_camper) · [Anleitung](docs/integration.md) | v0.2.0 |
 
 ![230-V-Quellenlogik](docs/diagrams/quellenlogik-230v.svg)
 
 ## Home-Assistant-Integration „CA Camper Energiemanager“
 
-Die Integration steuert **keine Geräte direkt**. Sie nutzt Entitäten, die andere Integrationen bereits liefern
-(Shelly-Schalter und -Leistungsmessung, Bluetti-Ladestand, Landstrom-/V2L-Erkennung, Truma über BlueBattery,
-Infrarot-Paneel) und setzt darauf die Logik des Elektroplans um:
+Die Integration nutzt Entitäten, die andere Integrationen bereits liefern
+(Shelly-Schalter und -Leistungsmessung, Ladestand des Solargenerators, Landstrom-/V2L-Erkennung, Truma über BlueBattery,
+Infrarot-Paneel) und macht die Logik des Elektroplans sichtbar – sie **misst und zeigt an, sie schaltet nichts**:
 
-- **Vorrangschaltungen nachbilden:** Landstrom vor V2L → Primärbus; Primärbus vor Bluetti → Komfortbus
+- **Vorrangschaltungen:** welche Quelle gerade welchen Bus speist (Landstrom vor V2L → Primärbus; Primärbus vor Solargenerator → Komfortbus)
 - **Leistung je Bus, Leistungsgrenze und Reserve** der aktiven Quelle
-- **Verriegelung:** zwei Verbraucher nie gleichzeitig (z. B. DauerShower ↔ Boiler) – der zuletzt eingeschaltete gewinnt
-- **Lastabwurf:** bei anhaltender Überlast werden Verbraucher nach Priorität abgeschaltet
-- Ereignisse `ca_camper_load_shed` und `ca_camper_interlock` für eigene Automationen und Benachrichtigungen
+- **Überlast-Warnung** als Kontrolle der Auslegung – beide Kreise sind so ausgelegt, dass sie auch bei Volllast unter ihrer Grenze bleiben
 
 Installation über HACS (benutzerdefiniertes Repository, Kategorie *Integration*), dann
 **Einstellungen → Geräte & Dienste → Integration hinzufügen → CA Camper Energiemanager**.
 Details: [docs/integration.md](docs/integration.md).
 
-> ⚠️ Die Software-Verriegelung und der Lastabwurf **ersetzen keine elektrische Schutzeinrichtung**
-> (Leitungsschutz, RCD, Umschalttechnik). Sie sind eine Komfort- und Effizienzfunktion.
+> ⚠️ Die Integration ersetzt keine elektrische Schutzeinrichtung (Leitungsschutz, RCD, Umschalttechnik).
 
 ## Mitmachen
 
@@ -52,11 +49,11 @@ Fehler gefunden, besseres Bauteil, eigener Nachbau? Issues und Pull Requests sin
 
 Alle Inhalte werden ohne Gewähr bereitgestellt. Sie ersetzen weder Planung und Abnahme durch eine Elektrofachkraft
 noch die Beachtung geltender Normen, Herstellerangaben und der Aufbaurichtlinien des Fahrzeugherstellers.
-Genannte Marken (Renault, Home Assistant, Shelly, Bluetti, Truma, Dometic, DauerShower, Lilie, WM Aquatec, BlueBattery,
+Genannte Marken (Renault, Home Assistant, Shelly, FOSSiBOT, Truma, Dometic, DauerShower, Lilie, WM Aquatec, BlueBattery,
 Könighaus u. a.) gehören ihren Inhabern und werden nur beschreibend genannt; eine Verbindung besteht nicht.
 
 ---
 
 *English summary:* Open standard for a fully electric camper van based on the Renault Master E-Tech: wiring plan,
-water system, heating, and a Home Assistant custom integration (`ca_camper`) that implements source priority,
-per-bus power, interlocks and load shedding on top of existing entities. Docs CC BY-SA 4.0, code Apache-2.0.
+water system, heating, and a Home Assistant custom integration (`ca_camper`) that shows source priority,
+per-bus power, limit and headroom on top of existing entities (monitoring only, it switches nothing). Docs CC BY-SA 4.0, code Apache-2.0.
