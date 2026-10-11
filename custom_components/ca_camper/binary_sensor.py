@@ -1,4 +1,4 @@
-"""Binärsensor: Überlast der speisenden Quelle."""
+"""Binärsensor: Überlast der speisenden Quelle (nur Warnung, es wird nichts geschaltet)."""
 
 from __future__ import annotations
 

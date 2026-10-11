@@ -2,10 +2,12 @@
 
 Bildet den Open-Concept-Elektroplan ab:
 - VS1: Landstrom vor Fahrzeug-V2L  -> Primärbus
-- VS2: Primärbus vor Bluetti-Ausgang -> Komfortbus
+- VS2: Primärbus vor Solargenerator-Ausgang -> Komfortbus
 
 Hängt der Komfortbus am Primärbus, teilen sich beide Busse die Grenze der aktiven Quelle.
-Hängt er an der Bluetti, sind Verbraucher des Primärbusses spannungslos.
+Hängt er am Solargenerator, sind Verbraucher des Primärbusses spannungslos.
+
+Die Integration misst und zeigt nur an; sie schaltet keine Verbraucher.
 """
 
 from __future__ import annotations
@@ -19,7 +21,7 @@ class Source(StrEnum):
 
     LANDSTROM = "landstrom"
     V2L = "v2l"
-    BLUETTI = "bluetti"
+    SOLARGENERATOR = "solargenerator"
     KEINE = "keine"
 
 
@@ -36,14 +38,14 @@ class Limits:
 
     landstrom_w: float
     v2l_w: float
-    bluetti_w: float
+    generator_w: float
 
     def for_source(self, source: Source) -> float:
         """Grenze der Quelle; ohne Quelle 0 W."""
         return {
             Source.LANDSTROM: self.landstrom_w,
             Source.V2L: self.v2l_w,
-            Source.BLUETTI: self.bluetti_w,
+            Source.SOLARGENERATOR: self.generator_w,
         }.get(source, 0.0)
 
 
@@ -53,10 +55,8 @@ class Load:
 
     load_id: str
     bus: Bus
-    priority: int  # 1 = wichtig, wird zuletzt abgeworfen; 10 = zuerst
     is_on: bool
     power_w: float  # gemessene oder nominale Leistung, wenn eingeschaltet
-    sheddable: bool = True
 
 
 @dataclass(frozen=True)
@@ -81,7 +81,7 @@ class Balance:
     unpowered_loads: list[str] = field(default_factory=list)
 
 
-def resolve_sources(landstrom: bool, v2l: bool, bluetti_ok: bool) -> SourceState:
+def resolve_sources(landstrom: bool, v2l: bool, generator_ok: bool) -> SourceState:
     """Vorrangschaltungen VS1 und VS2 nachbilden."""
     if landstrom:
         primaer = Source.LANDSTROM
@@ -92,17 +92,17 @@ def resolve_sources(landstrom: bool, v2l: bool, bluetti_ok: bool) -> SourceState
 
     if primaer is not Source.KEINE:
         komfort = primaer
-    elif bluetti_ok:
-        komfort = Source.BLUETTI
+    elif generator_ok:
+        komfort = Source.SOLARGENERATOR
     else:
         komfort = Source.KEINE
     return SourceState(primaer=primaer, komfort=komfort)
 
 
-def bluetti_available(soc: float | None, min_soc: float) -> bool:
-    """Bluetti darf liefern, solange der Ladestand über der Reserve liegt.
+def generator_available(soc: float | None, min_soc: float) -> bool:
+    """Der Solargenerator gilt als Quelle, solange der Ladestand über der Reserve liegt.
 
-    Unbekannter Ladestand gilt als verfügbar (die Bluetti schützt sich selbst).
+    Unbekannter Ladestand gilt als verfügbar (das Gerät schützt sich selbst).
     """
     if soc is None:
         return True
@@ -119,8 +119,8 @@ def compute_balance(sources: SourceState, loads: list[Load], limits: Limits) -> 
         # Beide Busse hängen an derselben Quelle.
         limit = limits.for_source(sources.primaer)
         load = p_primaer + p_komfort
-    elif sources.komfort is Source.BLUETTI:
-        limit = limits.for_source(Source.BLUETTI)
+    elif sources.komfort is Source.SOLARGENERATOR:
+        limit = limits.for_source(Source.SOLARGENERATOR)
         load = p_komfort
         unpowered = [l.load_id for l in loads if l.is_on and l.bus is Bus.PRIMAER]
     else:
@@ -139,46 +139,3 @@ def compute_balance(sources: SourceState, loads: list[Load], limits: Limits) -> 
         overload=limit > 0 and load > limit,
         unpowered_loads=unpowered,
     )
-
-
-def select_loads_to_shed(sources: SourceState, loads: list[Load], limits: Limits) -> list[str]:
-    """Verbraucher bestimmen, die abgeschaltet werden, bis die Grenze eingehalten ist.
-
-    Reihenfolge: höchste Prioritätszahl zuerst, bei Gleichstand der größte Verbraucher.
-    Es werden nur eingeschaltete, abwerfbare Verbraucher der speisenden Quelle betrachtet.
-    """
-    balance = compute_balance(sources, loads, limits)
-    if not balance.overload:
-        return []
-
-    if sources.primaer is not Source.KEINE:
-        candidates = [l for l in loads if l.is_on and l.sheddable]
-    else:
-        candidates = [l for l in loads if l.is_on and l.sheddable and l.bus is Bus.KOMFORT]
-    candidates.sort(key=lambda l: (-l.priority, -l.power_w, l.load_id))
-
-    excess = balance.load_w - balance.limit_w
-    shed: list[str] = []
-    for load in candidates:
-        if excess <= 0:
-            break
-        if load.power_w <= 0:
-            continue
-        shed.append(load.load_id)
-        excess -= load.power_w
-    return shed
-
-
-def interlock_partners(
-    turned_on: str, pairs: list[tuple[str, str]], is_on: dict[str, bool]
-) -> list[str]:
-    """Partner, die ausgeschaltet werden, weil `turned_on` gerade eingeschaltet wurde.
-
-    Regel: Der zuletzt eingeschaltete Verbraucher gewinnt.
-    """
-    result: list[str] = []
-    for a, b in pairs:
-        partner = b if a == turned_on else a if b == turned_on else None
-        if partner and is_on.get(partner, False) and partner not in result:
-            result.append(partner)
-    return result

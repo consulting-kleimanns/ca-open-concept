@@ -1,4 +1,4 @@
-"""Sensoren: aktive Quellen, Busleistungen, Reserve, letzte Aktion."""
+"""Sensoren: aktive Quellen, Busleistungen, Grenze und Reserve."""
 
 from __future__ import annotations
 
@@ -77,10 +77,6 @@ SENSORS: tuple[CamperSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.WATT,
         suggested_display_precision=0,
         value_fn=_bal(lambda b: round(b.headroom_w, 1)),
-    ),
-    CamperSensorDescription(
-        key="letzte_aktion",
-        value_fn=lambda c: c.last_action,
     ),
 )
 
