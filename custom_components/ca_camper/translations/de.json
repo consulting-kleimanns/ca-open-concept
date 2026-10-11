@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Quellen und Grenzen",
-        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Solargenerator vor Primärbus (Komfortbus) – im Normalfall zwei unabhängige Kreise. Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
         "data": {
           "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
           "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
@@ -14,15 +14,21 @@
           "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)",
           "release_margin_w": "Sicherheitsabstand zur Grenze",
           "release_delay_off_s": "Verzögerung Pause",
-          "release_delay_on_s": "Verzögerung Wiederanlauf"
+          "release_delay_on_s": "Verzögerung Wiederanlauf",
+          "charge_switch_entity": "Laden Solargenerator (Schalter)",
+          "v2l_charge_start_soc": "Laden aus dem Fahrzeug unter",
+          "v2l_charge_stop_soc": "Laden aus dem Fahrzeug bis"
         },
         "data_description": {
           "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
-          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
+          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten (Renault Master E-Tech: 3.700 W).",
           "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro.",
           "release_margin_w": "Reserve, die frei bleibt, bevor ein Verbraucher „nur mit Reserve“ freigegeben wird.",
           "release_delay_off_s": "So lange darf ein Reserve-Verbraucher ohne Freigabe laufen, bevor er pausiert wird.",
-          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird."
+          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird.",
+          "charge_switch_entity": "Reserve-Verbraucher, der den Solargenerator lädt. Aus dem Fahrzeug (V2L) lädt er nur bei niedrigem Ladestand.",
+          "v2l_charge_start_soc": "Unter diesem Ladestand lädt der Solargenerator aus der Fahrzeugbatterie (Landstrom lädt jederzeit).",
+          "v2l_charge_stop_soc": "Bei diesem Ladestand endet das Laden aus der Fahrzeugbatterie."
         }
       }
     },
@@ -62,7 +68,7 @@
       },
       "sources": {
         "title": "Quellen und Grenzen",
-        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Primärbus vor Solargenerator (Komfortbus). Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
+        "description": "Ordnet die Einspeisungen des Open-Concept-Elektroplans zu: Landstrom vor V2L (Primärbus), Solargenerator vor Primärbus (Komfortbus) – im Normalfall zwei unabhängige Kreise. Feste Verbraucher werden nie geschaltet; nur Verbraucher „nur mit Reserve“ werden pausiert, wenn die Quelle sie nicht trägt.",
         "data": {
           "landstrom_entity": "Landstrom vorhanden (Binärsensor)",
           "v2l_entity": "Fahrzeug-V2L aktiv (Binärsensor)",
@@ -73,15 +79,21 @@
           "limit_generator_w": "Grenze Solargenerator (AC-Dauerleistung)",
           "release_margin_w": "Sicherheitsabstand zur Grenze",
           "release_delay_off_s": "Verzögerung Pause",
-          "release_delay_on_s": "Verzögerung Wiederanlauf"
+          "release_delay_on_s": "Verzögerung Wiederanlauf",
+          "charge_switch_entity": "Laden Solargenerator (Schalter)",
+          "v2l_charge_start_soc": "Laden aus dem Fahrzeug unter",
+          "v2l_charge_stop_soc": "Laden aus dem Fahrzeug bis"
         },
         "data_description": {
           "landstrom_entity": "Ist nur eine Spannung vorhanden, zuerst einen Schwellenwert-Helfer anlegen.",
-          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten.",
+          "limit_v2l_w": "Dauerleistung der V2L-Schnittstelle laut Fahrzeugdaten (Renault Master E-Tech: 3.700 W).",
           "limit_generator_w": "Laut Datenblatt, z. B. 3.600 W beim FOSSiBOT F3600 Pro.",
           "release_margin_w": "Reserve, die frei bleibt, bevor ein Verbraucher „nur mit Reserve“ freigegeben wird.",
           "release_delay_off_s": "So lange darf ein Reserve-Verbraucher ohne Freigabe laufen, bevor er pausiert wird.",
-          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird."
+          "release_delay_on_s": "So lange muss die Freigabe stabil sein, bevor ein pausierter Verbraucher wieder eingeschaltet wird.",
+          "charge_switch_entity": "Reserve-Verbraucher, der den Solargenerator lädt. Aus dem Fahrzeug (V2L) lädt er nur bei niedrigem Ladestand.",
+          "v2l_charge_start_soc": "Unter diesem Ladestand lädt der Solargenerator aus der Fahrzeugbatterie (Landstrom lädt jederzeit).",
+          "v2l_charge_stop_soc": "Bei diesem Ladestand endet das Laden aus der Fahrzeugbatterie."
         }
       }
     },
@@ -126,11 +138,17 @@
       "leistung_komfortbus": {
         "name": "Leistung Komfortbus"
       },
-      "leistungsgrenze": {
-        "name": "Leistungsgrenze"
+      "grenze_primaerbus": {
+        "name": "Grenze Primärbus"
       },
-      "leistungsreserve": {
-        "name": "Leistungsreserve"
+      "reserve_primaerbus": {
+        "name": "Reserve Primärbus"
+      },
+      "grenze_komfortbus": {
+        "name": "Grenze Komfortbus"
+      },
+      "reserve_komfortbus": {
+        "name": "Reserve Komfortbus"
       }
     },
     "binary_sensor": {

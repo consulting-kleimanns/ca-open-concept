@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), solar generator before primary bus (comfort bus) – two independent circuits in normal operation. Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
@@ -14,15 +14,21 @@
           "limit_generator_w": "Solar generator limit (continuous AC)",
           "release_margin_w": "Safety margin to the limit",
           "release_delay_off_s": "Pause delay",
-          "release_delay_on_s": "Restart delay"
+          "release_delay_on_s": "Restart delay",
+          "charge_switch_entity": "Solar generator charging (switch)",
+          "v2l_charge_start_soc": "Charge from vehicle below",
+          "v2l_charge_stop_soc": "Charge from vehicle up to"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
-          "limit_v2l_w": "Continuous V2L output per vehicle data.",
+          "limit_v2l_w": "Continuous V2L output per vehicle data (Renault Master E-Tech: 3,700 W).",
           "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro.",
           "release_margin_w": "Headroom kept free before a load “only with headroom” is released.",
           "release_delay_off_s": "Time a headroom load may run without release before it is paused.",
-          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again."
+          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again.",
+          "charge_switch_entity": "Headroom load that charges the solar generator. From vehicle V2L it only charges when the state of charge is low.",
+          "v2l_charge_start_soc": "V2L charging of the solar generator starts below this state of charge (shore power charges any time).",
+          "v2l_charge_stop_soc": "V2L charging stops at this state of charge."
         }
       }
     },
@@ -62,7 +68,7 @@
       },
       "sources": {
         "title": "Sources and limits",
-        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), primary bus before solar generator (comfort bus). Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
+        "description": "Map the feeds of the Open Concept wiring plan: shore power before V2L (primary bus), solar generator before primary bus (comfort bus) – two independent circuits in normal operation. Fixed loads are never switched; only loads marked “only with headroom” are paused when the source cannot carry them.",
         "data": {
           "landstrom_entity": "Shore power present (binary sensor)",
           "v2l_entity": "Vehicle V2L active (binary sensor)",
@@ -73,15 +79,21 @@
           "limit_generator_w": "Solar generator limit (continuous AC)",
           "release_margin_w": "Safety margin to the limit",
           "release_delay_off_s": "Pause delay",
-          "release_delay_on_s": "Restart delay"
+          "release_delay_on_s": "Restart delay",
+          "charge_switch_entity": "Solar generator charging (switch)",
+          "v2l_charge_start_soc": "Charge from vehicle below",
+          "v2l_charge_stop_soc": "Charge from vehicle up to"
         },
         "data_description": {
           "landstrom_entity": "If you only have a voltage, create a threshold helper first.",
-          "limit_v2l_w": "Continuous V2L output per vehicle data.",
+          "limit_v2l_w": "Continuous V2L output per vehicle data (Renault Master E-Tech: 3,700 W).",
           "limit_generator_w": "Per datasheet, e.g. 3,600 W for the FOSSiBOT F3600 Pro.",
           "release_margin_w": "Headroom kept free before a load “only with headroom” is released.",
           "release_delay_off_s": "Time a headroom load may run without release before it is paused.",
-          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again."
+          "release_delay_on_s": "Time the release must be stable before a paused load is switched on again.",
+          "charge_switch_entity": "Headroom load that charges the solar generator. From vehicle V2L it only charges when the state of charge is low.",
+          "v2l_charge_start_soc": "V2L charging of the solar generator starts below this state of charge (shore power charges any time).",
+          "v2l_charge_stop_soc": "V2L charging stops at this state of charge."
         }
       }
     },
@@ -126,11 +138,17 @@
       "leistung_komfortbus": {
         "name": "Comfort bus power"
       },
-      "leistungsgrenze": {
-        "name": "Power limit"
+      "grenze_primaerbus": {
+        "name": "Primary bus limit"
       },
-      "leistungsreserve": {
-        "name": "Power headroom"
+      "reserve_primaerbus": {
+        "name": "Primary bus headroom"
+      },
+      "grenze_komfortbus": {
+        "name": "Comfort bus limit"
+      },
+      "reserve_komfortbus": {
+        "name": "Comfort bus headroom"
       }
     },
     "binary_sensor": {
