@@ -21,6 +21,7 @@ import logging
 import os
 import re
 import secrets
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -28,6 +29,8 @@ from urllib.parse import urlencode
 
 import aiohttp
 from aiohttp import WSMsgType, web
+
+import my_van_mcp
 
 log = logging.getLogger("my-van")
 STATIC = Path(__file__).with_name("static")
@@ -647,7 +650,9 @@ async def auth_callback(request: web.Request) -> web.Response:
         return page("denied.html", EMAIL=email)
     log.info("Anmeldung: %s -> %s", slugify(email), slugify(ident))
     email = ident
-    resp = web.HTTPFound("/")
+    nxt = request.cookies.get("myvan_next", "")
+    resp = web.HTTPFound(nxt if nxt.startswith("/mcp/authorize?") else "/")
+    resp.del_cookie("myvan_next")
     resp.set_cookie(
         "myvan",
         make_session(email),
@@ -801,7 +806,8 @@ async def admin_list(request: web.Request) -> web.Response:
     out = []
     for uid, u in users.items():
         mail = (u.get("email") or "").lower()
-        inst = Instance(mail) if mail else None
+        ident = uid.lower() if "@" in uid else mail
+        inst = Instance(ident) if ident else None
         meta = inst.meta() if inst and inst.meta_file.exists() else {}
         out.append(
             {
@@ -811,7 +817,7 @@ async def admin_list(request: web.Request) -> web.Response:
                 "enabled": u.get("enabled", True),
                 "lastLogin": u.get("lastLogin", 0),
                 "instance": bool(meta.get("provisioned")),
-                "running": mail in running,
+                "running": ident in running,
             }
         )
     out.sort(key=lambda x: x["name"].lower())
@@ -848,7 +854,7 @@ async def admin_create(request: web.Request) -> web.Response:
     else:
         await _ocs("POST", f"/cloud/users/{uid}/groups", data={"groupid": S.allowed_groups[0]})
         result = "der Gruppe zugeordnet"
-    _ACCESS.pop(email, None)
+    _ACCESS.clear()
     log.info("Admin %s: Interessent %s", slugify(_team(request)), result)
     return web.json_response({"ok": True, "result": result})
 
@@ -882,6 +888,7 @@ def main() -> None:
     app.router.add_get("/admin", admin_page)
     app.router.add_get("/admin/api/interessenten", admin_list)
     app.router.add_post("/admin/api/interessenten", admin_create)
+    my_van_mcp.setup(app, sys.modules[__name__])
     app.router.add_route("*", "/{tail:.*}", handler)
     web.run_app(app, host="0.0.0.0", port=8080, access_log=None)
 
