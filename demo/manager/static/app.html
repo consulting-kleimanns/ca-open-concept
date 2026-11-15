@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mein Master – CA Camping</title>
+<style>
+:root{--pg:#eef0f3;--pc:#fff;--pl:#dde1e7;--pt:#1d2430;--pt2:#5d6675}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--pg);color:var(--pt);font:14px/1.4 Roboto,system-ui,sans-serif}
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--pc);border-bottom:1px solid var(--pl);flex-wrap:wrap}
+.brand{font-weight:700}.brand small{display:block;font-weight:400;color:var(--pt2);font-size:12px}
+.sp{flex:1}.seg{display:flex;background:var(--pg);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;font:inherit;padding:6px 12px;border-radius:8px;color:var(--pt2);cursor:pointer}
+.seg button.on{background:var(--pc);color:var(--pt);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+a.out{color:var(--pt2);font-size:13px}
+.wrap{display:grid;grid-template-columns:var(--lw,460px) 1fr;height:calc(100% - 59px)}.wrap.disp{--lw:56%}
+@media (max-width:1000px){.wrap,.wrap.disp{grid-template-columns:1fr;height:auto}}
+.left{background:#d9dde3;display:flex;flex-direction:column;align-items:center;padding:16px;overflow:hidden}
+.lbl{font-size:12px;color:var(--pt2);margin-bottom:10px;text-align:center}.lbl b{color:var(--pt)}
+.fit{transform-origin:top left}
+.frame{position:relative;overflow:hidden;background:#000;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.frame.phone{width:392px;height:820px;border-radius:44px;border:11px solid #15171b}
+.frame.display{width:1180px;height:690px;border-radius:14px;border:16px solid #15171b}
+.frame.wall{width:420px;height:420px;border-radius:22px;border:26px solid #f2f2f0}
+.frame iframe{border:0;width:100%;height:100%;background:#fafafa}
+.right iframe{border:0;width:100%;height:100%}
+.hint{font-size:12px;color:var(--pt2);max-width:420px;text-align:center;margin-top:12px}
+</style></head><body>
+<header class="top">
+  <div class="brand">CA Camping · Mein Master <small>Angemeldet als <b>{{EMAIL}}</b> – alles, was du einrichtest, kommt bei der Auslieferung in deinen Master</small></div>
+  <div class="seg" id="dev"><button data-d="phone" class="on">Smartphone</button><button data-d="display">15″-Display</button><button data-d="wall">Wall Display</button></div>
+  <div class="sp"></div><a class="out" href="/auth/logout">Abmelden</a>
+</header>
+<div class="wrap" id="wrap">
+  <section class="left" id="left">
+    <div class="lbl" id="lbl"></div>
+    <div class="fit" id="fit"><div class="frame phone" id="frame"><iframe id="dash" title="Home Assistant"></iframe></div></div>
+    <div class="hint">Tipp: Eigene Dashboards, Szenen und Automationen kannst du mit Claude per MCP anlegen – sie tragen deine E-Mail im Namen.</div>
+  </section>
+  <section class="right"><iframe id="scene" title="Im Camper" src="/_my-van/scene.html?live"></iframe></section>
+</div>
+<script>
+const DASH = '{{DASH}}', SLUG = DASH.replace(/-camper$/, '');
+const DEV = {
+  phone: {src: '/' + DASH + '/start', lbl: '<b>Smartphone</b> – Dashboard „Camper“'},
+  display: {src: '/' + SLUG + '-camper-display/display', lbl: '<b>15″-Touchdisplay</b> an der Seitenwand des Kleiderschranks'},
+  wall: {src: '/' + SLUG + '-camper-wall/licht', lbl: '<b>Shelly Wall Display</b> in der Akustikwand am Einstieg'}
+};
+function setDev(d){
+  document.querySelectorAll('#dev button').forEach(b => b.classList.toggle('on', b.dataset.d === d));
+  document.getElementById('frame').className = 'frame ' + d; document.getElementById('wrap').classList.toggle('disp', d === 'display');
+  document.getElementById('lbl').innerHTML = DEV[d].lbl; const f = document.getElementById('dash'); if (f.dataset.d !== d) { f.src = DEV[d].src; f.dataset.d = d; } fit();
+}
+function fit(){ const l = document.getElementById('left'), fr = document.getElementById('frame'), w = document.getElementById('fit');
+  const s = Math.min(1, (l.clientWidth - 32) / fr.offsetWidth, (l.clientHeight - 110) / fr.offsetHeight);
+  w.style.transform = `scale(${s})`; w.style.width = fr.offsetWidth * s + 'px'; w.style.height = fr.offsetHeight * s + 'px'; }
+document.getElementById('dev').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (b) setDev(b.dataset.d); });
+window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.myvan === 'device') setDev(e.data.device); });
+window.addEventListener('resize', fit);
+(async function wait(){ try { const r = await (await fetch('/_my-van/status', {cache: 'no-store'})).json(); if (r.state === 'ready') { setDev('phone'); return; } } catch (e) {} setTimeout(wait, 3000); })();
+</script></body></html>

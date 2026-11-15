@@ -934,10 +934,111 @@ function fitFrame(){
   fit.style.transformOrigin = 'top left';
 }
 window.addEventListener('resize', fitFrame);
-setInterval(() => { const r = tick(1); if (drag || ortEdit) { updateScene(r); renderRight(r); return; } render(r); }, 1000);
+
+/* ================= Live-Modus (?live): Szene folgt der echten Home-Assistant-Instanz ================= */
+const LIVE = new URLSearchParams(location.search).has('live');
+const H$ = {};   // aktuelle HA-Zustände
+const SCEN_FROM_HA = {'Campingplatz (16 A)':'cp16','Campingplatz (10 A)':'cp10','Frei stehend – Strom aus dem Fahrzeug':'v2l','Zu Hause an der Wallbox':'home'};
+const SCEN_TO_HA = Object.fromEntries(Object.entries(SCEN_FROM_HA).map(([k, v]) => [v, k]));
+const FOCUS_BY_ENTITY = {
+  'light.heck_links':['innen','hl','licht'], 'light.heck_rechts':['innen','hr','licht'], 'light.dusche':['bad','all','licht'],
+  'light.kueche':['innen','klicht','kuechenlicht'], 'switch.kuechenlicht_automatik':['innen','klicht','kuechenlicht'],
+  'climate.heizung':['innen','heizung','heiz'], 'climate.wandthermostat':['innen','ir','wt'], 'select.boiler':['bad','all','boiler'],
+  'switch.ac_03_generator_1':['energie','all','gen'], 'switch.ac_03_generator_2':['energie','all','gen'],
+  'switch.ac_04_reserve_1':['energie','all','res'], 'switch.ac_04_reserve_2':['energie','all','res'], 'switch.reserve_3':['energie','all','res'], 'switch.reserve_4':['energie','all','res'],
+  'switch.ac_07_steckdose_heck':['innen','bett','doseHeck'], 'switch.ac_08_steckdose_trennwand':['innen','trenn','doseTrenn'],
+  'binary_sensor.kochfeld_an':['innen','kueche','kochen'], 'binary_sensor.dusche_an':['bad','all','duschen'],
+  'binary_sensor.klima_fahrerhaus':['fahrzeug','all','vorklima'], 'number.soll_ladestand':['fahrzeug','all','fahrzeug'], 'number.mindest_ladestand':['fahrzeug','all','fahrzeug'],
+  'sensor.ladezustand':['fahrzeug','all','fahrzeug'], 'select.sim_strom_vor_ort':['energie','all','energie'], 'text.standort':['innen','all','umgebung'],
+  'binary_sensor.bewegung_kueche':['innen','klicht','kuechenlicht']
+};
+const num = (e, d = 0) => { const v = parseFloat(H$[e]?.state); return isNaN(v) ? d : v; };
+const on = e => H$[e]?.state === 'on';
+const pct = e => on(e) ? Math.round((H$[e].attributes.brightness || 0) / 255 * 100) : 0;
+function fromHA(){
+  S.light = {hl: pct('light.heck_links'), hr: pct('light.heck_rechts'), bad: pct('light.dusche')};
+  S.kAuto = on('switch.kuechenlicht_automatik'); S.kMotion = on('light.kueche') ? 5 : 0;
+  const hz = H$['climate.heizung'], wt = H$['climate.wandthermostat'];
+  if (hz) S.heiz = {mode: hz.state === 'heat' ? 'heat' : 'off', preset: hz.attributes.preset_mode === 'high' ? 'high' : 'eco', ziel: hz.attributes.temperature ?? 21};
+  if (wt) S.wt = {mode: wt.state === 'heat' ? 'heat' : 'off', ziel: wt.attributes.temperature ?? 22};
+  S.boiler = H$['select.boiler']?.state || S.boiler; S.wasser = num('sensor.wasser_temperatur', S.wasser);
+  S.innen = num('sensor.innen_temperatur', S.innen); S.feuchte = num('sensor.innen_feuchte', S.feuchte);
+  S.sw = {gen1: on('switch.ac_03_generator_1'), gen2: on('switch.ac_03_generator_2'), res1: on('switch.ac_04_reserve_1'), res2: on('switch.ac_04_reserve_2'),
+          doseHeck: on('switch.ac_07_steckdose_heck'), doseTrenn: on('switch.ac_08_steckdose_trennwand'), res3: on('switch.reserve_3'), res4: on('switch.reserve_4')};
+  S.eco1 = num('sensor.hausbatterie_1_ladestand', S.eco1); S.eco2 = num('sensor.hausbatterie_2_ladestand', S.eco2);
+  S.car = num('sensor.fahrbatterie', S.car); S.soll = num('number.soll_ladestand', S.soll); S.min = num('number.mindest_ladestand', S.min);
+  S.carCharging = H$['sensor.ladezustand']?.state === 'charge_in_progress'; S.carClima = on('binary_sensor.klima_fahrerhaus') ? 15 : 0;
+  S.kochen = on('binary_sensor.kochfeld_an') ? 5 : 0; S.duschen = on('binary_sensor.dusche_an') ? 5 : 0;
+  S.scen = SCEN_FROM_HA[H$['select.sim_strom_vor_ort']?.state] || S.scen; S.ort = H$['text.standort']?.state ?? S.ort;
+  if (S.ort === 'unknown') S.ort = '';
+}
+function computeLive(){
+  const r = compute();
+  r.prim = num('sensor.aussenstrom_leistung', r.prim); r.comfort = num('sensor.bordstrom_leistung', r.comfort);
+  r.charge = {gen1: num('sensor.ac_03_generator_1_leistung'), gen2: num('sensor.ac_03_generator_2_leistung')};
+  r.boilerRun = num('sensor.ac_02_boiler_heizstab_leistung') > 0; r.kochW = num('sensor.ac_01_induktion_leistung', r.kochW);
+  r.ecoOk = (S.eco1 + S.eco2) / 2 > C.reserve; r.overload = r.prim > r.P.lim + 1; r.head = r.P.lim - r.prim;
+  return r;
+}
+function renderLive(){ fromHA(); const r = computeLive(); updateScene(r); explain(r); renderRight(r); document.getElementById('ort').value = S.ort; document.getElementById('scen').value = S.scen; }
+let ws = null, wsId = 1;
+async function haToken(){
+  let t; try { t = JSON.parse(localStorage.getItem('hassTokens') || 'null'); } catch (e) { t = null; }
+  if (!t) return null;
+  if (Date.now() > (t.expires || 0) - 30000 && t.refresh_token) {
+    const res = await fetch('/auth/token', {method: 'POST', body: new URLSearchParams({grant_type: 'refresh_token', refresh_token: t.refresh_token, client_id: t.clientId || location.origin + '/'})});
+    if (!res.ok) return null;
+    const n = await res.json(); t = {...t, ...n, expires: Date.now() + n.expires_in * 1000};
+    try { localStorage.setItem('hassTokens', JSON.stringify(t)); } catch (e) {}
+  }
+  return t.access_token;
+}
+function call(domain, service, data){ if (ws && ws.readyState === 1) ws.send(JSON.stringify({id: wsId++, type: 'call_service', domain, service, service_data: data})); }
+async function connectLive(){
+  const token = await haToken();
+  if (!token) { setTimeout(connectLive, 2000); return; }
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/api/websocket');
+  ws.onmessage = ev => {
+    const m = JSON.parse(ev.data);
+    if (m.type === 'auth_required') ws.send(JSON.stringify({type: 'auth', access_token: token}));
+    else if (m.type === 'auth_ok') { ws.send(JSON.stringify({id: wsId++, type: 'get_states'})); ws.send(JSON.stringify({id: wsId++, type: 'subscribe_events', event_type: 'state_changed'})); }
+    else if (m.type === 'auth_invalid') { ws.close(); }
+    else if (m.type === 'result' && Array.isArray(m.result)) { m.result.forEach(st => H$[st.entity_id] = st); renderLive(); }
+    else if (m.type === 'event') {
+      const d = m.event.data; if (!d.new_state) return;
+      const old = H$[d.entity_id]; H$[d.entity_id] = d.new_state;
+      const f = FOCUS_BY_ENTITY[d.entity_id];
+      if (f && (!old || old.state !== d.new_state.state || JSON.stringify(old.attributes) !== JSON.stringify(d.new_state.attributes))) {
+        if (old && old.state !== d.new_state.state && !d.entity_id.startsWith('sensor.')) log((d.new_state.attributes.friendly_name || d.entity_id) + ': ' + d.new_state.state);
+        S.autoView = true; go(f[0], f[1], f[2]);
+      }
+      renderLive();
+    }
+  };
+  ws.onclose = () => setTimeout(connectLive, 3000);
+}
+if (LIVE) {
+  document.getElementById('left').style.display = 'none';
+  document.getElementById('wrap').style.gridTemplateColumns = '1fr';
+  document.getElementById('dev').style.display = 'none';
+  S.log = []; renderLog();
+  const stop = e => { e.stopImmediatePropagation(); e.preventDefault(); };
+  document.addEventListener('click', e => {
+    const b = e.target.closest('#doit [data-do]'); if (!b) return; stop(e);
+    call('button', 'press', {entity_id: {einsteigen:'button.sim_einsteigen', kochen:'button.sim_kochen', duschen:'button.sim_duschen', kueche:'button.sim_kueche_betreten'}[b.dataset.do]});
+    if (b.dataset.do === 'einsteigen') { try { parent.postMessage({myvan: 'device', device: 'wall'}, location.origin); } catch (err) {} }
+  }, true);
+  document.addEventListener('change', e => {
+    if (e.target.id === 'scen') { stop(e); call('select', 'select_option', {entity_id: 'select.sim_strom_vor_ort', option: SCEN_TO_HA[e.target.value === 'low' ? 'v2l' : e.target.value]}); }
+    if (e.target.id === 'ort') { stop(e); call('text', 'set_value', {entity_id: 'text.standort', value: e.target.value}); }
+  }, true);
+  renderLive();
+  connectLive();
+}
+if (!LIVE) setInterval(() => { const r = tick(1); if (drag || ortEdit) { updateScene(r); renderRight(r); return; } render(r); }, 1000);
 document.getElementById('devlabel').innerHTML = DEVINFO.phone;
 log('Willkommen in deinem Camper – es ist 20 Uhr, draußen 6 °C.');
-render();
+if (!LIVE) render();
 </script>
 </body>
 </html>

@@ -73,6 +73,9 @@ class Params:
 
 
 CIRCUITS = (
+    "ac_01_induktion",
+    "ac_05_dusche",
+    "ac_06_kuehlschrank",
     "ac_03_generator_1",
     "ac_03_generator_2",
     "ac_04_reserve_1",
@@ -103,7 +106,7 @@ class State:
     ort: str = ""
     circuits: dict[str, bool] = field(
         default_factory=lambda: {
-            c: c.startswith("ac_03") or c == "ac_02_boiler_heizstab" for c in CIRCUITS
+            c: c.startswith(("ac_01", "ac_02", "ac_03", "ac_05", "ac_06")) for c in CIRCUITS
         }
     )
     lights: dict[str, int] = field(default_factory=lambda: dict.fromkeys(LIGHTS, 0))  # 0–255
@@ -227,10 +230,15 @@ class CamperModel:
         infrarot_w = (
             p.infrarot_w if s.wandthermostat.on and s.innen < s.wandthermostat.target else 0.0
         )
-        dusche_w = p.dusche_w if s.duschen_min > 0 else 0.0
-        induktion_w = p.induktion_w if s.kochen_min > 0 else 0.0
+        # Feste Verbraucher laufen nur, wenn ihr 230-V-Kreis eingeschaltet ist
+        dusche_w = p.dusche_w if s.duschen_min > 0 and s.circuits["ac_05_dusche"] else 0.0
+        induktion_w = p.induktion_w if s.kochen_min > 0 and s.circuits["ac_01_induktion"] else 0.0
+        kuehl_w = p.kuehlschrank_w if s.circuits["ac_06_kuehlschrank"] else 0.0
 
         power = dict.fromkeys(CIRCUITS, 0.0)
+        power["ac_01_induktion"] = induktion_w
+        power["ac_05_dusche"] = dusche_w
+        power["ac_06_kuehlschrank"] = kuehl_w
         if s.circuits["ac_07_steckdose_heck"]:
             power["ac_07_steckdose_heck"] = p.laptop_w
         boiler_heizt = (
@@ -248,7 +256,7 @@ class CamperModel:
                 power[c] = p.eco_charge_w
 
         komfort_w = (
-            p.kuehlschrank_w
+            kuehl_w
             + p.basis_w
             + licht_w
             + heizung_w
