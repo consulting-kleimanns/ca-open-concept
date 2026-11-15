@@ -34,7 +34,7 @@ class Heizung(SimEntity, ClimateEntity):
     """Heizkreis mit Zieltemperatur."""
 
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT]
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_min_temp = 5
     _attr_max_temp = 30
     _attr_target_temperature_step = 0.5
@@ -67,11 +67,11 @@ class Heizung(SimEntity, ClimateEntity):
         return HVACAction.HEATING if self.m.s.innen < self._c.target else HVACAction.IDLE
 
     @property
-    def current_temperature(self) -> float:
+    def native_current_temperature(self) -> float:
         return round(self.m.s.innen, 1)
 
     @property
-    def target_temperature(self) -> float:
+    def native_target_temperature(self) -> float:
         return self._c.target
 
     @property
