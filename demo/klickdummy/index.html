@@ -925,7 +925,11 @@ function umgLaden(ort){
       if (!g.length) { UMGD = {ort, status: 'nicht_gefunden', kat: {}}; render(); return; }
       const lat = +g[0].lat, lon = +g[0].lon;
       const ql = '[out:json][timeout:25];' + Object.values(UMG_SEL).map(([rad, sel]) => '(' + sel.map(x => `${x}(around:${rad},${lat.toFixed(5)},${lon.toFixed(5)});`).join('') + ');out tags center 80;').join('');
-      const d = await (await fetch('https://overpass-api.de/api/interpreter', {method: 'POST', body: 'data=' + encodeURIComponent(ql), headers: {'Content-Type': 'application/x-www-form-urlencoded'}})).json();
+      let d = null;
+      for (const url of ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter']) {
+        try { const r = await fetch(url, {method: 'POST', body: 'data=' + encodeURIComponent(ql), headers: {'Content-Type': 'application/x-www-form-urlencoded'}}); if (r.ok) { d = await r.json(); break; } } catch (e) {}
+      }
+      if (!d) throw new Error('overpass');
       if (seq !== umgSeq) return;
       const kat = {}, seen = {};
       for (const el of d.elements || []) {

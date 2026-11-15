@@ -12,7 +12,12 @@ from dataclasses import dataclass
 from typing import Any
 
 NOMINATIM = "https://nominatim.openstreetmap.org/search"
-OVERPASS = "https://overpass-api.de/api/interpreter"
+# öffentliche Overpass-Server; bei Überlast (429/5xx) oder Zeitüberschreitung der nächste
+OVERPASS = (
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+)
 USER_AGENT = "ca-camping-my-van/0.1 (+https://my-van.ca-camping.de)"
 JE_KATEGORIE = 8
 
@@ -197,11 +202,20 @@ async def async_suche(session, ort: str) -> dict[str, Any]:  # noqa: ANN001 – 
         return {"ort": ort, "gefunden": False}
     t = treffer[0]
     lat, lon = float(t["lat"]), float(t["lon"])
-    async with session.post(
-        OVERPASS, data={"data": overpass_query(lat, lon)}, headers=hdr, timeout=aiohttp.ClientTimeout(total=45)
-    ) as r:
-        r.raise_for_status()
-        data = await r.json(content_type=None)
+    data, fehler = None, None
+    for url in OVERPASS:
+        try:
+            async with session.post(
+                url, data={"data": overpass_query(lat, lon)}, headers=hdr,
+                timeout=aiohttp.ClientTimeout(total=45),
+            ) as r:
+                r.raise_for_status()
+                data = await r.json(content_type=None)
+                break
+        except (aiohttp.ClientError, TimeoutError, ValueError) as err:
+            fehler = err
+    if data is None:
+        raise fehler or RuntimeError("Overpass nicht erreichbar")
     return {
         "ort": ort,
         "gefunden": True,
