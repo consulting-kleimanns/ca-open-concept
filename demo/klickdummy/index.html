@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Yoda – Demo Home Assistant (Klickdummy)</title>
+<style>
+:root{--pg:#eef0f3;--pc:#fff;--pl:#dde1e7;--pt:#1d2430;--pt2:#5d6675;--pt3:#8a93a3;--blue:#2f80ed;--amber:#f2994a;--green:#27ae60;--red:#eb5757;--violet:#9b51e0}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--pg);color:var(--pt);font:14px/1.4 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+svg.i{width:20px;height:20px;fill:currentColor;flex:none}
+/* Kopf */
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--pc);border-bottom:1px solid var(--pl);flex-wrap:wrap}
+.brand{font-weight:700}.brand small{display:block;font-weight:400;color:var(--pt2);font-size:12px}
+.sp{flex:1}
+.seg2{display:flex;background:var(--pg);border-radius:10px;padding:3px;gap:2px}
+.seg2 button{padding:6px 10px;border-radius:8px;font-size:12px;color:var(--pt2);display:flex;align-items:center;gap:6px}
+.seg2 button.on{background:var(--pc);color:var(--pt);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg2 svg.i{width:16px;height:16px}
+.pill{font-size:12px;color:var(--pt2);display:flex;align-items:center;gap:6px}
+.pill b{color:var(--pt)}
+select{background:var(--pg);border:1px solid var(--pl);border-radius:8px;padding:6px 8px;font:inherit;color:var(--pt)}
+/* Raster */
+.wrap{display:grid;grid-template-columns:var(--lw,460px) 1fr;height:calc(100% - 59px)}
+.wrap.disp{--lw:56%}
+@media (max-width:1000px){.wrap,.wrap.disp{grid-template-columns:1fr;height:auto}}
+.left{background:#d9dde3;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px;overflow:hidden;min-height:0}
+.devlabel{font-size:12px;color:var(--pt2);margin-bottom:10px;text-align:center}
+.devlabel b{color:var(--pt)}
+.fit{transform-origin:top center}
+/* Geräte-Rahmen */
+.frame{position:relative;overflow:hidden;background:#000;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.frame.phone{width:392px;height:820px;border-radius:44px;border:11px solid #15171b}
+.frame.display{width:1180px;height:690px;border-radius:14px;border:16px solid #15171b}
+.frame.wall{width:420px;height:420px;border-radius:22px;border:26px solid #f2f2f0;box-shadow:0 12px 40px rgba(0,0,0,.25),inset 0 0 0 1px #ccc}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);color:var(--tx)}
+/* HA-Themes */
+.t-light{--bg:#fafafa;--hd:#fff;--hdt:#212121;--bb:#ececec;--ic:#fff;--icon:#444;--on:#ffcf8a;--onic:#fff;--onicon:#e8890c;--tx:#212121;--tx2:#727272;--sl:#ffcf8a;--card:#fff;--line:#e0e0e0}
+.t-ca{--bg:#1c2430;--hd:#fff;--hdt:#212121;--bb:#2a3442;--ic:#1f2733;--icon:#e9edf2;--on:#8a6634;--onic:#f0a64a;--onicon:#1c2430;--tx:#f1f4f8;--tx2:#9aa6b6;--sl:#8a6634;--card:#252e3b;--line:#354052}
+.hd{background:var(--hd);color:var(--hdt);display:flex;align-items:center;height:56px;padding:0 6px;flex:none;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.hd .tab{height:56px;width:48px;display:grid;place-items:center;color:#5f6368;position:relative}
+.hd .tab.on{color:#212121}.hd .tab.on::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:2px;background:#212121}
+.hd .sp{flex:1}
+.wall .hd{height:44px}.wall .hd .tab{height:44px;width:44px}
+.view{flex:1;overflow:auto;padding:16px 14px 90px;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.display .view{padding:22px 28px 30px}
+.wall .view{padding:10px 12px 14px}
+.logo{font-weight:800;letter-spacing:.5px;color:var(--tx2);font-size:13px;margin:0 2px 10px;display:flex;align-items:center;gap:6px}
+.logo i{font-style:normal;color:#e25b3a}
+.secs{display:grid;gap:18px 22px;grid-template-columns:repeat(var(--cols,1),minmax(0,1fr));align-items:start}
+.sec{display:grid;grid-template-columns:repeat(12,1fr);gap:8px}
+.c12{grid-column:span 12}.c8{grid-column:span 8}.c6{grid-column:span 6}.c4{grid-column:span 4}
+/* Überschrift */
+.hdg{display:flex;align-items:center;gap:8px;min-height:36px;padding:4px 2px 0;font-size:16px;font-weight:500;flex-wrap:nowrap;overflow:hidden}
+.hdg .i{width:18px;height:18px}
+.hdg .bd{display:flex;gap:10px;margin-left:auto;font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden}
+.hdg .bd span{display:flex;align-items:center;gap:3px}.hdg .bd svg.i{width:14px;height:14px}
+.hdg.sub{font-size:14px;color:var(--tx2);min-height:28px}
+.tag{font-size:10px;padding:2px 6px;border-radius:6px;background:var(--bb);color:var(--tx2);font-weight:500}
+/* Bubble Card */
+.bb{position:relative;height:56px;border-radius:32px;background:var(--bb);display:flex;align-items:center;gap:8px;padding:0 8px 0 7px;overflow:hidden;user-select:none;cursor:pointer;transition:background .25s}
+.normal .bb{height:50px}
+.bb .ic{width:42px;height:42px;border-radius:50%;background:var(--ic);display:grid;place-items:center;color:var(--icon);flex:none;position:relative;z-index:1;transition:background .25s,color .25s}
+.normal .bb .ic{width:38px;height:38px}
+.bb.on{background:var(--on)}.bb.on .ic{background:var(--onic);color:var(--onicon)}
+.bb .tx{min-width:64px;flex:1;position:relative;z-index:1}
+.bb .nm{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb .st{font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb.on .st{color:inherit;opacity:.8}
+.bb .sub{font-size:12px;font-weight:500;white-space:nowrap;position:relative;z-index:1;display:flex;align-items:center;gap:4px;padding-right:6px}
+.bb .fill{position:absolute;left:0;top:0;bottom:0;background:var(--sl);border-radius:32px 0 0 32px;transition:width .1s}
+.bb .rnd{width:38px;height:38px;border-radius:50%;background:var(--ic);display:grid;place-items:center;flex:none;position:relative;z-index:1}
+.bb .rnd.act{background:var(--onic);color:var(--onicon)}
+.bb .pm{display:flex;align-items:center;gap:6px;height:38px;border-radius:20px;background:var(--ic);padding:0 8px;font-size:13px;position:relative;z-index:1}
+.bb .pm span{white-space:nowrap}.bb .pm button{width:24px;height:24px;display:grid;place-items:center}
+.bb .chip{height:30px;border-radius:16px;padding:0 10px;background:var(--ic);font-size:12px;display:flex;align-items:center;position:relative;z-index:1;white-space:nowrap}
+.opts{display:flex;gap:6px;flex-wrap:wrap;padding:6px 6px 2px}
+.opts button{height:32px;padding:0 12px;border-radius:16px;background:var(--bb);font-size:12px}
+.opts button.on{background:var(--on)}
+/* Tile / Karten */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--line);padding:12px}
+.card .ct{font-size:13px;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.media .mt{font-weight:700;font-size:15px}.media .ms{font-size:12px;color:var(--tx2)}
+.media .ctl{display:flex;justify-content:center;gap:18px;margin:10px 0 6px}
+.media .ctl button{width:40px;height:40px;border-radius:50%;background:var(--bb);display:grid;place-items:center}
+.media .ctl button.big{background:var(--onic);color:var(--onicon)}
+input[type=range]{width:100%;accent-color:var(--onic)}
+.chart svg{width:100%;height:110px;display:block}
+.mapc{height:160px;border-radius:14px;background:linear-gradient(135deg,#cfe3c8,#b9d6e8);position:relative;overflow:hidden}
+.md{font-size:13px;line-height:1.5}.md b{font-weight:700}.md ul{margin:4px 0 0;padding-left:18px}
+/* Navigationsleiste unten */
+.nav{position:absolute;left:0;right:0;bottom:12px;display:flex;gap:8px;overflow-x:auto;padding:0 12px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{flex:none;height:48px;border-radius:24px;background:var(--bb);display:flex;align-items:center;gap:8px;padding:0 16px 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.18);font-size:14px}
+.nav button.on{background:var(--hd);outline:2px solid #212121}
+/* rechte Seite */
+.right{overflow:auto;padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px}
+.vhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vhead .ttl{font-size:18px;font-weight:700}
+.vhead .auto{font-size:11px;color:var(--blue)}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.chips button{background:var(--pc);border:1px solid var(--pl);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--pt2)}
+.chips button.on{color:var(--pt);border-color:var(--blue)}
+.stage{flex:none;border-radius:16px;overflow:hidden;background:#0b0e14;position:relative;border:1px solid var(--pl)}
+.stage svg{display:block;width:100%;height:auto;max-height:60vh}
+.ph{position:absolute;left:10px;bottom:8px;font-size:10px;color:rgba(255,255,255,.55);background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px}
+.doit{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.doit .lbl{font-size:12px;color:var(--pt2);margin-right:4px}
+.doit button{background:var(--pc);border:1px solid var(--pl);border-radius:10px;padding:7px 12px;font-size:13px}
+.doit button.on{background:#fff3e3;border-color:var(--amber)}
+.explain{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
+@media (max-width:1300px){.explain{grid-template-columns:1fr}}
+.box{background:var(--pc);border:1px solid var(--pl);border-radius:14px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:12px;color:var(--pt2);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.box p{margin:0;font-size:14px}
+.box .tech{margin-top:8px;font-size:12px;color:var(--pt3)}
+.log{margin:0;padding:0;list-style:none;font-size:12px;color:var(--pt2);max-height:120px;overflow:auto}
+.log li{padding:3px 0;border-bottom:1px dashed var(--pl)}
+.log time{color:var(--pt3);margin-right:6px;font-variant-numeric:tabular-nums}
+.bus{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media (max-width:1400px){.bus{grid-template-columns:repeat(3,1fr)}}
+.meter{background:var(--pc);border:1px solid var(--pl);border-radius:14px;padding:10px 12px}
+.meter .k{font-size:11px;color:var(--pt2)}
+.meter .v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.meter .s{font-size:11px;color:var(--pt3)}
+.bar{height:6px;border-radius:4px;background:var(--pg);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;transition:width .4s,background .4s}
+/* SVG-Animationen */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes wave{0%{transform:translateY(0);opacity:0}30%{opacity:.85}100%{transform:translateY(-60px);opacity:0}}
+@keyframes dash{to{stroke-dashoffset:-40}}
+@keyframes pulse{0%{r:14;opacity:.9}100%{r:46;opacity:0}}
+@keyframes drop{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(200px);opacity:0}}
+@keyframes blink{50%{opacity:.15}}
+.air path{opacity:0}.air.run path{animation:wave 2.2s ease-out infinite}
+.flow{fill:none;stroke-linecap:round;stroke-dasharray:6 14;transition:stroke-width .4s,opacity .4s}
+.flow.run{animation:dash 1s linear infinite}
+.spin{transform-box:fill-box;transform-origin:center}.spin.run{animation:spin .8s linear infinite}
+.pulse{animation:pulse 1.6s ease-out infinite}
+.drops line{opacity:0}.drops.run line{animation:drop 1.1s linear infinite}
+.blink{animation:blink 1s steps(2) infinite}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">CA Camping · Mein Master <small>Demo-Umgebung von <b>Familie Muster</b> · Auslieferung voraussichtlich Q2/2027</small></div>
+  <div class="seg2" id="dev">
+    <button data-d="phone" class="on">%%cellphone%% Smartphone</button>
+    <button data-d="display">%%monitor%% 15″-Display</button>
+    <button data-d="wall">%%tablet%% Wall Display</button>
+  </div>
+  <div class="seg2" id="farbe" title="Möbelfarbe">
+    <button data-f="grau" class="on"><span style="width:12px;height:12px;border-radius:3px;background:#9b9ea3;display:inline-block"></span> Grau</button>
+    <button data-f="sand"><span style="width:12px;height:12px;border-radius:3px;background:#c9b99b;display:inline-block"></span> Sand</button>
+  </div>
+  <div class="sp"></div>
+  <span class="pill">Wo steht der Camper?
+    <input id="ort" type="text" placeholder="Ort oder PLZ" value="Musterstadt am See" style="width:150px;background:var(--pg);border:1px solid var(--pl);border-radius:8px;padding:6px 8px;font:inherit;color:var(--pt)">
+    <select id="scen" title="Strom vor Ort">
+      <option value="cp16">Campingplatz (16 A)</option>
+      <option value="cp10">Campingplatz (10 A)</option>
+      <option value="v2l" selected>Frei stehend – Strom aus dem Fahrzeug</option>
+      <option value="low">Frei stehend – Hausbatterien fast leer</option>
+      <option value="home">Zu Hause an der Wallbox</option>
+    </select></span>
+  <span class="pill">Uhrzeit <b id="clock">20:00</b> · Zeitraffer 1 s = 1 min</span>
+</header>
+
+<div class="wrap" id="wrap">
+  <section class="left" id="left">
+    <div class="devlabel" id="devlabel"></div>
+    <div class="fit" id="fit"><div class="frame phone" id="frame"><div class="screen t-light" id="screen"></div></div></div>
+  </section>
+
+  <section class="right">
+    <div class="vhead">
+      <span class="ttl" id="vttl">Wohnraum</span><span class="auto" id="vauto"></span>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="stage"><div id="scene"></div><span class="ph" id="ph">Illustration – wird durch Fotos von Master Yoda ersetzt</span></div>
+    <div class="doit" id="doit"></div>
+    <div class="explain">
+      <div class="box"><h4>Was gerade passiert</h4><p id="what"></p><div class="tech" id="tech"></div></div>
+      <div class="box"><h4>Verlauf</h4><ul class="log" id="log"></ul></div>
+    </div>
+    <div class="bus" id="bus"></div>
+  </section>
+</div>
+
+<script>
+const ICONS = {"van-utility":"M3 7c-1.11 0-2 .89-2 2v8h2a3 3 0 0 0 3 3 3 3 0 0 0 3-3h6a3 3 0 0 0 3 3 3 3 0 0 0 3-3h2v-4c0-1.11-.89-2-2-2l-3-4zm12 1.5h2.5l1.96 2.5H15zm-9 7A1.5 1.5 0 0 1 7.5 17 1.5 1.5 0 0 1 6 18.5 1.5 1.5 0 0 1 4.5 17 1.5 1.5 0 0 1 6 15.5m12 0a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5 1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5","flash":"M7 2v11h3v9l7-12h-4l4-8z","thermometer":"M15 13V5a3 3 0 0 0-6 0v8a5 5 0 1 0 6 0m-3-9a1 1 0 0 1 1 1v3h-2V5a1 1 0 0 1 1-1","cog":"M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z","car-electric":"M18.92 2c-.2-.58-.76-1-1.42-1h-11c-.66 0-1.21.42-1.42 1L3 8v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V8zM6.5 12c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12m11 0c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5M5 7l1.5-4.5h11L19 7zm2 13h4v-2l6 3h-4v2z","compass-outline":"m7 17 3.2-6.8L17 7l-3.2 6.8zm5-5.9a.9.9 0 0 0-.9.9.9.9 0 0 0 .9.9.9.9 0 0 0 .9-.9.9.9 0 0 0-.9-.9M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8","remote-tv":"M9 2c-1.11 0-2 .89-2 2v16c0 1.11.89 2 2 2h6c1.11 0 2-.89 2-2V4c0-1.11-.89-2-2-2h-2v2h-2V2zm2 4h2v2h2v2h-2v2h-2v-2H9V8h2zm-2 8h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z","music":"M21 3v12.5a3.5 3.5 0 0 1-3.5 3.5 3.5 3.5 0 0 1-3.5-3.5 3.5 3.5 0 0 1 3.5-3.5c.54 0 1.05.12 1.5.34V6.47L9 8.6v8.9A3.5 3.5 0 0 1 5.5 21 3.5 3.5 0 0 1 2 17.5 3.5 3.5 0 0 1 5.5 14c.54 0 1.05.12 1.5.34V6z","television-play":"M21 3H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h5v2h8v-2h5a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 14H3V5h18m-5 6-7 4V7","fire":"M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.03-2.07-1.66C13.33 7.26 13 4.85 13.95 3c-.95.23-1.78.75-2.49 1.32-2.59 2.08-3.61 5.75-2.39 8.9.04.1.08.2.08.33 0 .22-.15.42-.35.5-.23.1-.47.04-.66-.12a.6.6 0 0 1-.14-.17c-1.13-1.43-1.31-3.48-.55-5.12C5.78 10 4.87 12.3 5 14.47c.06.5.12 1 .29 1.5.14.6.41 1.2.71 1.73 1.08 1.73 2.95 2.97 4.96 3.22 2.14.27 4.43-.12 6.07-1.6 1.83-1.66 2.47-4.32 1.53-6.6l-.13-.26c-.21-.46-.77-1.26-.77-1.26m-3.16 6.3c-.28.24-.74.5-1.1.6-1.12.4-2.24-.16-2.9-.82 1.19-.28 1.9-1.16 2.11-2.05.17-.8-.15-1.46-.28-2.23-.12-.74-.1-1.37.17-2.06.19.38.39.76.63 1.06.77 1 1.98 1.44 2.24 2.8.04.14.06.28.06.43.03.82-.33 1.72-.93 2.27","radiator":"M7.95 3 6.53 5.19 7.95 7.4h-.01l-1.99 3.1-1.73-.9 1.42-2.21-1.42-2.2 2-3.1zm6-.11L12.53 5.1l1.42 2.2-.01.01-1.99 3.09-1.73-.9 1.42-2.2-1.42-2.2 2-3.1zm6.05 0L18.56 5.1 20 7.3v.01l-2 3.09-1.75-.9 1.42-2.2-1.42-2.2 2-3.1zM2 22v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8h-2v-2H4v2zm4-8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1m4 0a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1","water-boiler":"M8 2c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h1v2H6v2h3c1.11 0 2-.89 2-2v-2h2v2c0 1.11.89 2 2 2h3v-2h-3v-2h1c1.11 0 2-.89 2-2V4c0-1.11-.89-2-2-2zm4 2.97a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m-2 9.53h4V16h-4z","generator-portable":"M7 2c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12h2v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h10v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h2V8a2 2 0 0 0-2-2h-1V4a2 2 0 0 0-2-2zm7 8V8h6v2zm0 4v-2h6v2zM7 4h10v2H7zm0 4v4h2l-3 6v-4H4z","power-socket-de":"M4.22 2A2.22 2.22 0 0 0 2 4.22v15.56C2 21 3 22 4.22 22h15.56A2.22 2.22 0 0 0 22 19.78V4.22C22 3 21 2 19.78 2zM11 4.07V6h2V4.07A8 8 0 0 1 20 12a8 8 0 0 1-7 7.93V18h-2v1.93A8 8 0 0 1 4 12a8 8 0 0 1 7-7.93M7.5 10.5A1.5 1.5 0 0 0 6 12c0 .83.66 1.5 1.5 1.5A1.5 1.5 0 0 0 9 12a1.5 1.5 0 0 0-1.5-1.5m9 0A1.5 1.5 0 0 0 15 12a1.5 1.5 0 0 0 1.5 1.5A1.5 1.5 0 0 0 18 12a1.5 1.5 0 0 0-1.5-1.5","power-plug-outline":"M16 7V3h-2v4h-4V3H8v4C7 7 6 8 6 9v5.5L9.5 18v3h5v-3l3.5-3.5V9c0-1-1-2-2-2m0 6.67-2.91 2.92-.42.41h-1.34l-.41-.41L8 13.67V9.09c0-.03.06-.09.09-.09h7.83c.03 0 .08.06.08.09z","car-battery":"M4 3v3H1v14h22V6h-3V3h-6v3h-4V3zM3 8h18v10H3zm12 2v2h-2v2h2v2h2v-2h2v-2h-2v-2zM5 12v2h6v-2z","ev-station":"m19.77 7.23.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33a2.5 2.5 0 0 0 2.5 2.5c.36 0 .69-.08 1-.21v7.21a1 1 0 0 1-1 1 1 1 0 0 1-1-1V14a2 2 0 0 0-2-2h-1V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16h10v-7.5h1.5v5A2.5 2.5 0 0 0 18 21a2.5 2.5 0 0 0 2.5-2.5V9c0-.69-.28-1.32-.73-1.77M18 10a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1M8 18v-4.5H6L10 6v5h2z","power-plug":"M16 7V3h-2v4h-4V3H8v4C7 7 6 8 6 9v5.5L9.5 18v3h5v-3l3.5-3.5V9c0-1-1-2-2-2","fan":"M12 11a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m.5-9c4.5 0 4.61 3.57 2.25 4.75-.99.49-1.43 1.54-1.62 2.47.48.2.9.51 1.22.91 3.7-2 7.68-1.21 7.68 2.37 0 4.5-3.57 4.6-4.75 2.23-.5-.99-1.56-1.43-2.49-1.62-.2.48-.51.89-.91 1.23 1.99 3.69 1.2 7.66-2.38 7.66-4.5 0-4.59-3.58-2.23-4.76.98-.49 1.42-1.53 1.62-2.45-.49-.2-.92-.52-1.24-.92C5.96 15.85 2 15.07 2 11.5 2 7 5.56 6.89 6.74 9.26c.5.99 1.55 1.42 2.48 1.61.19-.48.51-.9.92-1.22C8.15 5.96 8.94 2 12.5 2","lightbulb":"M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z","ceiling-light":"M8 9h3V4h2v5h3l4 8H4zm6 9a2 2 0 0 1-2 2 2 2 0 0 1-2-2z","led-strip-variant":"M2.95 3 2 6.91l17.34 4.34.95-3.91zm3.14 3.89-1.93-.48.48-1.95 1.93.48zm3.85.97L8 7.38l.5-1.96 1.92.49zm3.86.96-1.93-.48.48-1.95 1.92.48zm3.85.97-1.93-.48.48-1.96 1.93.49zM4.66 12.75l-.95 3.91L21.05 21l.95-3.9zm3.14 3.9-1.92-.49.47-1.95 1.93.48zm3.85.96-1.92-.48.47-1.95 1.93.48zm3.85.97-1.92-.49.48-1.95 1.94.48zm3.86.96-1.93-.48.48-1.95 1.93.48zM6.25 12.11 11 10.2l6.75 1.69L13 13.8z","thermostat":"m16.95 16.95-2.12-2.12C15.55 14.1 16 13.1 16 12c0-.74-.21-1.43-.57-2l2.17-2.19A6.86 6.86 0 0 1 19 12c0 1.93-.78 3.68-2.05 4.95M12 5c1.57 0 3 .5 4.19 1.4L14 8.56c-.57-.35-1.26-.56-2-.56a4 4 0 0 0-4 4c0 1.1.45 2.1 1.17 2.83l-2.12 2.12A6.98 6.98 0 0 1 5 12a7 7 0 0 1 7-7m0-3A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10c0-5.53-4.5-10-10-10","water-percent":"M12 3.25S6 10 6 14c0 3.32 2.69 6 6 6a6 6 0 0 0 6-6c0-4-6-10.75-6-10.75m2.47 6.72 1.06 1.06-6 6-1.06-1.06M9.75 10A1.25 1.25 0 0 1 11 11.25a1.25 1.25 0 0 1-1.25 1.25 1.25 1.25 0 0 1-1.25-1.25A1.25 1.25 0 0 1 9.75 10m4.5 4.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 14.25 17 1.25 1.25 0 0 1 13 15.75a1.25 1.25 0 0 1 1.25-1.25","water-thermometer":"M19 5c-1.11 0-2 .89-2 2v6.76c-.64.57-1 1.39-1 2.24 0 1.66 1.34 3 3 3s3-1.34 3-3c0-.85-.36-1.67-1-2.23V7c0-1.11-.89-2-2-2m0 1c.55 0 1 .45 1 1v1h-2V7c0-.55.45-1 1-1M8 20c-3.31 0-6-2.69-6-6C2 10 8 3.25 8 3.25S14 10 14 14c0 3.31-2.69 6-6 6","map-marker-distance":"M6.5 8.11c-.89 0-1.61-.72-1.61-1.61A1.61 1.61 0 0 1 6.5 4.89c.89 0 1.61.72 1.61 1.61A1.61 1.61 0 0 1 6.5 8.11M6.5 2C4 2 2 4 2 6.5c0 3.37 4.5 8.36 4.5 8.36S11 9.87 11 6.5C11 4 9 2 6.5 2m11 6.11a1.61 1.61 0 0 1-1.61-1.61 1.609 1.609 0 1 1 3.22 0 1.61 1.61 0 0 1-1.61 1.61m0-6.11C15 2 13 4 13 6.5c0 3.37 4.5 8.36 4.5 8.36S22 9.87 22 6.5C22 4 20 2 17.5 2m0 14c-1.27 0-2.4.8-2.82 2H9.32a3 3 0 0 0-3.82-1.83A3.003 3.003 0 0 0 3.66 20a3.017 3.017 0 0 0 3.84 1.83c.85-.3 1.5-.98 1.82-1.83h5.37c.55 1.56 2.27 2.38 3.81 1.83A3 3 0 0 0 20.35 18c-.43-1.2-1.57-2-2.85-2m0 4.5A1.5 1.5 0 0 1 16 19a1.5 1.5 0 0 1 1.5-1.5A1.5 1.5 0 0 1 19 19a1.5 1.5 0 0 1-1.5 1.5","lightning-bolt":"M11 15H6l7-14v8h5l-7 14z","timer-outline":"M12 20a7 7 0 0 1-7-7 7 7 0 0 1 7-7 7 7 0 0 1 7 7 7 7 0 0 1-7 7m7.03-12.61 1.42-1.42c-.45-.51-.9-.97-1.41-1.41L17.62 6c-1.55-1.26-3.5-2-5.62-2a9 9 0 0 0-9 9 9 9 0 0 0 9 9c5 0 9-4.03 9-9 0-2.12-.74-4.07-1.97-5.61M11 14h2V8h-2m4-7H9v2h6z","battery-charging-80":"M23 11h-3V4l-5 10h3v8M12 9H4V6h8m.67-2H11V2H5v2H3.33A1.33 1.33 0 0 0 2 5.33v15.34C2 21.4 2.6 22 3.33 22h9.34c.73 0 1.33-.6 1.33-1.33V5.33A1.33 1.33 0 0 0 12.67 4","battery-10":"M16 18H8V6h8m.67-2H15V2H9v2H7.33A1.33 1.33 0 0 0 6 5.33v15.34C6 21.4 6.6 22 7.33 22h9.34A1.33 1.33 0 0 0 18 20.67V5.33C18 4.6 17.4 4 16.67 4","play-circle":"M10 16.5v-9l6 4.5M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2","air-conditioner":"M6.59.66c2.34-1.81 4.88.4 5.45 3.84.43 0 .85.12 1.23.34.52-.6.98-1.42.8-2.34-.42-2.15 1.99-3.89 4.28-.92 1.81 2.34-.4 4.88-3.85 5.45 0 .43-.11.86-.34 1.24.6.51 1.42.97 2.34.79 2.13-.42 3.88 1.98.91 4.28-2.34 1.81-4.88-.4-5.45-3.84-.43 0-.85-.13-1.22-.35-.52.6-.99 1.43-.81 2.35.42 2.14-1.99 3.89-4.28.92-1.82-2.35.4-4.89 3.85-5.45 0-.43.13-.85.35-1.23-.6-.51-1.42-.98-2.35-.8-2.13.42-3.88-1.98-.91-4.28M5 16h2a2 2 0 0 1 2 2v6H7v-2H5v2H3v-6a2 2 0 0 1 2-2m0 2v2h2v-2zm7.93-2H15l-2.93 8H10zM18 16h3v2h-3v4h3v2h-3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2","bullhorn":"M12 8H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h3l5 4V4zm9.5 4c0 1.71-.96 3.26-2.5 4V8c1.53.75 2.5 2.3 2.5 4","car-light-high":"M13 4.8c-4 0-4 14.4 0 14.4s9-2.7 9-7.2-5-7.2-9-7.2m.1 12.4C12.7 16.8 12 15 12 12s.7-4.8 1.1-5.2C16 6.9 20 8.7 20 12s-4 5.1-6.9 5.2M2 5h7.5c-.2.4-.5.8-.6 1.4-.1.2-.1.4-.2.6H2zm6 6H2V9h6.2c-.1.6-.1 1.3-.2 2m.7 6c.2.8.5 1.4.9 2H2.1v-2zm-.5-2H2v-2h6c.1.7.1 1.4.2 2","weather-partly-cloudy":"M12.74 5.47c2.36 1.03 3.61 3.56 3.18 5.99A6 6 0 0 1 18 16v.17a3 3 0 0 1 1-.17 3 3 0 0 1 3 3 3 3 0 0 1-3 3H6a4 4 0 0 1-4-4 4 4 0 0 1 4-4h.27C5 12.45 4.6 10.24 5.5 8.26a5.49 5.49 0 0 1 7.24-2.79m-.81 1.83c-1.77-.8-3.84.01-4.62 1.77-.46 1.02-.38 2.15.1 3.06A5.99 5.99 0 0 1 12 10c.7 0 1.38.12 2 .34a3.51 3.51 0 0 0-2.07-3.04m1.62-3.66c-.55-.24-1.1-.41-1.67-.52l2.49-1.3.9 2.89a7.7 7.7 0 0 0-1.72-1.07m-7.46.8c-.49.35-.92.75-1.29 1.19l.11-2.81 2.96.68c-.62.21-1.22.53-1.78.94M18 9.71c-.09-.59-.22-1.16-.41-1.71l2.38 1.5-2.05 2.23c.11-.65.13-1.33.08-2.02M3.04 11.3c.07.6.2 1.17.39 1.7l-2.37-1.5L3.1 9.28c-.1.65-.13 1.33-.06 2.02M19 18h-3v-2a4 4 0 0 0-4-4 4 4 0 0 0-4 4H6a2 2 0 0 0-2 2 2 2 0 0 0 2 2h13a1 1 0 0 0 1-1 1 1 0 0 0-1-1","chevron-down":"M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z","power":"m16.56 5.44-1.45 1.45A5.97 5.97 0 0 1 18 12a6 6 0 0 1-6 6 6 6 0 0 1-6-6c0-2.17 1.16-4.06 2.88-5.12L7.44 5.44A7.96 7.96 0 0 0 4 12a8 8 0 0 0 8 8 8 8 0 0 0 8-8c0-2.72-1.36-5.12-3.44-6.56M13 3h-2v10h2","minus":"M19 13H5v-2h14z","plus":"M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z","radio":"M20 6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8c0-.85.53-1.58 1.28-1.87L15.71 1l.76 1.83L8.83 6zm0 2H4v4h12v-2h2v2h2zM7 14a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3","home-thermometer":"M19 8a2 2 0 0 1 2 2v6.76c.61.55 1 1.35 1 2.24 0 1.66-1.34 3-3 3s-3-1.34-3-3c0-.89.39-1.69 1-2.24V10c0-1.1.9-2 2-2m0 1c-.55 0-1 .45-1 1v1h2v-1c0-.55-.45-1-1-1M5 20v-8H2l10-9 4.4 3.96A3.97 3.97 0 0 0 15 10v6c-.63.83-1 1.87-1 3l.1 1z","chart-line":"m16 11.78 4.24-7.33 1.73 1-5.23 9.05-6.51-3.75L5.46 19H22v2H2V3h2v14.54L9.5 8z","dots-vertical":"M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2","menu":"M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z","stop":"M18 18H6V6h12z","play":"M8 5.14v14l11-7z","pause":"M14 19h4V5h-4M6 19h4V5H6z","volume-plus":"M3 9h4l5-5v16l-5-5H3zm11 2h3V8h2v3h3v2h-3v3h-2v-3h-3z","volume-minus":"M3 9h4l5-5v16l-5-5H3zm11 2h8v2h-8z","monitor-dashboard":"M21 16V4H3v12zm0-14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7v2h2v2H8v-2h2v-2H3a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2zM5 6h9v5H5zm10 0h4v2h-4zm4 3v5h-4V9zM5 12h4v2H5zm5 0h4v2h-4z","information-outline":"M11 9h2V7h-2m1 13c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m-1 15h2v-6h-2z","view-dashboard":"M13 3v6h8V3m-8 18h8V11h-8M3 21h8v-6H3m0-2h8V3H3z","monitor":"M21 16H3V4h18m0-2H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h7v2H8v2h8v-2h-2v-2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2","tablet-dashboard":"M19 18H5V6h14m2-2H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2M7 8h6v5H7zm7 0h3v2h-3zm3 3v5h-3v-5zM7 14h6v2H7z","cellphone":"M17 19H7V5h10m0-4H7c-1.11 0-2 .89-2 2v18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2","bluetooth-connect":"m19 10-2 2 2 2 2-2m-6.12 4.29L13 18.17v-3.76m0-8.58 1.88 1.88L13 9.58m4.71-1.87L12 2h-1v7.58L6.41 5 5 6.41 10.59 12 5 17.58 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29M7 12l-2-2-2 2 2 2z","magnify":"M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5","map-marker":"M12 11.5A2.5 2.5 0 0 1 9.5 9 2.5 2.5 0 0 1 12 6.5 2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7","chevron-up":"M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z","chevron-left":"M15.41 16.58 10.83 12l4.58-4.59L14 6l-6 6 6 6z","chevron-right":"M8.59 16.58 13.17 12 8.59 7.41 10 6l6 6-6 6z","arrow-u-left-top":"M20 13.5a6.5 6.5 0 0 1-6.5 6.5H6v-2h7.5c2.5 0 4.5-2 4.5-4.5S16 9 13.5 9H7.83l3.08 3.09L9.5 13.5 4 8l5.5-5.5 1.42 1.41L7.83 7h5.67a6.5 6.5 0 0 1 6.5 6.5","home":"M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z","circle-medium":"M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4","volume-off":"M12 4 9.91 6.09 12 8.18M4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.26c-.67.51-1.42.93-2.25 1.17v2.07c1.38-.32 2.63-.95 3.68-1.81L19.73 21 21 19.73l-9-9M19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.9 8.9 0 0 0 21 12c0-4.28-3-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71m-2.5 0c0-1.77-1-3.29-2.5-4.03v2.21l2.45 2.45c.05-.2.05-.42.05-.63","play-pause":"M3 5v14l8-7m2 7h3V5h-3m5 0v14h3V5","ip-network":"M15 9h-2V7h2zm7 11v2h-7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1H2v-2h7a1 1 0 0 1 1-1h1v-2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4v2h1a1 1 0 0 1 1 1zM9 5H7v10h2zm2 10h2v-4h2a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4z","shield-sync":"M18 12a6.4 6.4 0 0 1 2.87.67A12 12 0 0 0 21 11V5l-9-4-9 4v6c0 5.55 3.84 10.74 9 12 .35-.09.7-.2 1-.32a6.42 6.42 0 0 1-1.5-4.18A6.5 6.5 0 0 1 18 12m0 2.5V13l-2.25 2.25L18 17.5V16a2.5 2.5 0 0 1 2.24 3.62l1.09 1.09A4 4 0 0 0 18 14.5m0 6.5a2.5 2.5 0 0 1-2.24-3.62l-1.09-1.09A4 4 0 0 0 18 22.5V24l2.25-2.25L18 19.5Z","lan-connect":"M4 1c-1.11 0-2 .89-2 2v4c0 1.11.89 2 2 2H1v2h12V9h-3c1.11 0 2-.89 2-2V3c0-1.11-.89-2-2-2zm0 2h6v4H4zM3 13v7h7v-2H5v-5zm11 0c-1.11 0-2 .89-2 2v4c0 1.11.89 2 2 2h-3v2h12v-2h-3c1.11 0 2-.89 2-2v-4c0-1.11-.89-2-2-2zm0 2h6v4h-6z","alert-circle-outline":"M11 15h2v2h-2zm0-8h2v6h-2zm1-5C6.47 2 2 6.5 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 18a8 8 0 0 1-8-8 8 8 0 0 1 8-8 8 8 0 0 1 8 8 8 8 0 0 1-8 8","tablet":"M19 18H5V6h14m2-2H3c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2","restart":"M12 4c2.1 0 4.1.8 5.6 2.3 3.1 3.1 3.1 8.2 0 11.3-1.8 1.9-4.3 2.6-6.7 2.3l.5-2c1.7.2 3.5-.4 4.8-1.7 2.3-2.3 2.3-6.1 0-8.5C15.1 6.6 13.5 6 12 6v4.6l-5-5 5-5zM6.3 17.6C3.7 15 3.3 11 5.1 7.9l1.5 1.5c-1.1 2.2-.7 5 1.2 6.8q.75.75 1.8 1.2l-.6 2q-1.5-.6-2.7-1.8","brightness-6":"M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z","monitor-off":"M14 18v2h2v2H8v-2h2v-2H3a2 2 0 0 1-2-2V4L0 3l1.41-1.42 20.75 20.76-1.41 1.41L15 18zM3 16h10L3 6zM21 2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-.34l-2-2H21V4H6.66l-2-2z","counter":"M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m0 2v12h7V6zm16 12V6h-1.24c.24.54.19 1.07.19 1.13-.07.67-.54 1.37-.71 1.62l-2.33 2.55 3.32-.02.01 1.22-5.2-.03-.04-1s3.05-3.23 3.2-3.52c.14-.28.71-1.95-.7-1.95-1.23.05-1.09 1.3-1.09 1.3l-1.54.01s.01-.66.38-1.31H13v12h2.58l-.01-.86.97-.01s.91-.16.92-1.05c.04-1-.81-1-.96-1-.13 0-1.07.05-1.07.87h-1.52s.04-2.06 2.59-2.06c2.6 0 2.46 2.02 2.46 2.02s.04 1.25-1.11 1.72l.52.37zM8.92 16h-1.5v-5.8l-1.8.56V9.53l3.14-1.12h.16z","skip-previous":"M6 18V6h2v12zm3.5-6L18 6v12z","skip-next":"M16 18h2V6h-2M6 18l8.5-6L6 6z","car-side":"m16 6 3 4h2c1.11 0 2 .89 2 2v3h-2a3 3 0 0 1-3 3 3 3 0 0 1-3-3H9a3 3 0 0 1-3 3 3 3 0 0 1-3-3H1v-3c0-1.11.89-2 2-2l3-4zm-5.5 1.5H6.75L4.86 10h5.64zm1.5 0V10h5.14l-1.89-2.5zm-6 6A1.5 1.5 0 0 0 4.5 15 1.5 1.5 0 0 0 6 16.5 1.5 1.5 0 0 0 7.5 15 1.5 1.5 0 0 0 6 13.5m12 0a1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5 1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5","wall-sconce-flat":"M5 5v6h14V5zm.27 8.32L3.5 15.09l1.41 1.41 1.77-1.77zm13.46 0-1.41 1.41 1.77 1.77 1.41-1.41zM11 16v3h2v-3z","heat-wave":"m8.5 4.5-3.1 5 3.1 5.2-3.3 5.8-1.8-.9 2.7-4.9L3 9.5l3.7-5.9zm6.2-.1-3.1 5.1 3.1 5-3.3 5.8-1.8-.9 2.7-4.9-3.1-5 3.7-6zm6.3 0-3.1 5.1 3.1 5-3.3 5.8-1.8-.9 2.7-4.9-3.1-5 3.7-6z","motion-sensor":"M10 .2C9 .2 8.2 1 8.2 2S9 3.8 10 3.8 11.8 3 11.8 2 11 .2 10 .2m5.67.8A7.33 7.33 0 0 0 23 8.33V7a6 6 0 0 1-6-6zm2.66 0c0 2.58 2.09 4.67 4.67 4.67V4.33c-1.84 0-3.33-1.49-3.33-3.33zM21 1a2 2 0 0 0 2 2V1zM7.92 4.03c-.17 0-.34.03-.5.08L2 5.8V11h1.8V7.33l2.11-.66L2 22h1.8l2.87-8.11L9 17v5h1.8v-6.41l-2.49-4.54.73-2.87L10.12 10H15V8.2h-3.62l-2-3.33c-.3-.5-.84-.84-1.46-.84","walk":"M14.12 10H19V8.2h-3.62l-2-3.33c-.3-.5-.84-.84-1.46-.84-.18 0-.34.03-.5.08L6 5.8V11h1.8V7.33l2.11-.66L6 22h1.8l2.87-8.11L13 17v5h1.8v-6.41l-2.49-4.54.73-2.87M14 3.8c1 0 1.8-.8 1.8-1.8S15 .2 14 .2 12.2 1 12.2 2 13 3.8 14 3.8","lightbulb-off":"M12 2C9.76 2 7.78 3.05 6.5 4.68l9.81 9.82C17.94 13.21 19 11.24 19 9a7 7 0 0 0-7-7M3.28 4 2 5.27 5.04 8.3C5 8.53 5 8.76 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h5.73l4 4L20 20.72zM9 20v1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1z","lightbulb-on":"M12 6a6 6 0 0 1 6 6c0 2.22-1.21 4.16-3 5.2V19a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.8c-1.79-1.04-3-2.98-3-5.2a6 6 0 0 1 6-6m2 15v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1zm6-10h3v2h-3zM1 11h3v2H1zM13 1v3h-2V1zM4.92 3.5l2.13 2.14-1.42 1.41L3.5 4.93zm12.03 2.13 2.12-2.13 1.43 1.43-2.13 2.12z","weather-night":"m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31","door-open":"M12 3c-1.11 0-2 .89-2 2H3v14H2v2h20v-2h-1V5c0-1.11-.89-2-2-2zm0 2h7v14h-7zm-7 6h2v2H5z"};
+const I = n => `<svg class="i" viewBox="0 0 24 24"><path d="${ICONS[n] || ICONS['circle-medium']}"/></svg>`;
+document.querySelectorAll('.seg2 button').forEach(b => b.innerHTML = b.innerHTML.replace(/%%([a-z0-9-]+)%%/g, (_, n) => I(n)));
+
+/* ================= Musterwerte (Platzhalter, keine Fahrzeugdaten) ================= */
+const C = {
+  eco: 2016, ecoOut: 2400, ecoCharge: 1000, reserve: 20,   // je Speicher, Modell noch offen
+  v2l: 3700, cp10: 2300, cp16: 3600, carCap: 87000, kmPerPct: 3.6,
+  v2lStart: 30, v2lStop: 80,
+  induktion: 3000, dusche: 2400, boiler: 1000, kuehl: 70, basis: 25,
+  heizEco: 900, heizHigh: 1800, ir: 400, tv: 60, laptop: 65, ledW: 15, aussen: 6
+};
+const MOEBEL = {grau:{hpl:'#9b9ea3', hplL:'#b1b4b8', hplD:'#7f8287', top:'#4b4e53', topL:'#55585d'}, sand:{hpl:'#c9b99b', hplL:'#d9cbb0', hplD:'#a8977a', top:'#b3a283', topL:'#c1b192'}};
+const RADIO = ['Pop & Hits','Nachrichten','Jazz Lounge','Klassik','Rock','Chillout','Schlager','Kinderradio'];
+const STREAM = ['Netflix','YouTube','ARD Mediathek','ZDF Mediathek','Prime Video','Disney+'];
+const S = {
+  t: 20*60, scen: 'v2l', dev: 'phone', view: {phone:'start', display:'display', wall:'licht'},
+  heiz: {mode:'off', preset:'eco', ziel:21}, boiler: 'Eco', wt: {mode:'off', ziel:22},
+  sw: {gen1:true, gen2:true, res1:false, res2:false, doseHeck:false, doseTrenn:false, res3:false, res4:false},
+  light: {hl:0, hr:0, bad:0}, kAuto: true, kMotion: 0,
+  eco1: 64, eco2: 70, car: 76, km: 8250, soll: 90, min: 20, carCharging: false, carClima: 0, horn: 0, flash: 0,
+  innen: 13.5, feuchte: 62, wasser: 31, kochen: 0, duschen: 0,
+  media: {on:false, kind:null, title:'', vol:40}, big: 'Cockpit', bt: false,
+  ort: 'Musterstadt am See', moebel: 'grau', focus: 'all', sceneView: 'innen', autoView: true, openSel: null, ch: {}, log: [], hist: []
+};
+
+/* ================= Simulation ================= */
+const kL = () => S.kAuto && S.kMotion > 0 ? 100 : 0;   // Küchenlicht unter den Oberschränken, per Bewegungsmelder
+const fmtW = w => Math.round(w).toLocaleString('de-DE') + ' W';
+const f1 = x => x.toFixed(1).replace('.', ',');
+const clock = () => { const m = Math.floor(S.t) % 1440; return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'); };
+function outside(){
+  const plugged = S.scen === 'v2l' || S.scen === 'low' || S.scen === 'home';
+  if (S.scen === 'cp10') return {src:'Campingplatz', lim:C.cp10, shore:true, plugged:false};
+  if (S.scen === 'cp16' || S.scen === 'home') return {src: S.scen === 'home' ? 'Hausanschluss' : 'Campingplatz', lim:C.cp16, shore:true, plugged};
+  if (S.car > S.min) return {src:'Fahrzeugbatterie (V2L)', lim:C.v2l, shore:false, plugged};
+  return {src:'Fahrzeugbatterie gesperrt (Mindest-Ladestand)', lim:0, shore:false, plugged};
+}
+function compute(){
+  const P = outside();
+  const leds = Object.values(S.light).reduce((a, b) => a + b/100*C.ledW, 0) + kL()/100*C.ledW;
+  const heizOn = S.heiz.mode === 'heat' && S.innen < S.heiz.ziel;
+  const heizW = S.heiz.mode === 'heat' ? (heizOn ? (S.heiz.preset === 'high' ? C.heizHigh : C.heizEco) : 30) : 0;
+  const irW = S.wt.mode === 'heat' && S.innen < S.wt.ziel ? C.ir : 0;
+  const parts = {
+    'Kühlschrank': C.kuehl, 'Steuerung & Router': C.basis, 'Licht': leds, 'Heizung': heizW, 'Infrarotpaneel': irW,
+    'Dusche': S.duschen > 0 ? C.dusche : 0, 'Fernseher/Radio': S.media.on ? C.tv : 0,
+    'Laptop (Steckdose Heck)': S.sw.doseHeck ? C.laptop : 0
+  };
+  const comfort = Object.values(parts).reduce((a, b) => a + b, 0);
+  const ecoAvg = (S.eco1 + S.eco2) / 2;
+  const ecoOk = ecoAvg > C.reserve && comfort <= 2 * C.ecoOut;
+  const kochW = S.kochen > 0 ? C.induktion : 0;
+  let prim = kochW + (ecoOk ? 0 : comfort);
+  let head = P.lim - prim;
+  const bTarget = S.boiler === 'Eco' ? 45 : (S.boiler === 'High' || S.boiler === 'Boost') ? 60 : 0;
+  const boilerNeed = S.wasser < bTarget - 1;
+  const boilerRun = boilerNeed && P.lim > 0 && (S.boiler === 'Boost' || head >= C.boiler + 200);
+  if (boilerRun) { prim += C.boiler; head -= C.boiler; }
+  const charge = {gen1:0, gen2:0};
+  ['gen1','gen2'].forEach((g, i) => {
+    const soc = i ? S.eco2 : S.eco1; const k = 'chg' + i;
+    if (!S.sw[g] || soc >= 99.5 || P.lim === 0) { S.ch[k] = false; return; }
+    if (P.shore) S.ch[k] = true; else { if (soc < C.v2lStart) S.ch[k] = true; if (soc >= C.v2lStop) S.ch[k] = false; }
+    if (S.ch[k] && head > 300) { charge[g] = Math.min(C.ecoCharge, head - 200); head -= charge[g]; prim += charge[g]; }
+  });
+  return {P, parts, comfort, ecoOk, prim, head: P.lim - prim, kochW, boilerRun, boilerNeed, bTarget, charge, heizW, irW, overload: prim > P.lim + 1};
+}
+function tick(dt){
+  const r = compute(), h = dt/60;
+  const draw = r.ecoOk ? r.comfort / 2 : 0;
+  S.eco1 = Math.max(0, Math.min(100, S.eco1 + (r.charge.gen1*0.9 - draw) * h / C.eco * 100));
+  S.eco2 = Math.max(0, Math.min(100, S.eco2 + (r.charge.gen2*0.9 - draw) * h / C.eco * 100));
+  if (!r.P.shore && r.P.lim > 0) S.car = Math.max(0, S.car - r.prim * h / C.carCap * 100);
+  if (S.carCharging) { S.car = Math.min(S.soll, S.car + 11000 * h / C.carCap * 100); if (S.car >= S.soll) { S.carCharging = false; log('Fahrzeug fertig geladen'); } }
+  S.wasser += (r.boilerRun ? 1.43 : 0) * dt - 0.015 * dt * (S.wasser - 12) / 30 - (S.duschen > 0 ? 0.8 * dt : 0);
+  S.wasser = Math.max(10, S.wasser);
+  const heat = r.heizW / 900 * 0.12 + r.irW / 400 * 0.05 + (S.carClima > 0 ? 0.02 : 0) + (S.duschen > 0 ? 0.03 : 0) + (S.kochen > 0 ? 0.02 : 0);
+  S.innen += heat * dt - 0.012 * dt * (S.innen - C.aussen) / 8;
+  S.feuchte = Math.max(35, Math.min(80, S.feuchte + (S.duschen > 0 ? 0.6 : 0) + (S.kochen > 0 ? 0.3 : 0) - (r.heizW > 100 ? 0.15 : 0.02)));
+  if (S.kochen > 0) S.kMotion = Math.max(S.kMotion, 3);
+  const kWas = kL();
+  ['kochen','duschen','carClima','horn','flash','kMotion'].forEach(k => { if (S[k] > 0) { S[k] = Math.max(0, S[k] - dt); if (S[k] === 0 && k === 'kochen') log('Kochen beendet'); if (S[k] === 0 && k === 'duschen') log('Duschen beendet'); } });
+  if (kWas && !kL()) log('Küchenlicht aus – keine Bewegung mehr');
+  // Ereignisse in Alltagssprache
+  const ev = (k, v, on, off) => { if (S.ch[k] !== undefined && S.ch[k] !== v) log(v ? on : off); S.ch[k] = v; };
+  ev('boil', r.boilerRun, 'Boiler heizt – es ist genug Strom übrig', r.boilerNeed && S.boiler !== 'Aus' ? 'Boiler wartet – der Strom wird gerade woanders gebraucht' : 'Boiler hat seine Temperatur erreicht');
+  ev('eco', r.ecoOk, 'Bordstrom kommt wieder aus den Hausbatterien', 'Hausbatterien unter Reserve – Bordstrom kommt jetzt direkt von außen');
+  ev('ovl', r.overload, '⚠ Mehr Strom angefordert als von außen verfügbar', 'Stromaufnahme wieder im grünen Bereich');
+  ev('ld', r.charge.gen1 + r.charge.gen2 > 0, 'Hausbatterien werden geladen', 'Hausbatterien laden pausiert');
+  S.hist.push({p: r.prim, c: r.comfort, t: S.innen, f: S.feuchte}); if (S.hist.length > 120) S.hist.shift();
+  S.t += dt;
+  return r;
+}
+function log(msg){ S.log.unshift({t: clock(), msg}); S.log = S.log.slice(0, 14); renderLog(); }
+
+/* ================= Entitäten (Anzeige wie in HA) ================= */
+const LADE = {charging:'Wird geladen', ended:'Ladevorgang beendet', v2l:'V2L verbunden', none:'Kein Ladevorgang'};
+function ent(k, r){
+  const sw = n => ({on: S.sw[n], st: S.sw[n] ? 'An' : 'Aus'});
+  const pw = n => {
+    if (n === 'gen1' || n === 'gen2') return fmtW(r.charge[n]);
+    if (n === 'doseHeck') return S.sw.doseHeck ? fmtW(C.laptop) : '0 W';
+    return '0 W';
+  };
+  const ladezustand = () => S.carCharging ? LADE.charging : (r.P.plugged && !r.P.shore) ? LADE.v2l : r.P.plugged ? LADE.ended : LADE.none;
+  switch (k) {
+    case 'gen1': case 'gen2': case 'res1': case 'res2': case 'doseHeck': case 'doseTrenn': case 'res3': case 'res4': return {...sw(k), sub: pw(k)};
+    case 'carBatt': return {st: Math.round(S.car) + ' %', sub: Math.round(S.car * C.kmPerPct) + ' km', subIcon:'map-marker-distance'};
+    case 'range': return {st: Math.round(S.car * C.kmPerPct) + ' km'};
+    case 'energy': return {st: f1(S.car / 100 * C.carCap / 1000) + ' kWh'};
+    case 'battTemp': return {st: '14 °C'};
+    case 'lade': return {st: ladezustand(), sub: S.carCharging ? Math.round((S.soll - S.car) / 100 * C.carCap / 11000 * 60) + ' Min.' : '', subIcon:'timer-outline', on: S.carCharging};
+    case 'stecker': return {st: r.P.plugged ? 'Eingesteckt' : 'Nicht eingesteckt'};
+    case 'ladeleistung': return {st: S.carCharging ? '11 kW' : '0 kW'};
+    case 'restzeit': return {st: S.carCharging ? Math.round((S.soll - S.car) / 100 * C.carCap / 11000 * 60) + ' Min.' : '–'};
+    case 'klimaAktiv': return {st: S.carClima > 0 ? 'An' : 'Aus', on: S.carClima > 0};
+    case 'innen': return {st: f1(S.innen) + ' °C'};
+    case 'feuchte': return {st: Math.round(S.feuchte) + ' %'};
+    case 'innenBB': return {st: f1(S.innen - 0.3) + ' °C'};
+    case 'feuchteBB': return {st: Math.round(S.feuchte + 1) + ' %'};
+    case 'taupunkt': return {st: f1(S.innen - (100 - S.feuchte) / 5) + ' °C'};
+    case 'wasser': return {st: Math.round(S.wasser) + ' °C'};
+    case 'wan': return {st: 'Online · öffentliche IP'};
+    case 'tinOnline': return {st: 'Verbunden'};
+    case 'tinErr': return {st: 'Kein Fehler'};
+    case 'tinV': return {st: '13,3 V'};
+    case 'tinFan': return {st: r.heizW > 0 ? 'Läuft' : 'Aus'};
+    case 'helligkeit': return {st: Object.values(S.light).some(v => v) ? '120 lx' : '3 lx'};
+  }
+  return {st: '–'};
+}
+const BADGES = {
+  innen: () => [I('thermometer'), f1(S.innen) + ' °C'], feuchte: () => [I('water-percent'), Math.round(S.feuchte) + ' %'],
+  wetter: () => [I('weather-partly-cloudy'), 'Teilweise bewölkt'], km: () => [I('counter'), S.km.toLocaleString('de-DE') + ' km'],
+  aussen: () => [I('thermometer'), C.aussen + ' °C'], letzte: () => [I('timer-outline'), 'vor 5 Min.']
+};
+
+/* ================= Dashboards (Struktur wie camper-cockpit / camper-display / camper-wall) ================= */
+const H = (title, icon, extra = {}) => ({t:'heading', title, icon, ...extra});
+const B = (kind, e, name, icon, cols = 6, extra = {}) => ({t:'btn', kind, e, name, icon, cols, ...extra});
+const GEN = [B('switch','gen1','Generator 1','generator-portable',6,{sub:1}), B('switch','gen2','Generator 2','generator-portable',6,{sub:1})];
+const KREISE = [...GEN, B('switch','res1','Reserve 1','power-socket-de',6,{sub:1}), B('switch','res2','Reserve 2','power-socket-de',6,{sub:1}),
+  B('switch','doseHeck','Steckdose Heck','power-socket-de',6,{sub:1}), B('switch','doseTrenn','Steckdose Trennwand','power-socket-de',6,{sub:1}),
+  B('switch','res3','Reserve 3','power-plug-outline',6,{sub:1}), B('switch','res4','Reserve 4','power-plug-outline',6,{sub:1})];
+const HEIZ = {t:'climate', e:'heiz', name:'Truma Heizung', icon:'radiator', cols:12, subs:['mode','preset']};
+const BOIL = {t:'select', e:'boiler', name:'Boiler', icon:'water-boiler', cols:12};
+const WT = {t:'climate', e:'wt', name:'Wandthermostat', icon:'thermostat', cols:12, subs:[]};
+const LICHT = [H('Licht','led-strip-variant',{tag:'geplant'}), B('slider','hl','Heck links','led-strip-variant'), B('slider','hr','Heck rechts','led-strip-variant'),
+  B('kauto','kAuto','Küche (Bewegung)','motion-sensor'), B('slider','bad','Dusche','led-strip-variant')];
+const RADIOS = RADIO.map((n, i) => B('radio', i, n, 'radio'));
+const STREAMS = cols => STREAM.map((n, i) => B('stream', i, n, 'television-play', cols));
+const REMOTE = [['Zurück','arrow-u-left-top'],['Hoch','chevron-up'],['Home','home'],['Links','chevron-left'],['OK','circle-medium'],['Rechts','chevron-right'],
+  ['Leiser','volume-minus'],['Runter','chevron-down'],['Lauter','volume-plus'],['Play/Pause','play-pause'],['Stumm','volume-off'],['Ein/Aus','power']].map(([n, ic]) => B('remote', n, n, ic, 4));
+const UMG = {t:'umg', cols:12};
+const DASH = {
+  phone: {theme:'t-light', layout:'large', cols:1, menu:true, nav:['start','strom','klima','system','fahrzeug','umgebung'],
+    tabs:[['start','van-utility','Start'],['strom','flash','Strom'],['klima','thermometer','Klima'],['system','cog','System'],['fahrzeug','car-electric','Fahrzeug'],['umgebung','compass-outline','Umgebung'],['fernbedienung','remote-tv','Fernbedienung'],['audio','music','Audio'],['video','television-play','Video']],
+    views:{
+      start:[[H('Wärme','fire',{badges:['innen','feuchte','wetter']}), HEIZ, BOIL], [H('230 V','flash'), ...KREISE], LICHT,
+        [H('Master Yoda','van-utility',{badges:['km','aussen','letzte']}), B('state','carBatt','Fahrbatterie','car-battery',6,{sub:1}), B('state','lade','Laden','ev-station',6,{sub:1}), B('state','stecker','Stecker','power-plug'), B('action','vorklima','Vorklimatisieren','fan')]],
+      strom:[[H('230-V-Kreise','flash'), ...KREISE], [H('Verlauf','chart-line'), {t:'chart', which:'power', cols:12}]],
+      klima:[[H('Heizen & Wasser','fire'), HEIZ, BOIL, WT], [H('Raumklima','home-thermometer'), B('state','innen','Innen (Wanddisplay)','thermometer'), B('state','feuchte','Feuchte (Wanddisplay)','water-percent'),
+        B('state','innenBB','Innen (BB)','thermometer'), B('state','feuchteBB','Feuchte (BB)','water-percent'), B('state','taupunkt','Taupunkt','water-thermometer'), B('state','wasser','Wasser Truma','water-boiler'), {t:'chart', which:'temp', cols:12}]],
+      system:[[H('Internet','ip-network'), B('state','wan','WAN-IP','ip-network'), B('switch','apn','APN-Watchdog','shield-sync',6,{fixedOn:true})], [H('Truma-Adapter','radiator'), B('state','tinOnline','Verbindung','lan-connect'), B('state','tinErr','Fehlercode','alert-circle-outline'), B('state','tinV','Spannung','car-battery'), B('state','tinFan','Lüfter','fan')],
+        [H('Wanddisplay','tablet'), B('action','wallOn','Display an','monitor'), B('action','wallOff','Display aus','monitor-off'), B('state','helligkeit','Helligkeit','brightness-6'), B('action','wallRestart','Neustart','restart')]],
+      fahrzeug:[[H('Master Yoda','van-utility',{badges:['km','aussen','letzte']}), B('state','carBatt','Fahrbatterie','car-battery'), B('state','range','Reichweite','map-marker-distance'), B('state','energy','Energie','lightning-bolt'), B('state','battTemp','Batterie-Temp.','thermometer'),
+        H('Laden','ev-station'), B('state','lade','Ladezustand','ev-station'), B('state','stecker','Stecker','power-plug'), B('state','ladeleistung','Ladeleistung','flash'), B('state','restzeit','Restladezeit','timer-outline'),
+        B('number','soll','Ziel-Ladestand','battery-charging-80'), B('number','min','Mindest-Ladestand','battery-10'), B('action','ladenStart','Laden starten','play-circle',12)],
+        [H('Klima & Standort','map-marker'), B('action','vorklima','Vorklimatisieren','fan'), B('state','klimaAktiv','Klima aktiv','air-conditioner'), B('action','hupe','Hupe','bullhorn'), B('action','lichthupe','Lichthupe','car-light-high'), {t:'map', cols:12}]],
+      umgebung:[[H('Rund um Master Yoda','compass-outline'), UMG]],
+      fernbedienung:[[H('Fernbedienung','remote-tv'), {t:'media', cols:12, compact:true}, ...REMOTE], [H('Großes Display zeigt','monitor'), ...['Cockpit','Audio','Video','Info'].map(n => B('big', n, n, {Cockpit:'view-dashboard',Audio:'music',Video:'television-play',Info:'information-outline'}[n]))]],
+      audio:[[H('Läuft gerade','music'), {t:'media', cols:12}, B('action','stop','Stopp','stop',4), B('action','spotify','Spotify & alle Sender','magnify',8), B('toggle','bt','Echo koppeln','bluetooth-connect',12)], [H('Radiosender','radio'), ...RADIOS]],
+      video:[[H('Läuft gerade','television-play'), {t:'media', cols:12, video:true}, H('Streaming','play-circle'), ...STREAMS(6)], [H('Fernbedienung','remote-tv'), ...REMOTE]]
+    }},
+  display: {theme:'t-ca', layout:'normal', cols:2, menu:false, logo:true,
+    tabs:[['display','monitor-dashboard','Display'],['audio','music','Audio'],['video','television-play','Video'],['info','information-outline','Info'],['umgebung','compass-outline','Umgebung']],
+    views:{
+      display:[[H('Wärme','fire',{badges:['innen','feuchte','wetter']}), {...HEIZ}, BOIL, WT], [H('230 V','flash'), ...GEN, B('switch','doseHeck','Steckdose Heck','power-socket-de'), B('switch','doseTrenn','Steckdose Trennwand','power-socket-de')],
+        [H('Master Yoda','van-utility',{badges:['km','aussen','letzte']}), B('state','carBatt','Fahrbatterie','car-battery'), B('state','range','Reichweite','map-marker-distance'), B('state','lade','Laden','ev-station'), B('action','vorklima','Vorklimatisieren','fan')], LICHT],
+      audio:[[H('Läuft gerade','music'), {t:'media', cols:12}, B('action','stop','Stopp','stop',4), B('action','spotify','Spotify & alle Sender','magnify',8), B('toggle','bt','Echo koppeln','bluetooth-connect',12)], [H('Radiosender','radio'), ...RADIOS]],
+      video:[[H('Läuft gerade','television-play'), {t:'media', cols:12, video:true}, H('Streaming','play-circle'), ...STREAMS(4)], [H('Fernbedienung','remote-tv'), ...REMOTE]],
+      info:[[H('Raumklima','home-thermometer'), B('state','innen','Innen (Wanddisplay)','thermometer'), B('state','feuchte','Feuchte (Wanddisplay)','water-percent'), B('state','innenBB','Innen (BB)','thermometer'), B('state','feuchteBB','Feuchte (BB)','water-percent'),
+        B('state','taupunkt','Taupunkt','water-thermometer'), B('state','wasser','Wasser Truma','water-boiler'), {t:'chart', which:'temp', cols:12}],
+        [H('Internet','ip-network'), B('state','wan','WAN-IP','ip-network'), B('switch','apn','APN-Watchdog','shield-sync',6,{fixedOn:true}), H('Truma-Adapter','radiator'), B('state','tinOnline','Verbindung','lan-connect'), B('state','tinErr','Fehlercode','alert-circle-outline'), B('state','tinV','Spannung','car-battery'), B('state','tinFan','Lüfter','fan')]],
+      umgebung:[[H('Rund um Master Yoda','compass-outline'), UMG]]
+    }},
+  wall: {theme:'t-ca', layout:'normal', cols:1, menu:false,
+    tabs:[['licht','lightbulb','Licht'],['waerme','fire','Wärme'],['strom','flash','Strom'],['medien','music','Medien']],
+    views:{
+      licht:[[H('Licht','lightbulb',{tag:'geplant'}), B('lscene','an','Licht an','lightbulb-on',12), B('lscene','nacht','Nachtlicht','weather-night'), B('lscene','aus','Alles aus','lightbulb-off'),
+        B('slider','hl','Heck links','led-strip-variant'), B('slider','hr','Heck rechts','led-strip-variant'), B('kauto','kAuto','Küche (Bewegung)','motion-sensor'), B('slider','bad','Dusche','led-strip-variant')]],
+      waerme:[[H('Wärme','fire',{badges:['innen','wetter']}), {...HEIZ, subs:['mode']}, BOIL, WT, B('action','vorklima','Vorklimatisieren','fan',12)]],
+      strom:[[H('230 V','flash'), ...GEN, B('switch','doseHeck','Dose Heck','power-socket-de'), B('switch','doseTrenn','Dose Trennwand','power-socket-de'), H('Fahrzeug','van-utility',{sub:true}), B('state','carBatt','Fahrbatterie','car-battery'), B('state','range','Reichweite','map-marker-distance')]],
+      medien:[[H('Musik','music'), {t:'media', cols:12, compact:true}, H('Großes Display zeigt','monitor',{sub:true}), ...['Cockpit','Audio','Video','Umgebung'].map(n => B('big', n, n, {Cockpit:'view-dashboard',Audio:'music',Video:'television-play',Umgebung:'compass-outline'}[n])) ]]
+    }}
+};
+const DEVINFO = {
+  phone: '<b>Smartphone</b> – Dashboard „Camper“, für unterwegs und vom Bett aus',
+  display: '<b>15″-Touchdisplay</b> an der Seitenwand des Kleiderschranks, Blick vom Heckbett – Dashboard „Camper Display“, läuft über den Google-TV-Stick',
+  wall: '<b>Shelly Wall Display</b> in der Akustikwand am Einstieg – Dashboard „Camper Wall“, schnell Licht beim Betreten'
+};
+
+/* ================= Rendering Dashboard ================= */
+function cardHTML(c, r){
+  const span = 'c' + (c.cols || 12);
+  if (c.t === 'heading') {
+    const bd = (c.badges || []).map(b => { const [ic, t] = BADGES[b](); return `<span>${ic}${t}</span>`; }).join('');
+    return `<div class="c12 hdg ${c.sub ? 'sub' : ''}">${I(c.icon)}<span>${c.title}</span>${c.tag ? `<span class="tag">${c.tag}</span>` : ''}<span class="bd">${bd}</span></div>`;
+  }
+  if (c.t === 'btn') {
+    let on = false, st = '', sub = '', fill = null, ic = c.icon, act = `data-a="${c.kind}" data-e="${c.e}"`;
+    if (c.kind === 'switch') { if (c.fixedOn) { on = true; st = 'An'; } else { const e = ent(c.e, r); on = e.on; st = e.st; if (c.sub) sub = e.sub; } }
+    else if (c.kind === 'state') { const e = ent(c.e, r); st = e.st; on = !!e.on; if (c.sub && e.sub) sub = (e.subIcon ? I(e.subIcon) : '') + e.sub; }
+    else if (c.kind === 'slider') { const v = S.light[c.e]; on = v > 0; st = v ? v + ' %' : 'Aus'; fill = v; }
+    else if (c.kind === 'number') { const v = S[c.e]; on = true; st = v + ' %'; fill = v; }
+    else if (c.kind === 'radio') { on = S.media.on && S.media.kind === 'radio' && S.media.title === RADIO[c.e]; st = on ? 'Läuft' : 'Radio'; }
+    else if (c.kind === 'stream') { on = S.media.on && S.media.kind === 'stream' && S.media.title === STREAM[c.e]; st = on ? 'Läuft' : 'Streaming'; }
+    else if (c.kind === 'big') { on = S.big === c.e; }
+    else if (c.kind === 'lscene') { const v = S.light; on = c.e === 'an' ? v.hl >= 60 && v.hr >= 60 : c.e === 'nacht' ? v.hl > 0 && v.hl <= 15 : !v.hl && !v.hr && !v.bad; }
+    else if (c.kind === 'toggle') { on = S[c.e]; st = on ? 'An' : 'Aus'; }
+    else if (c.kind === 'kauto') { on = kL() > 0; st = !S.kAuto ? 'Automatik aus' : on ? 'Bewegung erkannt · Licht an' : 'Automatik · wartet auf Bewegung'; }
+    else if (c.kind === 'action' && c.e === 'vorklima') { on = S.carClima > 0; if (on) st = 'läuft noch ' + Math.ceil(S.carClima) + ' Min.'; }
+    const slide = fill !== null ? `data-slide="${c.kind}" data-e="${c.e}"` : '';
+    return `<div class="${span}"><div class="bb ${on ? 'on' : ''}" ${slide} ${fill === null ? act : ''}>
+      ${fill !== null ? `<div class="fill" style="width:${fill}%"></div>` : ''}
+      <div class="ic" ${fill !== null ? `data-a="${c.kind}-toggle" data-e="${c.e}"` : ''}>${I(ic)}</div>
+      <div class="tx"><div class="nm">${c.name}</div>${st ? `<div class="st">${st}</div>` : ''}</div>
+      ${sub ? `<div class="sub">${sub}</div>` : ''}</div></div>`;
+  }
+  if (c.t === 'climate') {
+    const h = S[c.e], isHeiz = c.e === 'heiz', on = h.mode === 'heat';
+    const stTxt = on ? (isHeiz ? 'Heizen · ' + (h.preset === 'high' ? 'High' : 'Eco') : 'Heizen') : 'Aus';
+    const subs = (c.subs || []).map(s => s === 'mode' ? `<button class="chip" data-a="clmode" data-e="${c.e}">${on ? 'Heizen' : 'Aus'}</button>` : `<button class="chip" data-a="clpreset" data-e="${c.e}">${h.preset === 'high' ? '🟠 High' : '🌱 Eco'}</button>`).join('');
+    return `<div class="${span}"><div class="bb ${on ? 'on' : ''}" style="cursor:default">
+      <div class="ic">${I(c.icon)}</div><div class="tx"><div class="nm">${c.name}</div><div class="st">${stTxt} · ${f1(S.innen)} °C</div></div>
+      ${subs}
+      <button class="rnd ${on ? 'act' : ''}" data-a="clpower" data-e="${c.e}">${I('power')}</button>
+      <div class="pm"><button data-a="clminus" data-e="${c.e}">${I('minus')}</button><span>${f1(h.ziel)} °C</span><button data-a="clplus" data-e="${c.e}">${I('plus')}</button></div>
+    </div></div>`;
+  }
+  if (c.t === 'select') {
+    const opts = ['Aus','Eco','High','Boost'], em = {Aus:'🔵',Eco:'🌱',High:'🟠',Boost:'🔴'};
+    const open = S.openSel === c.e;
+    return `<div class="${span}"><div class="bb ${S.boiler !== 'Aus' ? 'on' : ''}" data-a="selopen" data-e="${c.e}">
+      <div class="ic">${I(c.icon)}</div><div class="tx"><div class="nm">${c.name}</div><div class="st">${em[S.boiler]} ${S.boiler} · ${Math.round(S.wasser)} °C</div></div>
+      <div class="rnd">${I('chevron-down')}</div></div>
+      ${open ? `<div class="opts">${opts.map(o => `<button data-a="selpick" data-e="${o}" class="${S.boiler === o ? 'on' : ''}">${em[o]} ${o}</button>`).join('')}</div>` : ''}</div>`;
+  }
+  if (c.t === 'media') {
+    const m = S.media;
+    return `<div class="${span} card media"><div class="ct">${I(c.video ? 'television-play' : 'music')}${c.video ? 'Fernseher' : 'Musik'}</div>
+      <div class="mt">${m.on ? m.title : 'Aus'}</div><div class="ms">${m.on ? (m.kind === 'radio' ? 'Radio · Music Assistant' : 'Streaming · Google TV') : 'Tippe auf einen Sender'}</div>
+      <div class="ctl"><button data-a="mprev">${I('skip-previous')}</button><button class="big" data-a="mplay">${I(m.on ? 'pause' : 'play')}</button><button data-a="mnext">${I('skip-next')}</button></div>
+      ${c.compact ? '' : `<input type="range" min="0" max="100" value="${m.vol}" data-a="mvol">`}</div>`;
+  }
+  if (c.t === 'chart') {
+    const H2 = S.hist.length ? S.hist : [{p:0,c:0,t:S.innen,f:S.feuchte}];
+    const series = c.which === 'power' ? [['p','#f2994a','Von außen'],['c','#9b51e0','Bordstrom']] : [['t','#eb5757','Innen °C']];
+    const max = c.which === 'power' ? Math.max(500, ...H2.map(x => Math.max(x.p, x.c))) : Math.max(25, ...H2.map(x => x.t));
+    const min = c.which === 'power' ? 0 : Math.min(5, ...H2.map(x => x.t));
+    const path = k => H2.map((x, i) => `${(i / Math.max(1, H2.length - 1) * 300).toFixed(1)},${(100 - (x[k] - min) / (max - min) * 90).toFixed(1)}`).join(' ');
+    return `<div class="${span} card chart"><div class="ct">${c.which === 'power' ? 'Leistung letzte 2 Stunden' : 'Innentemperatur'}</div>
+      <svg viewBox="0 0 300 105" preserveAspectRatio="none">${series.map(([k, col]) => `<polyline points="${path(k)}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/>`).join('')}</svg>
+      <div class="ms" style="font-size:11px;color:var(--tx2)">${series.map(([k, col, l]) => `<span style="color:${col}">■</span> ${l}`).join(' &nbsp; ')}</div></div>`;
+  }
+  if (c.t === 'map') return `<div class="${span} mapc"><svg viewBox="0 0 300 160" width="100%" height="160"><path d="M0 110 C60 90 120 130 190 100 S300 80 300 80" stroke="#fff" stroke-width="6" fill="none" opacity=".8"/><circle cx="170" cy="96" r="9" fill="#2f80ed" stroke="#fff" stroke-width="3"/></svg></div>`;
+  if (c.t === 'md') return `<div class="${span} card md">${c.html}</div>`;
+  if (c.t === 'umg') {
+    const h = [...(S.ort || 'x')].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 9973, 7);
+    const km = k => ((h * (k + 3)) % 47 / 10 + .4).toFixed(1).replace('.', ',');
+    const ort = S.ort || 'deinem Standort';
+    const items = [['Wandern','Rundweg „Panoramaweg“', km(1)+' km zum Einstieg'],['Restaurant & Café','Hofcafé mit Kuchen', km(2)+' km · ★ 4,'+(h%5+4)],['Badestellen','Badestelle am Ufer', km(3)+' km'],['Aussichtspunkte','Aussichtsturm', km(4)+' km'],['Radtouren','Radweg entlang des Flusses', km(5)+' km zum Einstieg']];
+    return `<div class="${span} card md"><div class="ct">${I('map-marker')} Standort</div>
+      <input type="text" data-a="ort" value="${ort === 'deinem Standort' ? '' : ort.replace(/"/g,'&quot;')}" placeholder="Ort oder PLZ" style="width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bb);color:var(--tx);font:inherit;margin-bottom:8px">
+      <b>Rund um ${ort.replace(/</g,'&lt;')}</b> (Beispiel)<ul>${items.map(([k, n, d]) => `<li><span style="color:var(--tx2)">${k}:</span> ${n} · ${d}</li>`).join('')}</ul>
+      <div style="margin-top:6px;color:var(--tx2);font-size:12px">Im echten System wird der Ort in Koordinaten umgerechnet und passend zu deinen Interessen in OpenStreetMap gesucht. Im Fahrzeug kommt der Standort automatisch per GPS.</div></div>`;
+  }
+  return '';
+}
+function renderDash(r){
+  const D = DASH[S.dev], v = S.view[S.dev];
+  const scr = document.getElementById('screen');
+  const keepScroll = scr.querySelector('.view') ? scr.querySelector('.view').scrollTop : 0;
+  scr.className = 'screen ' + D.theme + ' ' + D.layout;
+  const tabs = D.tabs.map(([id, ic, t]) => `<button class="tab ${v === id ? 'on' : ''}" data-tab="${id}" title="${t}">${I(ic)}</button>`).join('');
+  const secs = D.views[v].map(sec => `<div class="sec">${sec.map(c => cardHTML(c, r)).join('')}</div>`).join('');
+  const nav = D.nav ? `<div class="nav">${D.nav.map(id => { const t = D.tabs.find(x => x[0] === id); return `<button data-tab="${id}" class="${v === id ? 'on' : ''}">${I(t[1])}${t[2]}</button>`; }).join('')}</div>` : '';
+  scr.innerHTML = `<div class="hd">${D.menu ? `<button class="tab">${I('menu')}</button>` : ''}${tabs}<span class="sp"></span><button class="tab">${I('dots-vertical')}</button></div>
+    <div class="view">${D.logo ? '<div class="logo"><i>CA</i> camping</div>' : ''}<div class="secs" style="--cols:${D.cols}">${secs}</div></div>${nav}`;
+  scr.querySelector('.view').scrollTop = keepScroll;
+}
+
+/* ================= Szene (Grundriss: Kompakter Allrounder, Blick von der Trennwand nach hinten) ================= */
+// Tiefe d: 0 = Trennwand, 1 = Heckwand. Seitenwand links = Beifahrerseite (Einstieg), rechts = Fahrerseite.
+const LX = d => 330*d, RX = d => 1000 - 330*d, TY = d => 150*d, BY = d => 560 - 160*d;
+const Y = (d, h) => BY(d) - h * (BY(d) - TY(d));       // h: 0 = Boden, 1 = Decke
+const L = (d, h, inset = 0) => [LX(d) + inset*(1 - d*0.66), Y(d, h)];   // inset in px an der Heckkante, perspektivisch skaliert
+const R = (d, h, inset = 0) => [RX(d) - inset*(1 - d*0.66), Y(d, h)];
+const poly = (pts, attrs) => `<polygon points="${pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" ${attrs}/>`;
+function sceneInnen(){
+  // Blick vom Heckbett nach vorn zur Trennwand (Stand Rohausbau Master Yoda).
+  // d: 0 = Heckbett, 1 = Trennwand. Links = Fahrerseite: hohe Einheit mit 15″-Display (Ausschnitt oben) und Kühlschrank-Lüftung (Schlitze unten), davor Kleiderschrank.
+  // Rechts = Beifahrerseite: Kochmodul mit Doppel-Induktion und Oberschränken, Einstieg mit Shelly Wall. Akustikpaneele an der Heckwand und an der Trennwand hinter dem Beifahrer.
+  const M = MOEBEL[S.moebel], felt = '#2e3034', felt2 = '#26282b', hpl = M.hpl, hplL = M.hplL, hplD = M.hplD, birch = '#e2cda4';
+  const tD0 = .15, tD1 = 1.0, tIn = 333;   // hohe Einheit Fahrerseite: Kühlschrank, Kleiderschrank, Duschmodul bis zur Trennwand
+  const kD0 = .28, kD1 = .58, kIn = 333, hIn = kIn*.5;   // Kochmodul Beifahrerseite
+  const box = (P, d0, d1, inn, h0, h, side, end, top) => [
+      poly([P(d0,h0,inn), P(d1,h0,inn), P(d1,h,inn), P(d0,h,inn)], `fill="${side}"`),
+      top ? poly([P(d0,h,inn), P(d1,h,inn), P(d1,h), P(d0,h)], `fill="${top}"`) : '',
+      poly([P(d0,h0), P(d0,h0,inn), P(d0,h,inn), P(d0,h)], `fill="${end}"`),
+      `<polyline points="${[P(d0,h0), P(d0,h), P(d0,h,inn), P(d0,h0,inn)].map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="${birch}" stroke-width="2.5"/>`].join('');
+  const m = (p, q, t) => [p[0] + (q[0]-p[0])*t, p[1] + (q[1]-p[1])*t];
+  const face = (u, v) => m(m(L(tD0,.0), L(tD0,.0,tIn), u), m(L(tD0,1), L(tD0,1,tIn), u), v);   // Punkt auf der Stirnseite der hohen Einheit
+  const rect = (u0, u1, v0, v1) => [face(u0,v0), face(u1,v0), face(u1,v1), face(u0,v1)];
+  // Akustikpaneele im Heck: waagerechte Leisten (wie im Rohausbau), Filz dazwischen
+  const slats = (P, d0, d1, h0, h1, n) => poly([P(d0,h0), P(d1,h0), P(d1,h1), P(d0,h1)], `fill="${felt2}"`) + Array.from({length: n}, (_, i) => { const a = h0 + (h1-h0)*i/n, b2 = a + (h1-h0)/n*.55; return poly([P(d0,a), P(d1,a), P(d1,b2), P(d0,b2)], `fill="#b08d62"`); }).join('');
+  const dispMid = face(.5, .755);
+  return `<svg viewBox="0 0 1000 560" id="sv" xmlns="http://www.w3.org/2000/svg" font-family="Roboto,system-ui,sans-serif">
+  <defs>
+    <linearGradient id="gNight" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0a1830"/><stop offset="1" stop-color="#243250"/></linearGradient>
+    <radialGradient id="gWarm" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd89a" stop-opacity=".9"/><stop offset="1" stop-color="#ffb547" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gIR" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#ff7a45" stop-opacity=".7"/><stop offset="1" stop-color="#ff7a45" stop-opacity="0"/></radialGradient>
+  </defs>
+  <!-- Raum: Filz an Decke und Wänden -->
+  <polygon points="0,0 1000,0 670,150 330,150" fill="#35373b"/>
+  <polygon points="0,0 330,150 330,400 0,560" fill="${felt}"/>
+  <polygon points="1000,0 670,150 670,400 1000,560" fill="${felt2}"/>
+  <polygon points="0,560 1000,560 670,400 330,400" fill="#4a3f35"/>
+  <!-- Dachluken -->
+  <polygon points="372,6 628,6 606,44 394,44" fill="#d9dadc"/><polygon points="392,12 608,12 592,38 408,38" fill="#eef1f4"/>
+  <polygon points="452,112 548,112 541,126 459,126" fill="#d9dadc"/>
+  <!-- Trennwand: Akustikpaneel vollflächig bis zum Duschmodul, inkl. Tür zum Fahrerhaus -->
+  <rect x="330" y="150" width="340" height="250" fill="${felt2}"/>
+  ${Array.from({length: 30}, (_, i) => `<rect x="${332 + i*11.3}" y="150" width="6.6" height="250" fill="#b08d62"/>`).join('')}
+  <rect x="452" y="168" width="100" height="232" fill="none" stroke="#141516" stroke-width="3"/>
+  <rect x="537" y="282" width="6" height="22" rx="2" fill="#2a2b2d"/>
+  <text x="502" y="392" fill="#e8d7b8" font-size="9" text-anchor="middle" opacity=".8">Tür Fahrerhaus</text>
+  <!-- Infrarotheizung 50 × 60 cm mit Bildmotiv auf dem Akustikpaneel -->
+  <g id="irp">
+    <rect id="irFrame" x="548" y="160" width="86" height="104" fill="#f4f1ea" stroke="#d9d2c4" stroke-width="3"/>
+    <defs><linearGradient id="gSkyIR" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8fb8de"/><stop offset="1" stop-color="#dfeaf2"/></linearGradient></defs>
+    <rect x="553" y="165" width="76" height="94" fill="url(#gSkyIR)"/>
+    <polygon points="553.0,224.4 572.4,187.2 586.6,208.5 599.8,181.8 629.9,222.6 629.9,259.0 553.0,259.0" fill="#8c9aa8"/>
+    <polygon points="567.1,196.9 572.4,187.2 578.6,198.7" fill="#fff"/><polygon points="594.5,192.5 599.8,181.8 606.0,194.3" fill="#fff"/>
+    <polygon points="553.0,240.4 579.5,229.7 606.0,235.1 629.9,228.0 629.9,259.0 553.0,259.0" fill="#5f8a4f"/>
+    <rect x="580" y="224" width="27" height="16" fill="#e9dfcc"/><polygon points="576.0,228.8 592.8,217.3 609.6,228.8" fill="#7a4b32"/>
+    ${[0,1,2].map(i => `<rect x="${583 + i*7}" y="228" width="4" height="5" fill="#5a6b7c"/>`).join('')}
+    <polygon points="558.3,251.0 561.8,236.8 565.4,251.0" fill="#2f5a34"/><polygon points="620.2,251.0 623.7,235.1 627.2,251.0" fill="#2f5a34"/>
+  </g>
+  <ellipse id="irGlow" cx="591" cy="215" rx="150" ry="120" fill="url(#gIR)" opacity="0"/>
+  <g id="sockTrenn"><rect x="580" y="318" width="22" height="28" rx="3" fill="#fff" stroke="#bbb"/><circle id="sockTrennLed" cx="591" cy="332" r="3" fill="#bbb"/></g>
+  <!-- Akustikpaneele an der Heckwand (seitlich am Bett) -->
+  ${slats(L, .0, .14, .70, .95, 7)}${slats(R, .0, .14, .70, .95, 7)}
+  <!-- rechts: Einstieg (Schiebetür) mit Shelly Wall Display -->
+  ${poly([R(.60,.02), R(.97,.02), R(.97,.86), R(.60,.86)], 'fill="url(#gNight)"')}
+  ${poly([R(.60,.02), R(.97,.02), R(.97,.07), R(.60,.09)], 'fill="#5d5a55"')}
+  <text x="${R(.79,.72)[0]}" y="${R(.79,.72)[1]}" fill="#8ea3c7" font-size="12" text-anchor="middle">Einstieg</text>
+  <!-- rechts: Oberschränke und Kochmodul -->
+  ${box(R, kD0, kD1, 190, .78, .96, M.top, M.topL)}
+  ${box(R, kD0, kD1, kIn, 0, .46, hpl, hplL, '#8b6a4a')}
+  ${[.18,.32].map(h => poly([R(kD0,h,kIn*.92), R(kD0,h,kIn*.08), R(kD0,h+.006,kIn*.08), R(kD0,h+.006,kIn*.92)], `fill="${hplD}"`)).join('')}
+  ${poly([R(kD0+.03,.462,kIn*.82), R(kD0+.17,.462,kIn*.82), R(kD0+.17,.462,kIn*.18), R(kD0+.03,.462,kIn*.18)], 'fill="#1b1b1d"')}
+  <ellipse id="ind1" cx="${R(kD0+.07,.465,hIn)[0].toFixed(0)}" cy="${(R(kD0+.07,.465)[1]+3).toFixed(0)}" rx="40" ry="8" fill="#333"/>
+  <ellipse id="ind2" cx="${R(kD0+.145,.465,hIn)[0].toFixed(0)}" cy="${(R(kD0+.145,.465)[1]+3).toFixed(0)}" rx="40" ry="8" fill="#333"/>
+  <g id="pot" opacity="0"><rect x="${(R(kD0+.07,.465,hIn)[0]-20).toFixed(0)}" y="${(R(kD0+.07,.465)[1]-20).toFixed(0)}" width="40" height="24" rx="4" fill="#9aa3ab"/>
+  <g class="air run">${[0,1,2].map(i => `<path d="M${(R(kD0+.07,.465,hIn)[0]-10+i*10).toFixed(0)} ${(R(kD0+.07,.465)[1]-24).toFixed(0)} q-6 -12 0 -24 q6 -12 0 -24" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" style="animation-delay:${i*.7}s"/>`).join('')}</g></g>
+  <!-- links: hohe Einheit (Kleiderschrank / 4-in-1-Bad, Kühlschrank am Heckende) -->
+  ${box(L, tD0, tD1, tIn, 0, .97, hpl, hplL)}
+  ${[.42,.72].map(d => `<line x1="${L(d,0,tIn)[0]}" y1="${L(d,0,tIn)[1]}" x2="${L(d,.97,tIn)[0]}" y2="${L(d,.97,tIn)[1]}" stroke="${hplD}" stroke-width="2"/>`).join('')}
+  ${Array.from({length: 10}, (_, i) => poly(rect(.22, .78, .555 - i*.026, .567 - i*.026), `fill="${felt2}"`)).join('')}
+  <text x="${face(.5,.585)[0].toFixed(0)}" y="${face(.5,.585)[1].toFixed(0)}" fill="#d5dbe0" font-size="9" text-anchor="middle">Lüftung Kühlschrank</text>
+  <!-- Truma-Luftauslass am Bettende -->
+  <!-- Steckdose Heck (rechts an der Heckwand) -->
+  <g id="sockHeck">${poly([R(.03,.56,4), R(.07,.56,4), R(.07,.63,4), R(.03,.63,4)], 'fill="#1d1e20" stroke="#444"')}
+  <circle id="sockHeckLed" cx="${R(.05,.595,4)[0]}" cy="${R(.05,.595,4)[1]}" r="3" fill="#555"/></g>
+  <!-- Heckbett im Vordergrund: Bettkasten mit Lattenrost -->
+  <path d="M0 560 L0 486 L1000 486 L1000 560 Z" fill="${hpl}"/>
+  ${Array.from({length: 9}, (_, i) => `<rect x="${20 + i*110}" y="478" width="80" height="12" rx="3" fill="${birch}"/>`).join('')}
+  <rect x="0" y="486" width="1000" height="4" fill="${birch}"/>
+  <!-- Kühlschrank: Toplader im Bettpodest zwischen Kleiderschrank und Heckbett, Bambusplatte als Deckel -->
+  <g id="kuehl"><polygon points="16,466 318,466 336,492 0,492" fill="#d6b277" stroke="#b8945c" stroke-width="2"/>
+  ${Array.from({length: 11}, (_, i) => `<line x1="${40 + i*27}" y1="467" x2="${26 + i*29}" y2="491" stroke="#c19c60" stroke-width="2"/>`).join('')}
+  <rect x="0" y="492" width="336" height="7" fill="#b8945c"/>
+  <text id="kuehlT" x="170" y="485" fill="#5e4a2c" font-size="12" text-anchor="middle" font-weight="700">Kühlschrank 5 °C</text></g>
+  <g id="laptop" opacity="0"><polygon points="640,478 760,478 775,490 625,490" fill="#7b828a"/><rect x="650" y="410" width="100" height="68" rx="4" fill="#2f80ed"/></g>
+  <g class="air" id="heat">${[0,1,2].map(i => `<path d="M${470+i*40} 440 q12 -16 0 -32 q-12 -16 0 -32" stroke="#ff8a4a" stroke-width="5" fill="none" stroke-linecap="round" style="animation-delay:${i*.6}s"/>`).join('')}</g>
+  <!-- Licht -->
+  <rect id="dark" width="1000" height="560" fill="#050810" opacity=".72" pointer-events="none"/>
+  <ellipse id="gHL" cx="40" cy="250" rx="300" ry="260" fill="url(#gWarm)" opacity="0" style="mix-blend-mode:screen" pointer-events="none"/>
+  <ellipse id="gHR" cx="960" cy="250" rx="300" ry="260" fill="url(#gWarm)" opacity="0" style="mix-blend-mode:screen" pointer-events="none"/>
+  <line id="sL" x1="${L(0,.955)[0]}" y1="${L(0,.955)[1]}" x2="${L(.14,.955)[0]}" y2="${L(.14,.955)[1]}" stroke="#fff0cf" stroke-width="6" stroke-linecap="round" opacity=".15"/>
+  <line id="sR" x1="${R(0,.955)[0]}" y1="${R(0,.955)[1]}" x2="${R(.14,.955)[0]}" y2="${R(.14,.955)[1]}" stroke="#fff0cf" stroke-width="6" stroke-linecap="round" opacity=".15"/>
+  <line id="sK" x1="${R(kD0+.01,.778,175)[0]}" y1="${R(kD0+.01,.778)[1]}" x2="${R(kD1-.01,.778,175)[0]}" y2="${R(kD1-.01,.778)[1]}" stroke="#fff0cf" stroke-width="5" stroke-linecap="round" opacity=".12"/>
+  <ellipse id="gKueche" cx="${R(.42,.6,170)[0]}" cy="${R(.42,.6)[1]}" rx="230" ry="110" fill="url(#gWarm)" opacity="0" style="mix-blend-mode:screen" pointer-events="none"/>
+  <!-- Bildschirme leuchten immer -->
+  <g id="wallDisp"><rect x="641" y="178" width="24" height="24" rx="2" fill="#f2f2f0" stroke="#cfcfcf" stroke-width="1"/>
+  <rect id="wallScr" x="644" y="181" width="18" height="18" rx="1" fill="#1c2430"/>
+  <rect id="wallBtn" x="647" y="190" width="12" height="5" rx="2" fill="#f0a64a" opacity="0"/></g>
+  <g id="bigDisp">${poly(rect(.24, .76, .625, .88), 'fill="#111" stroke="#2a2a2a" stroke-width="3"')}
+  ${poly(rect(.27, .73, .645, .86), 'id="bigScr" fill="#1c2430"')}
+  <text id="bigTxt" x="${dispMid[0].toFixed(0)}" y="${(dispMid[1]+2).toFixed(0)}" fill="#f1f4f8" font-size="13" text-anchor="middle" font-weight="700">Cockpit</text>
+  <text id="bigSub" x="${dispMid[0].toFixed(0)}" y="${(dispMid[1]+18).toFixed(0)}" fill="#9aa6b6" font-size="9" text-anchor="middle">15″ Touch</text></g>
+  <g id="hl"></g>
+  </svg>`;
+}
+function sceneBad(){
+  return `<svg viewBox="0 0 1000 560" id="sv" xmlns="http://www.w3.org/2000/svg" font-family="Roboto,system-ui,sans-serif">
+  <defs><radialGradient id="gWarm" cx="50%" cy="20%" r="70%"><stop offset="0" stop-color="#ffe2b0" stop-opacity=".95"/><stop offset="1" stop-color="#ffb547" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gBirch" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e6cfa6"/><stop offset="1" stop-color="#cfb184"/></linearGradient></defs>
+  <rect width="1000" height="560" fill="#e4ddd0"/><rect y="470" width="1000" height="90" fill="#8f7f6c"/>
+  <text x="80" y="60" fill="#6b604f" font-size="18" font-weight="700">4-in-1-Bad im Kleiderschrank</text>
+  <text x="80" y="84" fill="#8a7f6e" font-size="13">Kleiderschrank, Dusche, WC und Stauraum in einem Möbel</text>
+  <rect x="300" y="110" width="360" height="380" rx="8" fill="#f2f5f6" stroke="#c4ccd0" stroke-width="4"/>
+  <polygon points="660,110 780,140 780,470 660,490" fill="${MOEBEL[S.moebel].hpl}" stroke="#e2cda4" stroke-width="2"/>
+  <rect x="315" y="450" width="330" height="30" rx="6" fill="#d7dee2"/>
+  <line x1="600" y1="130" x2="600" y2="190" stroke="#8d969c" stroke-width="7"/><rect x="560" y="188" width="70" height="12" rx="5" fill="#8d969c"/>
+  <g class="drops" id="drops">${Array.from({length: 16}, (_, i) => `<line x1="${566+i*4}" y1="206" x2="${562+i*4}" y2="222" stroke="#4fb3ff" stroke-width="2.5" stroke-linecap="round" style="animation-delay:${(i*.07).toFixed(2)}s"/>`).join('')}</g>
+  <path d="M320 120 Q350 300 325 450" stroke="#9fb7c4" stroke-width="12" fill="none" opacity=".45"/>
+  <rect x="380" y="380" width="90" height="70" rx="20" fill="#fff" stroke="#c4ccd0" stroke-width="3"/><text x="425" y="420" fill="#9aa" font-size="12" text-anchor="middle">WC</text>
+  <rect x="820" y="230" width="120" height="210" rx="40" fill="#eef0f2" stroke="#a9b1b8" stroke-width="3"/>
+  <rect id="boilFill" x="830" y="300" width="100" height="130" rx="32" fill="#ff8a4a" opacity=".85"/>
+  <text id="boilT" x="880" y="290" fill="#333" font-size="22" font-weight="700" text-anchor="middle">31 °C</text>
+  <text id="boilM" x="880" y="262" fill="#666" font-size="13" text-anchor="middle">Eco</text>
+  <text x="880" y="465" fill="#666" font-size="12" text-anchor="middle">Boiler 10 l</text>
+  <g class="air" id="boilHeat">${[0,1].map(i => `<path d="M${865+i*30} 228 q8 -12 0 -24 q-8 -12 0 -24" stroke="#ff8a4a" stroke-width="4" fill="none" stroke-linecap="round" style="animation-delay:${i*.8}s"/>`).join('')}</g>
+  <rect id="dark" width="1000" height="560" fill="#050810" opacity=".5" pointer-events="none"/>
+  <ellipse id="gBad" cx="480" cy="160" rx="320" ry="260" fill="url(#gWarm)" opacity="0" style="mix-blend-mode:screen"/>
+  <line id="sBad" x1="318" y1="122" x2="642" y2="122" stroke="#fff0cf" stroke-width="6" stroke-linecap="round" opacity=".15"/><text x="480" y="104" fill="#8a7f6e" font-size="11" text-anchor="middle">LED-Leiste Duschmodul</text>
+  <g id="hl"></g></svg>`;
+}
+function sceneEnergie(){
+  const node = (id, x, y, ic, l) => `<g id="${id}"><rect x="${x}" y="${y}" width="150" height="78" rx="16" fill="#fff" stroke="#dde1e7"/>
+    <g transform="translate(${x+12},${y+12}) scale(1.1)" fill="#5d6675"><path d="${ICONS[ic]}"/></g>
+    <text x="${x+44}" y="${y+28}" font-size="13" fill="#5d6675">${l}</text>
+    <text class="nv" x="${x+14}" y="${y+62}" font-size="16" font-weight="700" fill="#1d2430">–</text></g>`;
+  const flow = (id, d) => `<path d="${d}" stroke="#e6e9ee" stroke-width="7" fill="none"/><path id="${id}" class="flow" d="${d}" stroke="#27ae60" stroke-width="4"/>`;
+  return `<svg viewBox="0 0 1000 560" id="sv" xmlns="http://www.w3.org/2000/svg" font-family="Roboto,system-ui,sans-serif">
+  <rect width="1000" height="560" fill="#f6f7f9"/>
+  <text x="30" y="36" font-size="13" fill="#8a93a3">STROM VON AUSSEN</text><text x="400" y="36" font-size="13" fill="#8a93a3">VERTEILUNG</text><text x="790" y="36" font-size="13" fill="#8a93a3">VERBRAUCHER</text>
+  ${flow('fShore','M180 110 C260 110 270 200 360 200')}${flow('fV2L','M180 290 C260 290 270 220 360 220')}
+  ${flow('fBoil','M510 190 C600 190 680 90 760 90')}${flow('fKoch','M510 205 C600 205 680 200 760 200')}
+  ${flow('fG1','M410 250 C410 320 300 330 300 390')}${flow('fG2','M460 250 C460 320 560 330 560 390')}
+  ${flow('fE1','M450 430 C600 430 650 360 760 360')}${flow('fE2','M710 430 C730 430 740 370 760 370')}
+  ${flow('fDirect','M510 225 C640 240 650 340 760 350')}
+  ${node('nShore',30,70,'power-plug','Campingplatz')}${node('nV2L',30,250,'car-electric','Fahrzeugbatterie')}
+  ${node('nPrim',360,170,'flash','Strom von außen')}
+  ${node('nBoil',760,50,'water-boiler','Boiler')}${node('nKoch',760,160,'fire','Kochfeld')}
+  ${node('nE1',225,390,'car-battery','Hausbatterie 1')}${node('nE2',485,390,'car-battery','Hausbatterie 2')}
+  ${node('nComf',760,320,'home-thermometer','Bordstrom')}
+  <text x="300" y="378" font-size="11" fill="#8a93a3" text-anchor="middle">Generator 1</text><text x="560" y="378" font-size="11" fill="#8a93a3" text-anchor="middle">Generator 2</text>
+  <text id="eHint" x="500" y="530" font-size="14" fill="#5d6675" text-anchor="middle"></text>
+  <g id="hl"></g></svg>`;
+}
+function sceneFahrzeug(){
+  return `<svg viewBox="0 0 1000 560" id="sv" xmlns="http://www.w3.org/2000/svg" font-family="Roboto,system-ui,sans-serif">
+  <defs><linearGradient id="gSky" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d1b33"/><stop offset="1" stop-color="#34466b"/></linearGradient></defs>
+  <rect width="1000" height="560" fill="url(#gSky)"/><rect y="452" width="1000" height="108" fill="#2b3326"/>
+  <circle cx="160" cy="80" r="22" fill="#f3f0d8" opacity=".9"/>
+  <path d="M120 420 L120 140 Q120 112 148 112 L700 112 Q748 112 768 160 L850 300 Q862 318 862 340 L862 420 Z" fill="#e8ebee" stroke="#b9c0c7" stroke-width="3"/>
+  <polygon points="720,140 760,150 832,290 720,290" fill="#1b2638" stroke="#9aa3ab" stroke-width="3"/>
+  <line x1="700" y1="120" x2="700" y2="420" stroke="#b9c0c7" stroke-width="3"/><line x1="470" y1="120" x2="470" y2="420" stroke="#c5cbd1" stroke-width="2"/>
+  <rect x="200" y="160" width="160" height="80" rx="10" fill="#1b2638"/>
+  <text x="500" y="360" font-size="26" font-weight="800" fill="#c94f33">CA <tspan fill="#5d6675" font-weight="600">camping</tspan></text>
+  <circle cx="250" cy="418" r="38" fill="#1d1f22"/><circle cx="250" cy="418" r="16" fill="#9aa3ab"/>
+  <circle cx="740" cy="418" r="38" fill="#1d1f22"/><circle cx="740" cy="418" r="16" fill="#9aa3ab"/>
+  <rect x="150" y="300" width="300" height="12" rx="6" fill="#cfd5db"/><rect id="carBar" x="150" y="300" width="200" height="12" rx="6" fill="#27ae60"/>
+  <text id="carTxt" x="150" y="292" font-size="14" fill="#5d6675" font-weight="700">76 % · 274 km</text>
+  <ellipse id="hlight" cx="858" cy="318" rx="10" ry="14" fill="#fff7d6"/>
+  <polygon id="beam" points="866,305 1000,250 1000,400 866,332" fill="#fff7d6" opacity="0"/>
+  <g id="horn" opacity="0">${[0,1,2].map(i => `<path d="M${880+i*22} 250 q14 30 0 60" stroke="#fff" stroke-width="4" fill="none" opacity="${1-i*.25}"/>`).join('')}</g>
+  <rect x="800" y="330" width="22" height="18" rx="3" fill="#5d6675"/>
+  <path id="cable" d="M811 348 C811 420 900 410 940 440" stroke="#f2994a" stroke-width="7" fill="none" stroke-linecap="round" opacity="0"/>
+  <g id="plugBox" opacity="0"><rect x="920" y="400" width="60" height="90" rx="8" fill="#5d6675"/><text id="plugTxt" x="950" y="455" font-size="12" fill="#fff" text-anchor="middle">V2L</text></g>
+  <g id="cabFan" opacity="0" transform="translate(775 215)"><g class="spin run"><path d="${ICONS['fan']}" fill="#9fd3ff" transform="translate(-18 -18) scale(1.5)"/></g></g>
+  <text id="cabTxt" x="775" y="270" font-size="12" fill="#9fd3ff" text-anchor="middle" opacity="0">Vorklimatisieren</text>
+  <g id="hl"></g></svg>`;
+}
+const SCENES = {innen: sceneInnen, bad: sceneBad, energie: sceneEnergie, fahrzeug: sceneFahrzeug};
+const SCENE_NAMES = {innen:'Wohnraum', bad:'Bad & Boiler', energie:'Strom', fahrzeug:'Fahrzeug'};
+// Fokus-Ausschnitte in der Innenansicht (viewBox) und Markerpunkt
+const FOCUS = {
+  all:     {vb:[0,0,1000,560]},
+  einstieg:{vb:[470,110,440,300], pt:[653, 190], lbl:'Wall Display in der Akustikwand'},
+  kueche:  {vb:[420,110,580,380], pt:R(.35,.465,166), lbl:'Doppel-Induktionsfeld im Kochmodul'},
+  klicht:  {vb:[420,60,580,380], pt:R(.43,.778,175), lbl:'Licht unter den Oberschränken'},
+  display: {vb:[0,20,600,420], pt:L(.15,.92,166), lbl:'15″-Display an der Schrankseite'},
+  kuehl:   {vb:[0,250,600,320], pt:[170, 462], lbl:'Kühlschrank mit Bambusdeckel'},
+  bett:    {vb:[560,160,440,330], pt:R(.05,.595,4), lbl:'Steckdose Heck'},
+  heizung: {vb:[200,200,600,340], pt:[510, 440], lbl:'Warmluft der Truma-Heizung'},
+  hl:      {vb:[0,0,520,360], pt:L(.06,.955), lbl:'LED-Leiste am Akustikpaneel links'},
+  hr:      {vb:[480,0,520,360], pt:R(.06,.955), lbl:'LED-Leiste am Akustikpaneel rechts'},
+  heck:    {vb:[0,200,1000,360], pt:[500, 470], lbl:'Licht am Heckbett'},
+  ir:      {vb:[400,110,420,280], pt:[591, 150], lbl:'Infrarotheizung mit Bildmotiv'},
+  trenn:   {vb:[400,140,420,280], pt:[591, 332], lbl:'Steckdose Trennwand'}
+};
+let curScene = null, vbNow = [0,0,1000,560], vbAnim = null;
+function setFocus(scene, focus){ S.sceneView = scene; S.focus = focus || 'all'; }
+function animateVB(target){
+  const sv = document.getElementById('sv'); if (!sv) return;
+  const from = vbNow.slice(), t0 = performance.now();
+  cancelAnimationFrame(vbAnim);
+  const step = now => { const k = Math.min(1, (now - t0) / 700), e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+    vbNow = from.map((v, i) => v + (target[i] - v) * e); sv.setAttribute('viewBox', vbNow.join(' ')); if (k < 1) vbAnim = requestAnimationFrame(step); };
+  vbAnim = requestAnimationFrame(step);
+}
+let lastFocusKey = '';
+function updateScene(r){
+  const $ = id => document.getElementById(id);
+  if (curScene !== S.sceneView) { document.getElementById('scene').innerHTML = SCENES[S.sceneView](); curScene = S.sceneView; vbNow = [0,0,1000,560]; lastFocusKey = ''; }
+  const fk = S.sceneView + ':' + S.focus;
+  if (fk !== lastFocusKey) { lastFocusKey = fk; const F = S.sceneView === 'innen' ? (FOCUS[S.focus] || FOCUS.all) : FOCUS.all; animateVB(F.vb);
+    const hl = $('hl'); if (hl) hl.innerHTML = (S.sceneView === 'innen' && F.pt) ? `<circle class="pulse" cx="${F.pt[0]}" cy="${F.pt[1]}" r="14" fill="none" stroke="#2f80ed" stroke-width="${(4*F.vb[2]/1000).toFixed(1)}"/>
+      <g transform="translate(${F.pt[0]} ${F.pt[1] - 30*F.vb[2]/1000}) scale(${(F.vb[2]/1000*1.15).toFixed(2)})"><rect x="${-F.lbl.length*3.6-10}" y="-18" width="${F.lbl.length*7.2+20}" height="26" rx="13" fill="#2f80ed"/><text x="0" y="0" fill="#fff" font-size="13" text-anchor="middle">${F.lbl}</text></g>` : ''; }
+  const L4 = S.light;
+  if (S.sceneView === 'innen') {
+    const amb = (L4.hl*.38 + L4.hr*.38 + kL()*.2) / 100;
+    $('dark').setAttribute('opacity', Math.max(.06, .72 - .66*amb).toFixed(2));
+    $('gHL').setAttribute('opacity', (L4.hl/100*.85).toFixed(2)); $('gHR').setAttribute('opacity', (L4.hr/100*.85).toFixed(2));
+    $('sL').setAttribute('opacity', (.15 + L4.hl/100*.85).toFixed(2)); $('sR').setAttribute('opacity', (.15 + L4.hr/100*.85).toFixed(2));
+    $('gKueche').setAttribute('opacity', (kL()/100*.85).toFixed(2)); $('sK').setAttribute('opacity', kL() ? 1 : .12);
+    const kc = S.kochen > 0 ? '#ff4d1f' : '#333';
+    $('ind1').setAttribute('fill', kc); $('ind2').setAttribute('fill', kc); $('pot').setAttribute('opacity', S.kochen > 0 ? 1 : 0);
+    $('heat').classList.toggle('run', r.heizW > 100);
+    $('irGlow').setAttribute('opacity', r.irW > 0 ? .9 : 0); $('irFrame').setAttribute('stroke', r.irW > 0 ? '#ff8a4a' : '#d9d2c4');
+    $('sockHeckLed').setAttribute('fill', S.sw.doseHeck ? '#27ae60' : '#555'); $('laptop').setAttribute('opacity', S.sw.doseHeck ? 1 : 0);
+    $('sockTrennLed').setAttribute('fill', S.sw.doseTrenn ? '#27ae60' : '#bbb');
+    $('bigTxt').textContent = S.media.on ? (S.media.kind === 'stream' ? '▶ ' + S.media.title : '♫ ' + S.media.title) : S.big;
+    $('bigSub').textContent = S.media.on ? (S.media.kind === 'stream' ? 'Video' : 'Audio') : '15″ Touch';
+    $('wallScr').setAttribute('fill', r.overload ? '#c0392b' : '#1c2430'); $('wallBtn').setAttribute('opacity', (S.light.hl || S.light.hr) ? 1 : .35);
+    $('kuehlT').textContent = 'Kühlschrank 5 °C';
+  }
+  if (S.sceneView === 'bad') {
+    $('dark').setAttribute('opacity', Math.max(.05, .5 - .45*L4.bad/100).toFixed(2)); $('gBad').setAttribute('opacity', (L4.bad/100*.8).toFixed(2)); $('sBad').setAttribute('opacity', (.15 + L4.bad/100*.85).toFixed(2));
+    $('drops').classList.toggle('run', S.duschen > 0);
+    const f = Math.max(0, Math.min(1, (S.wasser - 10) / 52));
+    $('boilFill').setAttribute('height', (16 + 114*f).toFixed(0)); $('boilFill').setAttribute('y', (430 - 16 - 114*f).toFixed(0));
+    $('boilFill').setAttribute('fill', f > .55 ? '#ff6b3d' : f > .3 ? '#ffa36b' : '#7fb3d5');
+    $('boilT').textContent = Math.round(S.wasser) + ' °C';
+    $('boilM').textContent = S.boiler === 'Aus' ? 'Aus' : S.boiler + (r.boilerRun ? ' · heizt' : r.boilerNeed ? ' · wartet' : ' · warm');
+    $('boilHeat').classList.toggle('run', r.boilerRun);
+  }
+  if (S.sceneView === 'energie') {
+    const setN = (id, t) => { const n = document.querySelector('#' + id + ' .nv'); if (n) n.textContent = t; };
+    const setF = (id, w, col) => { const f = $(id); if (!f) return; f.classList.toggle('run', w > 1); f.setAttribute('opacity', w > 1 ? 1 : .1); f.setAttribute('stroke-width', Math.min(10, 2.5 + w/500)); if (col) f.setAttribute('stroke', col); };
+    const sh = r.P.shore, red = r.overload ? '#eb5757' : '#27ae60';
+    setN('nShore', sh ? fmtW(r.prim) : 'nicht angeschlossen'); setN('nV2L', !sh ? (r.P.lim ? fmtW(r.prim) : 'gesperrt') + ' · ' + Math.round(S.car) + ' %' : Math.round(S.car) + ' %');
+    setN('nPrim', fmtW(r.prim) + ' / ' + fmtW(r.P.lim)); setN('nBoil', r.boilerRun ? fmtW(C.boiler) : S.boiler === 'Aus' ? 'aus' : r.boilerNeed ? 'wartet' : 'warm');
+    setN('nKoch', S.kochen > 0 ? fmtW(C.induktion) : 'aus');
+    setN('nE1', Math.round(S.eco1) + ' %' + (r.charge.gen1 ? ' ▲ lädt' : '')); setN('nE2', Math.round(S.eco2) + ' %' + (r.charge.gen2 ? ' ▲ lädt' : ''));
+    setN('nComf', fmtW(r.comfort));
+    setF('fShore', sh ? r.prim : 0, red); setF('fV2L', !sh ? r.prim : 0, red);
+    setF('fBoil', r.boilerRun ? C.boiler : 0, '#f2994a'); setF('fKoch', r.kochW, '#f2994a');
+    setF('fG1', r.charge.gen1, '#2f80ed'); setF('fG2', r.charge.gen2, '#2f80ed');
+    setF('fE1', r.ecoOk ? r.comfort/2 : 0, '#9b51e0'); setF('fE2', r.ecoOk ? r.comfort/2 : 0, '#9b51e0'); setF('fDirect', r.ecoOk ? 0 : r.comfort, '#9b51e0');
+    $('eHint').textContent = r.overload ? '⚠ Gerade wird mehr Strom gebraucht, als von außen verfügbar ist.' : r.ecoOk ? 'Alles im Wohnraum läuft über die Hausbatterien – leise und unabhängig.' : 'Hausbatterien sind unter ihrer Reserve – der Strom kommt jetzt direkt von außen.';
+  }
+  if (S.sceneView === 'fahrzeug') {
+    $('carBar').setAttribute('width', (300 * S.car / 100).toFixed(0)); $('carBar').setAttribute('fill', S.car < S.min ? '#eb5757' : '#27ae60');
+    $('carTxt').textContent = Math.round(S.car) + ' % · ' + Math.round(S.car * C.kmPerPct) + ' km';
+    $('cable').setAttribute('opacity', r.P.plugged ? 1 : 0); $('plugBox').setAttribute('opacity', r.P.plugged ? 1 : 0);
+    $('plugTxt').textContent = S.scen === 'home' ? 'Wallbox' : 'V2L';
+    $('cable').setAttribute('stroke', S.carCharging ? '#27ae60' : '#f2994a');
+    $('cabFan').setAttribute('opacity', S.carClima > 0 ? 1 : 0); $('cabTxt').setAttribute('opacity', S.carClima > 0 ? 1 : 0);
+    $('beam').setAttribute('opacity', S.flash > 0 ? .55 : 0); $('horn').setAttribute('opacity', S.horn > 0 ? 1 : 0);
+  }
+}
+
+/* ================= Erklärungen in Alltagssprache ================= */
+let lastExplain = 'start';
+function explain(r){
+  const out = r.P.shore ? (S.scen === 'home' ? 'aus der Steckdose zu Hause' : 'vom Campingplatz') : 'aus der großen Fahrzeugbatterie';
+  const T = {
+    start: ['Du siehst links die Oberfläche, mit der du deinen Camper bedienst – genau so, wie sie später auf deinem Gerät aussieht. Tippe etwas an, rechts siehst du, was im Camper passiert.', 'Oben kannst du zwischen Smartphone, 15″-Display und Wall Display wechseln und auswählen, wo der Camper gerade steht.'],
+    heiz: [S.heiz.mode === 'heat' ? `Die Heizung bläst warme Luft in den Wohnraum. Ziel: ${f1(S.heiz.ziel)} °C, jetzt ${f1(S.innen)} °C. Stufe „${S.heiz.preset === 'high' ? 'High' : 'Eco'}“ ${S.heiz.preset === 'high' ? 'heizt schneller, braucht aber mehr Strom.' : 'ist leise und sparsam.'}` : 'Die Heizung ist aus. Schalte sie ein und wähle die Wunschtemperatur – auch schon vom Smartphone, bevor du ankommst.', `Truma Heizung · ${fmtW(r.heizW)} · Strom aus dem Bordnetz`],
+    wt: [S.wt.mode === 'heat' ? `Das Wandthermostat steuert die Infrarotheizung an der Trennwand – ein Bild, das wie die Sonne wärmt: direkt, lautlos und ohne Luftzug. Ziel ${f1(S.wt.ziel)} °C.` : 'Das Wandthermostat ist aus. Es schaltet die Infrarotheizung mit Bildmotiv an der Trennwand für angenehme Strahlungswärme.', `Infrarotheizung 50 × 60 cm · ${fmtW(r.irW)}`],
+    boiler: [S.boiler === 'Aus' ? 'Der Boiler ist aus. Mit „Eco“ wird das Wasser auf ca. 45 °C erwärmt, mit „High“ auf 60 °C.' : r.boilerRun ? `Der Boiler heizt dein Duschwasser (${Math.round(S.wasser)} °C). Er nutzt nur Strom, der gerade übrig ist – deshalb fällt nie etwas anderes aus.` : r.boilerNeed ? 'Der Boiler wartet: gerade wird der Strom woanders gebraucht, z. B. zum Kochen. Danach heizt er automatisch weiter. Mit „Boost“ heizt er sofort.' : `Das Wasser ist warm (${Math.round(S.wasser)} °C).`, 'Boiler 10 l · 1.000 W · Freigabe „nur mit Reserve“, Boost sofort'],
+    gen: [`„Generator 1“ und „Generator 2“ laden die beiden Hausbatterien. ${r.P.shore ? 'Am Strom von außen werden sie geladen, sobald Leistung frei ist.' : `Aus der Fahrzeugbatterie wird erst nachgeladen, wenn eine Hausbatterie unter ${C.v2lStart} % fällt – dann bis ${C.v2lStop} %. So bleibt genug Reichweite zum Weiterfahren.`}`, `Laden ${fmtW(r.charge.gen1 + r.charge.gen2)} · Hausbatterie 1: ${Math.round(S.eco1)} % · 2: ${Math.round(S.eco2)} %`],
+    res: ['Die Reserve-Kreise sind vorbereitet für Geräte, die später dazukommen (z. B. eine Klimaanlage). In der Demo hängt dort nichts.', 'Freie 230-V-Abgänge mit eigenem Shelly'],
+    doseHeck: [S.sw.doseHeck ? 'Die Steckdose an der Heckwand ist an – dein Laptop lädt.' : 'Die Steckdose an der Heckwand ist aus. Abgeschaltete Steckdosen verbrauchen nachts keinen Strom.', `Steckdose Heck · ${S.sw.doseHeck ? fmtW(C.laptop) : '0 W'}`],
+    doseTrenn: [S.sw.doseTrenn ? 'Die Steckdose an der Trennwand vorne ist an.' : 'Die Steckdose an der Trennwand vorne ist aus.', 'Steckdose Trennwand · Bordstrom'],
+    lscene: ['Ein Tipp beim Einsteigen genügt: „Licht an“ am Wall Display schaltet die LED-Leisten am Heckbett ein. „Nachtlicht“ dimmt auf 10 %, „Alles aus“ macht alles dunkel – auch beim Verlassen des Campers.', 'Shelly Wall Display in der Akustikwand · Lichtszenen'],
+    einsteigen: ['Du steigst ein: Direkt neben dem Einstieg sitzt das Wall Display in der Akustikwand. Ein Tipp auf „Licht an“ – fertig. In der Küche geht das Licht per Bewegung von selbst an.', 'Shelly Wall Display · Dashboard „Camper Wall“'],
+    kuechenlicht: [S.kAuto ? (kL() ? 'Du stehst in der Küche – das Licht unter den Oberschränken geht von selbst an und nach ein paar Minuten ohne Bewegung wieder aus.' : 'Das Küchenlicht unter den Oberschränken schaltet sich per Bewegungsmelder: Wer an die Küche tritt, hat sofort Licht – ohne Schalter zu suchen.') : 'Die Automatik ist aus – das Küchenlicht bleibt dunkel, auch wenn sich jemand bewegt.', `LED unter den Oberschränken · Bewegungsmelder · ${kL() ? fmtW(C.ledW) : '0 W'}`],
+    licht: ['Die LED-Leisten auf den Akustikpaneelen links und rechts am Heckbett und im Duschmodul sind einzeln dimmbar – per Fingertipp oder Sprachbefehl. Das Küchenlicht geht per Bewegung von selbst an.', `LED 24 V · zusammen ${fmtW(r.parts['Licht'])} · in Planung`],
+    kochen: [S.kochen > 0 ? `Beide Induktionsfelder sind an. Das braucht viel Strom (${fmtW(C.induktion)}) – er kommt ${out}. Kochen dauert meist nur 5–15 Minuten; Boiler und Batterieladen machen solange Pause.` : 'Das Doppel-Induktionsfeld im Kochmodul ist aus.', `Induktion ${fmtW(r.kochW)} · von außen ${fmtW(r.prim)} von max. ${fmtW(r.P.lim)}`],
+    duschen: [S.duschen > 0 ? `Du duschst. Der Strom kommt aus den Hausbatterien (${Math.round((S.eco1+S.eco2)/2)} %). Nach ca. 10 Minuten ist Schluss, danach wird nachgeladen.` : 'Das 4-in-1-Bad: Aus dem Kleiderschrank wird eine Duschkabine mit WC.', `Durchlauferhitzer ${S.duschen > 0 ? fmtW(C.dusche) : '0 W'} · Boiler ${Math.round(S.wasser)} °C`],
+    fahrzeug: [`Die Fahrzeugbatterie hat ${Math.round(S.car)} % (${Math.round(S.car*C.kmPerPct)} km). ${r.P.plugged && !r.P.shore ? `Sie versorgt gerade den Camper (V2L). Unter dem Mindest-Ladestand von ${S.min} % hört sie damit auf – damit du immer weiterfahren kannst.` : S.carCharging ? 'Sie wird gerade geladen.' : ''}`, `Ziel-Ladestand ${S.soll} % · Mindest-Ladestand ${S.min} %`],
+    vorklima: ['Vorklimatisieren: Das Fahrerhaus wird vor der Abfahrt angenehm temperiert – per Fingertipp, auch von unterwegs.', 'Renault-Integration · Klimaanlage Fahrerhaus'],
+    hupe: ['Hupe bzw. Lichthupe – praktisch, um den Camper auf einem großen Platz wiederzufinden.', 'Renault-Integration'],
+    media: [S.media.on ? `Es läuft „${S.media.title}“ auf dem großen Display an der Schrankseite – gut zu sehen vom Heckbett. Radio, Spotify und Streamingdienste steuerst du von jedem Gerät aus.` : 'Wähle einen Radiosender oder Streamingdienst – er startet auf dem 15″-Display an der Schrankseite.', 'Music Assistant · Google-TV-Stick'],
+    big: [`Das große Display zeigt jetzt „${S.big}“. Du kannst vom Wall Display oder Smartphone aus umschalten.`, '15″-Touch mit Google-TV-Stick'],
+    energie: [r.overload ? `Gerade wird mehr Strom gebraucht, als ${out} kommen kann (${fmtW(r.prim)} von ${fmtW(r.P.lim)}). Die Steuerung warnt, schaltet aber nichts Wichtiges ab.` : `Der Strom kommt ${out} (${fmtW(r.prim)} von max. ${fmtW(r.P.lim)}). Alles im Wohnraum läuft über die beiden Hausbatterien (${fmtW(r.comfort)}).`, r.ecoOk ? 'Bordstrom aus den Hausbatterien' : 'Hausbatterien unter Reserve – Bordstrom direkt von außen'],
+    system: ['Der Camper ist online: Du erreichst ihn von überall. Ein Wächter sorgt dafür, dass die Verbindung stabil bleibt.', 'Mobilfunk-Router mit öffentlicher IP · APN-Watchdog'],
+    umgebung: [`Passend zu deinen Interessen schlägt der Camper Ausflugsziele rund um ${S.ort || 'deinen Standort'} vor – Wanderwege, Cafés, Badestellen. Gib oben einen anderen Ort oder eine PLZ ein, und die Vorschläge ändern sich.`, 'Demo: Ort/PLZ → Koordinaten → OpenStreetMap · Fahrzeug: GPS · hier Musterdaten'],
+    remote: ['Die Fernbedienung steuert den Google-TV-Stick am großen Display – praktisch vom Bett aus.', 'Google TV']
+  };
+  const [w, t] = T[lastExplain] || T.start;
+  document.getElementById('what').textContent = w; document.getElementById('tech').textContent = t;
+}
+function renderLog(){ document.getElementById('log').innerHTML = S.log.map(e => `<li><time>${e.t}</time>${e.msg}</li>`).join('') || '<li>Noch nichts passiert.</li>'; }
+function renderRight(r){
+  document.getElementById('vttl').textContent = SCENE_NAMES[S.sceneView];
+  document.getElementById('vauto').textContent = S.autoView ? 'folgt deiner Bedienung' : 'selbst gewählt';
+  document.getElementById('chips').innerHTML = Object.entries(SCENE_NAMES).map(([k, l]) => `<button data-sc="${k}" class="${S.sceneView === k ? 'on' : ''}">${l}</button>`).join('');
+  document.getElementById('ph').style.display = S.sceneView === 'energie' ? 'none' : '';
+  document.getElementById('doit').innerHTML = `<span class="lbl">Im Camper ausprobieren:</span>
+    <button data-do="einsteigen">🚪 Einsteigen</button>
+    <button data-do="kochen" class="${S.kochen > 0 ? 'on' : ''}">🍳 Kochen (2 Felder)</button>
+    <button data-do="duschen" class="${S.duschen > 0 ? 'on' : ''}">🚿 Duschen</button>
+    <button data-do="kueche" class="${S.kMotion > 0 ? 'on' : ''}">🚶 In die Küche gehen</button>`;
+  const ecoAvg = (S.eco1 + S.eco2) / 2;
+  const m = (k, v, s, p, col) => `<div class="meter"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div><div class="bar"><i style="width:${Math.max(0, Math.min(100, p))}%;background:${col}"></i></div></div>`;
+  document.getElementById('bus').innerHTML =
+    m('Strom von außen', fmtW(r.prim), r.P.src + ' · max. ' + fmtW(r.P.lim), r.P.lim ? r.prim / r.P.lim * 100 : 0, r.overload ? 'var(--red)' : r.prim / Math.max(1, r.P.lim) > .8 ? 'var(--amber)' : 'var(--green)') +
+    m('Bordstrom', fmtW(r.comfort), r.ecoOk ? 'aus den Hausbatterien' : 'direkt von außen', r.comfort / 4800 * 100, 'var(--violet)') +
+    m('Hausbatterie 1', Math.round(S.eco1) + ' %', r.charge.gen1 ? 'lädt ' + fmtW(r.charge.gen1) : 'Reserve ' + C.reserve + ' %', S.eco1, S.eco1 < C.reserve ? 'var(--red)' : 'var(--blue)') +
+    m('Hausbatterie 2', Math.round(S.eco2) + ' %', r.charge.gen2 ? 'lädt ' + fmtW(r.charge.gen2) : 'Reserve ' + C.reserve + ' %', S.eco2, S.eco2 < C.reserve ? 'var(--red)' : 'var(--blue)') +
+    m('Fahrzeugbatterie', Math.round(S.car) + ' %', Math.round(S.car * C.kmPerPct) + ' km Reichweite', S.car, S.car < S.min ? 'var(--red)' : 'var(--green)');
+  document.getElementById('clock').textContent = clock();
+}
+function render(r){ r = r || compute(); renderDash(r); updateScene(r); explain(r); renderRight(r); fitFrame(); }
+
+/* ================= Bedienung ================= */
+function go(scene, focus, ex){ if (S.autoView) setFocus(scene, focus); else if (S.sceneView === scene) S.focus = focus || 'all'; lastExplain = ex; }
+function act(a, e){
+  S.autoView = true;
+  const name = {gen1:'Generator 1', gen2:'Generator 2', res1:'Reserve 1', res2:'Reserve 2', res3:'Reserve 3', res4:'Reserve 4', doseHeck:'Steckdose Heck', doseTrenn:'Steckdose Trennwand'};
+  const LN = {hl:'Heck links', hr:'Heck rechts', kueche:'Küche', bad:'Dusche'};
+  switch (a) {
+    case 'switch':
+      if (e === 'apn') { go('innen', 'all', 'system'); break; }
+      S.sw[e] = !S.sw[e]; log(`${name[e]} ${S.sw[e] ? 'an' : 'aus'}`);
+      if (e.startsWith('gen')) go('energie', 'all', 'gen'); else if (e === 'doseHeck') go('innen', 'bett', 'doseHeck'); else if (e === 'doseTrenn') go('innen', 'trenn', 'doseTrenn'); else go('energie', 'all', 'res');
+      break;
+    case 'slider-toggle': S.light[e] = S.light[e] ? 0 : 80; log(`Licht ${LN[e]} ${S.light[e] ? 'an' : 'aus'}`); go(e === 'bad' ? 'bad' : 'innen', e === 'bad' ? 'all' : e, 'licht'); break;
+    case 'number-toggle': break;
+    case 'clpower': S[e].mode = S[e].mode === 'heat' ? 'off' : 'heat'; log(`${e === 'heiz' ? 'Heizung' : 'Wandthermostat'} ${S[e].mode === 'heat' ? 'an' : 'aus'}`); go('innen', e === 'heiz' ? 'heizung' : 'ir', e); break;
+    case 'clmode': S[e].mode = S[e].mode === 'heat' ? 'off' : 'heat'; log(`${e === 'heiz' ? 'Heizung' : 'Wandthermostat'}: ${S[e].mode === 'heat' ? 'Heizen' : 'Aus'}`); go('innen', e === 'heiz' ? 'heizung' : 'ir', e); break;
+    case 'clpreset': S.heiz.preset = S.heiz.preset === 'eco' ? 'high' : 'eco'; log('Heizstufe ' + (S.heiz.preset === 'high' ? 'High' : 'Eco')); go('innen', 'heizung', 'heiz'); break;
+    case 'clminus': case 'clplus': S[e].ziel = Math.max(5, Math.min(30, S[e].ziel + (a === 'clplus' ? .5 : -.5))); go('innen', e === 'heiz' ? 'heizung' : 'ir', e); break;
+    case 'selopen': S.openSel = S.openSel === e ? null : e; go('bad', 'all', 'boiler'); break;
+    case 'selpick': S.boiler = e; S.openSel = null; log('Boiler: ' + e); go('bad', 'all', 'boiler'); break;
+    case 'state':
+      if (['carBatt','range','energy','battTemp','lade','stecker','ladeleistung','restzeit','klimaAktiv'].includes(e)) go('fahrzeug', 'all', 'fahrzeug');
+      else if (['innen','feuchte','innenBB','feuchteBB','taupunkt'].includes(e)) go('innen', 'einstieg', 'wt');
+      else if (e === 'wasser') go('bad', 'all', 'boiler'); else go('innen', 'all', 'system');
+      break;
+    case 'action':
+      if (e === 'vorklima') { S.carClima = 15; log('Fahrerhaus wird vorklimatisiert'); go('fahrzeug', 'all', 'vorklima'); }
+      if (e === 'hupe') { S.horn = 1; log('Hupe'); go('fahrzeug', 'all', 'hupe'); }
+      if (e === 'lichthupe') { S.flash = 1; log('Lichthupe'); go('fahrzeug', 'all', 'hupe'); }
+      if (e === 'ladenStart') { const P = outside(); if (S.scen === 'home') { S.carCharging = true; log('Laden gestartet'); } else log(P.plugged ? 'Laden nicht möglich – das Kabel ist für V2L gesteckt' : 'Laden nicht möglich – kein Kabel eingesteckt'); go('fahrzeug', 'all', 'fahrzeug'); }
+      if (e === 'stop') { S.media.on = false; log('Wiedergabe gestoppt'); go('innen', 'display', 'media'); }
+      if (e === 'spotify') { S.media = {...S.media, on:true, kind:'radio', title:'Spotify – Roadtrip-Mix'}; log('Spotify gestartet'); go('innen', 'display', 'media'); }
+      if (['wallOn','wallOff','wallRestart'].includes(e)) { log('Wall Display: ' + {wallOn:'an', wallOff:'aus', wallRestart:'Neustart'}[e]); go('innen', 'einstieg', 'system'); }
+      break;
+    case 'radio': S.media = {...S.media, on:true, kind:'radio', title:RADIO[e]}; log('Radio: ' + RADIO[e]); go('innen', 'display', 'media'); break;
+    case 'stream': S.media = {...S.media, on:true, kind:'stream', title:STREAM[e]}; S.big = 'Video'; log('Streaming: ' + STREAM[e]); go('innen', 'display', 'media'); break;
+    case 'lscene': {
+      if (e === 'an') S.light = {...S.light, hl:70, hr:70};
+      if (e === 'nacht') S.light = {...S.light, hl:10, hr:10, bad:0};
+      if (e === 'aus') S.light = {hl:0, hr:0, bad:0};
+      log({an:'Licht an – Heck links und rechts 70 %', nacht:'Nachtlicht 10 %', aus:'Alles Licht aus'}[e]); go('innen', 'all', 'lscene'); break; }
+    case 'big': S.big = e; log('Großes Display zeigt: ' + e); go('innen', 'display', 'big'); break;
+    case 'kauto': S.kAuto = !S.kAuto; log('Küchenlicht-Automatik ' + (S.kAuto ? 'an' : 'aus')); go('innen', 'klicht', 'kuechenlicht'); break;
+    case 'toggle': S[e] = !S[e]; log('Echo ' + (S[e] ? 'gekoppelt' : 'getrennt')); go('innen', 'display', 'media'); break;
+    case 'remote': log('Fernbedienung: ' + e); go('innen', 'display', 'remote'); break;
+    case 'mplay': S.media.on = !S.media.on; if (S.media.on && !S.media.title) { S.media.kind = 'radio'; S.media.title = RADIO[0]; } log(S.media.on ? 'Wiedergabe: ' + S.media.title : 'Pause'); go('innen', 'display', 'media'); break;
+    case 'mnext': case 'mprev': { const list = S.media.kind === 'stream' ? STREAM : RADIO; let i = list.indexOf(S.media.title); i = (i + (a === 'mnext' ? 1 : list.length - 1)) % list.length; S.media = {...S.media, on:true, kind:S.media.kind || 'radio', title:list[i]}; log('Wiedergabe: ' + list[i]); go('innen', 'display', 'media'); break; }
+  }
+  render();
+}
+const screenEl = document.getElementById('screen');
+screenEl.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { S.view[S.dev] = tab.dataset.tab; const v = tab.dataset.tab; S.openSel = null;
+    const map = {strom:['energie','all','energie'], fahrzeug:['fahrzeug','all','fahrzeug'], klima:['innen','heizung','heiz'], waerme:['innen','heizung','heiz'], system:['innen','einstieg','system'], info:['innen','einstieg','system'], umgebung:['innen','all','umgebung'], audio:['innen','display','media'], video:['innen','display','media'], medien:['innen','display','media'], licht:['innen','einstieg','lscene'], fernbedienung:['innen','display','remote'], start:['innen','all','start'], display:['innen','all','start']}[v];
+    if (map) { S.autoView = true; go(map[0], map[1], map[2]); } render(); screenEl.querySelector('.view').scrollTop = 0; return; }
+  if (e.target.matches('input')) return;
+  const el = e.target.closest('[data-a]'); if (!el || el.matches('input')) return;
+  if (el.closest('[data-slide]') && !el.matches('.ic')) return;
+  e.stopPropagation(); act(el.dataset.a, el.dataset.e);
+});
+screenEl.addEventListener('input', e => { if (e.target.dataset.a === 'mvol') S.media.vol = +e.target.value; });
+let ortEdit = false;
+function setOrt(v, src){ S.ort = v.trim(); if (src !== 'head') document.getElementById('ort').value = S.ort; log('Standort: ' + (S.ort || '–'));
+  if (S.dev === 'phone') S.view.phone = 'umgebung'; else if (S.dev === 'display') S.view.display = 'umgebung';
+  S.autoView = true; go('innen', 'all', 'umgebung'); render(); }
+screenEl.addEventListener('focusin', e => { if (e.target.dataset.a === 'ort') ortEdit = true; });
+screenEl.addEventListener('focusout', e => { if (e.target.dataset.a === 'ort') ortEdit = false; });
+screenEl.addEventListener('change', e => { if (e.target.dataset.a === 'ort') { ortEdit = false; setOrt(e.target.value, 'dash'); } });
+document.getElementById('ort').addEventListener('change', e => setOrt(e.target.value, 'head'));
+// Bubble-Slider: über die ganze Karte ziehen
+let drag = null;
+screenEl.addEventListener('pointerdown', e => {
+  const s = e.target.closest('[data-slide]'); if (!s || e.target.closest('.ic')) return;
+  drag = {el: s, kind: s.dataset.slide, e: s.dataset.e}; s.setPointerCapture(e.pointerId); slideTo(e); e.preventDefault();
+});
+screenEl.addEventListener('pointermove', e => { if (drag) slideTo(e); });
+screenEl.addEventListener('pointerup', () => { if (!drag) return; const d = drag; drag = null;
+  if (d.kind === 'slider') { log(`Licht ${({hl:'Heck links',hr:'Heck rechts',kueche:'Küche',bad:'Dusche'})[d.e]} ${S.light[d.e] ? 'auf ' + S.light[d.e] + ' %' : 'aus'}`); }
+  else log(`${d.e === 'soll' ? 'Ziel-Ladestand' : 'Mindest-Ladestand'} ${S[d.e]} %`);
+  render(); });
+function slideTo(e){
+  const rc = drag.el.getBoundingClientRect(); let v = Math.round(Math.max(0, Math.min(1, (e.clientX - rc.left) / rc.width)) * 100);
+  if (drag.kind === 'slider') { S.light[drag.e] = v < 3 ? 0 : v; S.autoView = true; if (drag.e === 'bad') setFocus('bad', 'all'); else setFocus('innen', drag.e); lastExplain = 'licht'; }
+  else { v = drag.e === 'soll' ? Math.max(50, Math.round(v / 5) * 5) : Math.min(50, Math.max(10, Math.round(v / 5) * 5)); S[drag.e] = v; setFocus('fahrzeug', 'all'); lastExplain = 'fahrzeug'; }
+  drag.el.querySelector('.fill').style.width = (drag.kind === 'slider' ? S.light[drag.e] : S[drag.e]) + '%';
+  const st = drag.el.querySelector('.st'); if (st) st.textContent = drag.kind === 'slider' ? (S.light[drag.e] ? S.light[drag.e] + ' %' : 'Aus') : S[drag.e] + ' %';
+  drag.el.classList.toggle('on', drag.kind !== 'slider' || S.light[drag.e] > 0);
+  const r = compute(); updateScene(r); explain(r);
+}
+document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('[data-sc]'); if (!b) return; S.autoView = false; setFocus(b.dataset.sc, 'all'); lastExplain = {innen:'start', bad:'duschen', energie:'energie', fahrzeug:'fahrzeug'}[b.dataset.sc]; render(); });
+document.getElementById('doit').addEventListener('click', e => { const b = e.target.closest('[data-do]'); if (!b) return; S.autoView = true;
+  if (b.dataset.do === 'kochen') { S.kochen = S.kochen > 0 ? 0 : 12; log(S.kochen ? 'Kochen mit beiden Feldern (ca. 12 Min.)' : 'Kochen beendet'); go('innen', 'kueche', 'kochen'); }
+  if (b.dataset.do === 'einsteigen') { S.dev = 'wall'; S.view.wall = 'licht'; S.kMotion = 5;
+    document.querySelectorAll('#dev button').forEach(x => x.classList.toggle('on', x.dataset.d === 'wall'));
+    document.getElementById('frame').className = 'frame wall'; document.getElementById('wrap').classList.remove('disp'); document.getElementById('devlabel').innerHTML = DEVINFO.wall;
+    log('Du steigst ein – das Wall Display zeigt sofort das Licht'); go('innen', 'einstieg', 'einsteigen'); }
+  if (b.dataset.do === 'kueche') { S.kMotion = 5; log(S.kAuto ? 'Bewegung in der Küche – Licht geht an' : 'Bewegung in der Küche – Automatik ist aus'); go('innen', 'klicht', 'kuechenlicht'); }
+  if (b.dataset.do === 'duschen') { S.duschen = S.duschen > 0 ? 0 : 10; log(S.duschen ? 'Duschen (ca. 10 Min.)' : 'Duschen beendet'); go('bad', 'all', 'duschen'); }
+  render(); });
+document.getElementById('dev').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; S.dev = b.dataset.d; S.openSel = null;
+  document.querySelectorAll('#dev button').forEach(x => x.classList.toggle('on', x === b));
+  document.getElementById('frame').className = 'frame ' + S.dev; document.getElementById('wrap').classList.toggle('disp', S.dev === 'display');
+  document.getElementById('devlabel').innerHTML = DEVINFO[S.dev];
+  S.autoView = true; go('innen', S.dev === 'phone' ? 'all' : S.dev === 'display' ? 'display' : 'einstieg', 'start'); render(); });
+document.getElementById('farbe').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; S.moebel = b.dataset.f;
+  document.querySelectorAll('#farbe button').forEach(x => x.classList.toggle('on', x === b)); log('Möbelfarbe: ' + (S.moebel === 'sand' ? 'Sand' : 'Grau'));
+  curScene = null; if (S.sceneView !== 'innen' && S.sceneView !== 'bad') setFocus('innen', 'all'); render(); });
+document.getElementById('scen').addEventListener('change', e => {
+  const v = e.target.value; S.scen = v === 'low' ? 'v2l' : v;
+  if (v === 'low') { S.eco1 = 23; S.eco2 = 21; }
+  S.carCharging = false;
+  log('Standort: ' + e.target.options[e.target.selectedIndex].text); S.autoView = true; go('energie', 'all', 'energie'); render(); });
+function fitFrame(){
+  const left = document.getElementById('left'), fit = document.getElementById('fit'), fr = document.getElementById('frame');
+  const fw = fr.offsetWidth, fh = fr.offsetHeight, aw = left.clientWidth - 32, ah = left.clientHeight - 60;
+  const s = Math.min(1, aw / fw, ah > 200 ? ah / fh : 1);
+  fit.style.transform = `scale(${s})`; fit.style.height = (fh * s) + 'px'; fit.style.width = (fw * s) + 'px';
+  fit.style.transformOrigin = 'top left';
+}
+window.addEventListener('resize', fitFrame);
+setInterval(() => { const r = tick(1); if (drag || ortEdit) { updateScene(r); renderRight(r); return; } render(r); }, 1000);
+document.getElementById('devlabel').innerHTML = DEVINFO.phone;
+log('Willkommen in deinem Camper – es ist 20 Uhr, draußen 6 °C.');
+render();
+</script>
+</body>
+</html>
