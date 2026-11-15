@@ -84,6 +84,8 @@ class Settings:
     nc_url: str = os.environ.get("MYVAN_NC_URL", "https://nc.ca-camping.de")
     nc_user: str = os.environ.get("MYVAN_NC_USER", "")
     nc_app_password: str = os.environ.get("MYVAN_NC_APP_PASSWORD", "")
+    # Nextcloud-Container für occ (Konten anlegen verlangt über OCS eine Passwortbestätigung)
+    nc_container: str = os.environ.get("MYVAN_NC_CONTAINER", "nc-ca-camping-app")
 
     @property
     def base_url(self) -> str:
@@ -241,6 +243,26 @@ class Docker:
     async def pull(self, image: str) -> None:
         repo, _, tag = image.rpartition(":")
         await self.call("POST", "/images/create?" + urlencode({"fromImage": repo, "tag": tag}))
+
+    async def exec(self, container: str, cmd: list[str], env: list[str] | None = None,
+                   user: str = "") -> tuple[int, str]:
+        """Befehl in einem Container ausführen; liefert (Exit-Code, Ausgabe)."""
+        ex = await self.call(
+            "POST",
+            f"/containers/{container}/exec",
+            json={"Cmd": cmd, "Env": env or [], "User": user, "AttachStdout": True, "AttachStderr": True},
+        )
+        async with self._s.post(
+            f"/v1.43/exec/{ex['Id']}/start", json={"Detach": False, "Tty": False}
+        ) as r:
+            raw = await r.read()
+        out, i = [], 0
+        while i + 8 <= len(raw):  # gemultiplexter Strom: 8 Byte Kopf je Block
+            n = int.from_bytes(raw[i + 4 : i + 8], "big")
+            out.append(raw[i + 8 : i + 8 + n])
+            i += 8 + n
+        info = await self.call("GET", f"/exec/{ex['Id']}/json")
+        return info.get("ExitCode", 1), b"".join(out).decode(errors="replace").strip()
 
     async def running(self) -> list[dict]:
         flt = json.dumps({"label": ["my-van.instance"], "status": ["running"]})
@@ -836,23 +858,36 @@ async def admin_create(request: web.Request) -> web.Response:
     found = (await _ocs("GET", "/cloud/users/details", params={"search": email})).get(
         "users", {}
     ) or {}
-    uid = next((k for k, u in found.items() if (u.get("email") or "").lower() == email), None)
+    uid = next(
+        (
+            k
+            for k, u in found.items()
+            if email in ((u.get("id") or k).lower(), (u.get("email") or "").lower())
+        ),
+        None,
+    )
+    group = S.allowed_groups[0]
     if uid is None:
-        await _ocs(
-            "POST",
-            "/cloud/users",
-            data={
-                "userid": email,
-                "email": email,
-                "displayName": name,
-                "password": secrets.token_urlsafe(24),
-                "groups[]": S.allowed_groups[0],
-                "language": "de",
-            },
+        uid = email
+        code, out = await M.docker.exec(
+            S.nc_container,
+            ["php", "occ", "user:add", "--password-from-env", f"--display-name={name}",
+             f"--group={group}", f"--email={email}", uid],
+            env=[f"OC_PASS={secrets.token_urlsafe(24)}"],
+            user="www-data",
         )
+        if code != 0:
+            log.warning("occ user:add: %s", out[-300:])
+            raise web.HTTPBadRequest(text=f"Konto konnte nicht angelegt werden: {out[-200:]}")
+        await M.docker.exec(S.nc_container, ["php", "occ", "user:setting", uid, "core", "lang", "de"],
+                            user="www-data")
         result = "angelegt"
     else:
-        await _ocs("POST", f"/cloud/users/{uid}/groups", data={"groupid": S.allowed_groups[0]})
+        code, out = await M.docker.exec(
+            S.nc_container, ["php", "occ", "group:adduser", group, uid], user="www-data"
+        )
+        if code != 0:
+            raise web.HTTPBadRequest(text=f"Gruppe konnte nicht zugeordnet werden: {out[-200:]}")
         result = "der Gruppe zugeordnet"
     _ACCESS.clear()
     log.info("Admin %s: Interessent %s", slugify(_team(request)), result)
