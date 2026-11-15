@@ -29,5 +29,4 @@ class Standort(SimEntity, TextEntity):
         return self.m.s.ort
 
     async def async_set_value(self, value: str) -> None:
-        self.m.s.ort = value.strip()
-        self.hub.async_update()
+        self.hub.async_set_ort(value)

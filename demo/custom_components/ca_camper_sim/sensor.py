@@ -22,6 +22,7 @@ from . import SimConfigEntry
 from .entity import SimEntity
 from .model import CIRCUITS, CamperModel, Ladezustand
 from .switch import KREISE
+from .umgebung import KATEGORIEN, Kategorie
 
 W, C, P = UnitOfPower.WATT, UnitOfTemperature.CELSIUS, PERCENTAGE
 POWER, TEMP, BAT, HUM, ENUM = (
@@ -196,6 +197,7 @@ async def async_setup_entry(
 ) -> None:
     hub = entry.runtime_data
     add([SimSensor(hub, d) for d in MESSWERTE])
+    add([UmgebungStandort(hub), *(UmgebungSensor(hub, k) for k in KATEGORIEN)])
 
 
 class SimSensor(SimEntity, SensorEntity):
@@ -216,3 +218,62 @@ class SimSensor(SimEntity, SensorEntity):
     @property
     def native_value(self) -> Any:
         return self._d.value(self.m)
+
+
+STATUS_TEXT = {
+    "bereit": "Kein Standort",
+    "sucht": "Wird gesucht …",
+    "fehler": "Suche gerade nicht möglich",
+    "nicht_gefunden": "Ort nicht gefunden",
+}
+
+
+class UmgebungStandort(SimEntity, SensorEntity):
+    """Gefundener Standort (Name) mit Koordinaten für die Kartenansicht."""
+
+    _unrecorded_attributes = frozenset({"latitude", "longitude"})
+
+    def __init__(self, hub) -> None:
+        super().__init__(hub, "sensor", "umgebung_standort", "Standort Umgebung", "mdi:map-marker-radius")
+
+    @property
+    def native_value(self) -> str:
+        u = self.hub.umgebung
+        if self.hub.umgebung_status == "ok" or (u.get("gefunden") and self.hub.umgebung_status != "sucht"):
+            return (u.get("anzeige") or u.get("ort", ""))[:250]
+        return STATUS_TEXT.get(self.hub.umgebung_status, "")
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        u = self.hub.umgebung
+        attrs: dict[str, Any] = {"ort": self.m.s.ort, "status": self.hub.umgebung_status}
+        if u.get("gefunden"):
+            attrs |= {"latitude": u["lat"], "longitude": u["lon"], "stand": u.get("stand")}
+        return attrs
+
+
+class UmgebungSensor(SimEntity, SensorEntity):
+    """Ziele einer Kategorie rund um den Standort; Zustand = Anzahl, Liste in ``orte``."""
+
+    _unrecorded_attributes = frozenset({"orte"})
+
+    def __init__(self, hub, k: Kategorie) -> None:
+        super().__init__(hub, "sensor", f"umgebung_{k.key}", f"Umgebung {k.name}", k.icon)
+        self._k = k
+        self._attr_native_unit_of_measurement = "Ziele"
+
+    @property
+    def native_value(self) -> int | None:
+        if not self.hub.umgebung.get("gefunden"):
+            return None
+        return len(self.hub.umgebung.get("kategorien", {}).get(self._k.key, []))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        u = self.hub.umgebung
+        return {
+            "kategorie": self._k.name,
+            "radius_km": self._k.radius_m // 1000,
+            "ort": u.get("ort", ""),
+            "orte": u.get("kategorien", {}).get(self._k.key, []) if u.get("gefunden") else [],
+        }

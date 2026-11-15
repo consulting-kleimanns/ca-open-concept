@@ -345,6 +345,11 @@ class Manager:
             await self._wait_ready(inst)
             if not inst.meta().get("provisioned"):
                 await self._provision(inst)
+            else:
+                try:
+                    await self._sync_views(inst)
+                except Exception as err:  # noqa: BLE001 – Start nicht blockieren
+                    log.warning("%s: Ansichten nicht aktualisiert: %s", inst.name, err)
 
     async def stop(self, inst: Instance) -> None:
         async with inst.lock:
@@ -558,6 +563,43 @@ class Manager:
         await asyncio.sleep(5)
         await self._wait_ready(inst)
         log.info("%s: fertig eingerichtet", inst.name)
+
+    # Ansichten aus dem Image nachziehen -------------------------------------------------------
+
+    SYNC_VIEWS = {"camper": ("umgebung",), "camper-display": ("umgebung",)}
+
+    async def _sync_views(self, inst: Instance) -> None:
+        """Bringt einzelne Ansichten der Standard-Dashboards auf den Stand des Images.
+
+        Nur die in SYNC_VIEWS genannten Ansichten, und nur wenn sie sich im Image geändert
+        haben; alles andere, was der Interessent angepasst hat, bleibt unberührt.
+        """
+        meta = inst.meta()
+        done = meta.setdefault("views", {})
+        seed = inst.dir / "config" / "my-van" / "seed"
+        for name, paths in self.SYNC_VIEWS.items():
+            f = seed / f"{name}.json"
+            if not f.exists():
+                continue
+            cfg = json.loads(f.read_text().replace("__DASH_CAMPER__", inst.dashboard))
+            new = {v.get("path"): v for v in cfg.get("views", []) if v.get("path") in paths}
+            digest = hashlib.sha256(json.dumps(new, sort_keys=True).encode()).hexdigest()[:16]
+            if done.get(name) == digest:
+                continue
+            url_path = f"{inst.slug}-{name}"
+            (cur,) = await self._ws(inst, meta["token"], [{"type": "lovelace/config", "url_path": url_path}])
+            views = cur.get("views", [])
+            have = {v.get("path") for v in views}
+            views = [new.get(v.get("path"), v) for v in views] + [
+                v for p, v in new.items() if p not in have
+            ]
+            await self._ws(
+                inst, meta["token"],
+                [{"type": "lovelace/config/save", "url_path": url_path, "config": {**cur, "views": views}}],
+            )
+            done[name] = digest
+            inst.save_meta(meta)
+            log.info("%s: Ansicht %s in %s aktualisiert", inst.name, ", ".join(new), name)
 
     # Ruhezeit --------------------------------------------------------------------------------
 

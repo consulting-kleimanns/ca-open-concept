@@ -1530,14 +1530,112 @@
       {
        "type": "tile",
        "entity": "text.standort",
-       "name": "Standort (Ort oder PLZ)",
+       "name": "Wo steht der Camper? (Ort oder PLZ)",
        "grid_options": {
         "columns": 12
        }
       },
       {
        "type": "markdown",
-       "content": "Gib einen Ort oder eine PLZ ein – die Vorschläge passend zu deinen Interessen erscheinen hier. Im Fahrzeug kommt der Standort automatisch per GPS.",
+       "content": "{% set s = states['sensor.umgebung_standort'] %}{% if s is none %}Gib einen Ort oder eine PLZ ein.{% elif s.attributes.status == 'ok' %}📍 **{{ s.state }}**  \nVorschläge aus OpenStreetMap, Stand {{ as_timestamp(s.attributes.stand) | timestamp_custom('%d.%m. %H:%M') }}. Antippen öffnet die Karte.{% elif s.attributes.status == 'sucht' %}🔎 Suche rund um „{{ s.attributes.ort }}“ …{% else %}{{ s.state }}{% if s.attributes.ort %} – „{{ s.attributes.ort }}“{% endif %}. Probier eine PLZ oder einen anderen Ortsnamen.{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "map",
+       "entities": [
+        {
+         "entity": "sensor.umgebung_standort",
+         "name": "Mein Master"
+        }
+       ],
+       "default_zoom": 11,
+       "hours_to_show": 0,
+       "grid_options": {
+        "columns": 12,
+        "rows": 4
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "Im Fahrzeug kommt der Standort automatisch per GPS. Welche Themen du hier siehst, kannst du mit Claude oder einem Wunsch an uns anpassen.",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_wandern'] %}<h3><ha-icon icon=\"mdi:hiking\"></ha-icon> Wandern</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_radtouren'] %}<h3><ha-icon icon=\"mdi:bike\"></ha-icon> Radtouren</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_aussicht'] %}<h3><ha-icon icon=\"mdi:binoculars\"></ha-icon> Aussicht & Gipfel</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_baden'] %}<h3><ha-icon icon=\"mdi:swim\"></ha-icon> Baden</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_einkehren'] %}<h3><ha-icon icon=\"mdi:silverware-fork-knife\"></ha-icon> Einkehren</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_einkaufen'] %}<h3><ha-icon icon=\"mdi:cart\"></ha-icon> Einkaufen</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_laden'] %}<h3><ha-icon icon=\"mdi:ev-station\"></ha-icon> Laden (E-Auto)</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "{% set s = states['sensor.umgebung_stellplatz'] %}<h3><ha-icon icon=\"mdi:caravan\"></ha-icon> Camping & Stellplätze</h3>\n{% if s is none or s.state in ['unknown', 'unavailable'] %}Gib oben einen Ort oder eine PLZ ein.{% elif s.attributes.orte | count == 0 %}Im Umkreis von {{ s.attributes.radius_km }} km nichts gefunden.{% else %}{% for p in s.attributes.orte[:5] %}\n- [{{ p.name }}]({{ p.link }}) · {{ p.km | string | replace('.', ',') }} km{% if p.info %} · {{ p.info }}{% endif %}{% endfor %}{% endif %}",
        "grid_options": {
         "columns": 12
        }
