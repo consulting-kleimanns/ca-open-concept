@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "CA Camper simulation",
+        "description": "Simulates the camper hardware for the demo (sample values)."
+      }
+    },
+    "abort": { "single_instance_allowed": "The simulation is already set up." }
+  }
+}

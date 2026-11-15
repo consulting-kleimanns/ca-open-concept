@@ -1,0 +1,21 @@
+# Lichtszenen für das Wall Display am Einstieg – frei anpassbar
+- id: licht_an
+  name: Licht an
+  icon: mdi:lightbulb-on
+  entities:
+    light.heck_links: { state: "on", brightness: 178 }
+    light.heck_rechts: { state: "on", brightness: 178 }
+- id: nachtlicht
+  name: Nachtlicht
+  icon: mdi:weather-night
+  entities:
+    light.heck_links: { state: "on", brightness: 26 }
+    light.heck_rechts: { state: "on", brightness: 26 }
+    light.dusche: "off"
+- id: alles_aus
+  name: Alles aus
+  icon: mdi:lightbulb-off
+  entities:
+    light.heck_links: "off"
+    light.heck_rechts: "off"
+    light.dusche: "off"

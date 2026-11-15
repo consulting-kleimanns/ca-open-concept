@@ -1,0 +1,31 @@
+#!/command/with-contenv bash
+# Verwaltete Teile aus dem Image nach /config abgleichen (bei jedem Start).
+# Daten des Interessenten (.storage, automations.yaml, scenes.yaml, scripts.yaml) bleiben erhalten.
+set -euo pipefail
+SRC=/opt/my-van
+CFG=/config
+
+mkdir -p "$CFG/custom_components" "$CFG/www" "$CFG/themes" "$CFG/my-van"
+
+for comp in ca_camper ca_camper_sim; do
+  rm -rf "$CFG/custom_components/$comp"
+  cp -a "$SRC/custom_components/$comp" "$CFG/custom_components/$comp"
+done
+
+rm -rf "$CFG/www/my-van"
+cp -a "$SRC/www" "$CFG/www/my-van"
+cp -a "$SRC/themes/." "$CFG/themes/"
+
+# Systemkonfiguration gehört dem Image
+cp "$SRC/seed/configuration.yaml" "$CFG/configuration.yaml"
+
+# Startwerte nur beim ersten Start
+for f in automations.yaml scenes.yaml scripts.yaml myvan_auth.yaml myvan_proxies.yaml; do
+  [ -f "$CFG/$f" ] || cp "$SRC/seed/$f" "$CFG/$f"
+done
+
+# Vorlagen für den Manager (Dashboards werden beim Anlegen mit E-Mail-Präfix importiert)
+rm -rf "$CFG/my-van/seed"
+cp -a "$SRC/seed/dashboards" "$CFG/my-van/seed"
+cp "$SRC/VERSION" "$CFG/my-van/VERSION"
+echo "[my-van] Image $(cat "$SRC/VERSION") abgeglichen"

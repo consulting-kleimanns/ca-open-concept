@@ -1,0 +1,664 @@
+{
+ "title": "Camper Display",
+ "views": [
+  {
+   "title": "Display",
+   "path": "display",
+   "icon": "mdi:monitor-dashboard",
+   "type": "sections",
+   "max_columns": 2,
+   "dense_section_placement": true,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Wärme",
+       "icon": "mdi:fire",
+       "heading_style": "title",
+       "badges": [
+        {
+         "type": "entity",
+         "entity": "sensor.innen_temperatur",
+         "name": "Innen"
+        },
+        {
+         "type": "entity",
+         "entity": "sensor.innen_feuchte",
+         "name": "Feuchte"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "climate",
+       "entity": "climate.heizung",
+       "name": "Truma Heizung",
+       "icon": "mdi:radiator",
+       "step": 0.5,
+       "min_temp": 5,
+       "max_temp": 30,
+       "sub_button": [
+        {
+         "name": "Modus",
+         "select_attribute": "hvac_modes",
+         "show_arrow": false,
+         "state_background": false
+        },
+        {
+         "name": "Stufe",
+         "select_attribute": "preset_modes",
+         "show_arrow": false,
+         "state_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 12,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "select",
+       "entity": "select.boiler",
+       "name": "Boiler",
+       "icon": "mdi:water-boiler",
+       "grid_options": {
+        "columns": 12,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "climate",
+       "entity": "climate.wandthermostat",
+       "name": "Wandthermostat",
+       "icon": "mdi:thermostat",
+       "grid_options": {
+        "columns": 12,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "230 V",
+       "icon": "mdi:flash",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_1",
+       "name": "Generator 1",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_1_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_2",
+       "name": "Generator 2",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_2_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_07_steckdose_heck",
+       "name": "Steckdose Heck",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_07_steckdose_heck_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_08_steckdose_trennwand",
+       "name": "Steckdose Trennwand",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_08_steckdose_trennwand_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Master Yoda",
+       "icon": "mdi:van-utility",
+       "heading_style": "title",
+       "badges": [
+        {
+         "type": "entity",
+         "entity": "sensor.kilometerstand",
+         "name": "km"
+        },
+        {
+         "type": "entity",
+         "entity": "sensor.aussentemperatur",
+         "name": "Außen"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.fahrbatterie",
+       "name": "Fahrbatterie",
+       "icon": "mdi:car-battery",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.reichweite",
+       "name": "Reichweite",
+       "icon": "mdi:map-marker-distance",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.ladezustand",
+       "name": "Laden",
+       "icon": "mdi:ev-station",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.vorklimatisieren",
+       "name": "Vorklimatisieren",
+       "icon": "mdi:fan",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.vorklimatisieren"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Licht",
+       "icon": "mdi:led-strip-variant",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_links",
+       "name": "Heck links",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_rechts",
+       "name": "Heck rechts",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.kuechenlicht_automatik",
+       "name": "Küche (Bewegung)",
+       "icon": "mdi:motion-sensor",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal",
+       "sub_button": [
+        {
+         "entity": "light.kueche",
+         "show_icon": false,
+         "show_background": false,
+         "state_content": "state"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.dusche",
+       "name": "Dusche",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Im Camper ausprobieren",
+       "icon": "mdi:gesture-tap",
+       "heading_style": "subtitle"
+      },
+      {
+       "type": "tile",
+       "entity": "select.sim_strom_vor_ort",
+       "name": "Strom vor Ort",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_einsteigen",
+       "name": "Einsteigen",
+       "icon": "mdi:door-open",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_einsteigen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_einsteigen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_kochen",
+       "name": "Kochen",
+       "icon": "mdi:pot-steam",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_kochen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_kochen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_duschen",
+       "name": "Duschen",
+       "icon": "mdi:shower",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_duschen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_duschen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_kueche_betreten",
+       "name": "In die Küche",
+       "icon": "mdi:walk",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "normal",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_kueche_betreten"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_kueche_betreten"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "theme": "CA Camping",
+   "header": {
+    "layout": "start",
+    "card": {
+     "type": "markdown",
+     "text_only": true,
+     "content": "<img src=\"/local/ca-camping-logo.png\" alt=\"CA Camping\" height=\"26\">"
+    }
+   }
+  },
+  {
+   "title": "Info",
+   "path": "info",
+   "icon": "mdi:information-outline",
+   "type": "sections",
+   "max_columns": 3,
+   "theme": "CA Camping",
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Raumklima",
+       "icon": "mdi:home-thermometer",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_temperatur",
+       "name": "Innen (Wanddisplay)",
+       "icon": "mdi:thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_feuchte",
+       "name": "Feuchte (Wanddisplay)",
+       "icon": "mdi:water-percent",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_temperatur",
+       "name": "Innen (BB)",
+       "icon": "mdi:thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_feuchte",
+       "name": "Feuchte (BB)",
+       "icon": "mdi:water-percent",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.taupunkt",
+       "name": "Taupunkt",
+       "icon": "mdi:water-thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.wasser_temperatur",
+       "name": "Wasser Truma",
+       "icon": "mdi:water-boiler",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6,
+        "rows": 1
+       },
+       "card_layout": "normal"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Umgebung",
+   "path": "umgebung",
+   "icon": "mdi:compass-outline",
+   "type": "sections",
+   "max_columns": 2,
+   "theme": "CA Camping",
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Rund um deinen Standort",
+       "icon": "mdi:compass-outline",
+       "heading_style": "title"
+      },
+      {
+       "type": "tile",
+       "entity": "text.standort",
+       "name": "Standort (Ort oder PLZ)",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "Gib einen Ort oder eine PLZ ein – die Vorschläge passend zu deinen Interessen erscheinen hier. Im Fahrzeug kommt der Standort automatisch per GPS.",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
