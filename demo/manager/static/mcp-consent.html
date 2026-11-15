@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude verbinden – CA Camping</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#eef0f3;color:#1d2430;font:15px/1.5 Roboto,system-ui,sans-serif}
+.card{background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);padding:28px;max-width:460px;margin:16px}
+h1{font-size:20px;margin:0 0 8px}p{margin:8px 0;color:#5d6675}ul{padding-left:20px;margin:10px 0}li{margin:4px 0}
+.row{display:flex;gap:10px;margin-top:20px}button{flex:1;border:0;border-radius:10px;padding:11px;font:inherit;cursor:pointer}
+.ok{background:#e96b21;color:#fff;font-weight:600}.no{background:#eef0f3;color:#1d2430}
+</style></head><body>
+<form class="card" method="post" action="/mcp/authorize">
+  <h1>{{CLIENT}} mit deinem Master verbinden?</h1>
+  <p>Angemeldet als <b>{{EMAIL}}</b>. Claude darf dann in deinem Master:</p>
+  <ul>
+    <li>Geräte und Zustände lesen und Geräte bedienen</li>
+    <li>eigene Dashboards, Szenen, Automationen, Skripte und Helfer anlegen, ändern und löschen. Sie tragen deine E-Mail im Namen</li>
+    <li>Wünsche an CA Camping schicken</li>
+  </ul>
+  <p>Integrationen, Apps, Benutzer und Systemeinstellungen bleiben gesperrt. Du kannst die Verbindung jederzeit in Claude trennen.</p>
+  <input type="hidden" name="req" value="{{REQ}}">
+  <div class="row"><button class="no" name="ok" value="0">Abbrechen</button><button class="ok" name="ok" value="1">Verbinden</button></div>
+</form></body></html>

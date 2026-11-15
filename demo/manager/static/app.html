@@ -22,17 +22,24 @@ a.out{color:var(--pt2);font-size:13px;margin-left:14px}
 .frame iframe{border:0;width:100%;height:100%;background:#fafafa}
 .right iframe{border:0;width:100%;height:100%}
 .hint{font-size:12px;color:var(--pt2);max-width:420px;text-align:center;margin-top:12px}
+dialog{border:0;border-radius:16px;padding:24px;max-width:520px;width:calc(100% - 32px);box-shadow:0 12px 40px rgba(0,0,0,.25);color:var(--pt)}
+dialog::backdrop{background:rgba(20,24,30,.45)}dialog h2{margin:0 0 10px;font-size:18px}dialog p,dialog li{color:var(--pt2)}dialog ol{padding-left:20px}
+dialog input,dialog textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--pl);border-radius:8px;margin:6px 0 10px}
+dialog textarea{min-height:110px;resize:vertical}.dbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.dbtn button,.act{border:0;border-radius:9px;padding:8px 14px;font:inherit;cursor:pointer;background:var(--pg);color:var(--pt)}
+.dbtn .pri,.act.pri{background:#e96b21;color:#fff;font-weight:600}code.url{display:block;background:var(--pg);padding:8px 10px;border-radius:8px;margin:6px 0;user-select:all;word-break:break-all}
+#wmsg{min-height:1.4em;font-size:13px}
 </style></head><body>
 <header class="top">
   <div class="brand">CA Camping · Mein Master <small>Angemeldet als <b>{{EMAIL}}</b> – alles, was du einrichtest, kommt bei der Auslieferung in deinen Master</small></div>
   <div class="seg" id="dev"><button data-d="phone" class="on">Smartphone</button><button data-d="display">15″-Display</button><button data-d="wall">Wall Display</button></div>
-  <div class="sp"></div>{{ADMIN}}<a class="out" href="/auth/logout">Abmelden</a>
+  <div class="sp"></div><button class="act" id="bClaude">Mit Claude anpassen</button><button class="act pri" id="bWunsch">Wunsch an CA Camping</button>{{ADMIN}}<a class="out" href="/auth/logout">Abmelden</a>
 </header>
 <div class="wrap" id="wrap">
   <section class="left" id="left">
     <div class="lbl" id="lbl"></div>
     <div class="fit" id="fit"><div class="frame phone" id="frame"><iframe id="dash" title="Home Assistant"></iframe></div></div>
-    <div class="hint">Tipp: Eigene Dashboards, Szenen und Automationen kannst du mit Claude per MCP anlegen – sie tragen deine E-Mail im Namen.</div>
+    <div class="hint">Tipp: Mit „Mit Claude anpassen“ beschreibst du in eigenen Worten, was dein Master können soll. Claude baut dir Dashboards, Szenen und Automationen. Sie tragen deine E-Mail im Namen.</div>
   </section>
   <section class="right"><iframe id="scene" title="Im Camper" src="/_my-van/scene.html?live"></iframe></section>
 </div>
@@ -55,4 +62,46 @@ document.getElementById('dev').addEventListener('click', e => { const b = e.targ
 window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.myvan === 'device') setDev(e.data.device); });
 window.addEventListener('resize', fit);
 (async function wait(){ try { const r = await (await fetch('/_my-van/status', {cache: 'no-store'})).json(); if (r.state === 'ready') { setDev('phone'); return; } } catch (e) {} setTimeout(wait, 3000); })();
-</script></body></html>
+</script>
+<dialog id="dClaude">
+  <h2>Deinen Master mit Claude anpassen</h2>
+  <p>Beschreibe Claude einfach, was du dir wünschst, z. B. „Ich will abends mit einem Tipp alles gemütlich machen“ oder „Zeig mir auf dem Wall Display groß den Wasserstand“. Claude richtet es in deinem Master ein.</p>
+  <ol>
+    <li>Melde dich auf <b>claude.ai</b> an. Das kostenlose Konto reicht.</li>
+    <li>Öffne in Claude die <b>Connectors</b> (Customize → Connectors), wähle <b>Add custom connector</b> und trage ein:<br>Name <b>Mein Master</b>, Adresse:<code class="url" id="mcpurl"></code></li>
+    <li>Klicke auf <b>Verbinden</b> und bestätige mit deinem CA-Camping-Login.</li>
+    <li>Starte einen neuen Chat, schalte „Mein Master“ ein und schreib los.</li>
+  </ol>
+  <p>Den Connector richtest du am Rechner ein, danach funktioniert er auch in der Claude-App. Alles, was Claude anlegt, trägt deine E-Mail im Namen und zieht später mit in dein Fahrzeug.</p>
+  <p><a href="/claude" target="_blank">Ausführliche Anleitung mit Beispielen →</a></p>
+  <div class="dbtn"><button id="cpy">Adresse kopieren</button><button class="pri" data-close>Schließen</button></div>
+</dialog>
+<dialog id="dWunsch">
+  <h2>Wunsch an CA Camping</h2>
+  <p>Was soll dein Master können, was fehlt dir? Wir lesen jeden Wunsch und antworten dir im Board „Mein E-Camper“.</p>
+  <input id="wt" maxlength="120" placeholder="Kurz: z. B. Zweites Leselicht am Bett">
+  <textarea id="wd" placeholder="Beschreib ruhig ausführlich, wofür du es brauchst."></textarea>
+  <div id="wmsg"></div>
+  <div class="dbtn"><button data-close>Abbrechen</button><button class="pri" id="wsend">Absenden</button></div>
+</dialog>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  $('mcpurl').textContent = location.origin + '/mcp';
+  $('bClaude').onclick = () => $('dClaude').showModal();
+  $('bWunsch').onclick = () => { $('wmsg').textContent = ''; $('dWunsch').showModal(); $('wt').focus(); };
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  $('cpy').onclick = async () => { try { await navigator.clipboard.writeText($('mcpurl').textContent); $('cpy').textContent = 'Kopiert'; } catch (e) {} };
+  $('wsend').onclick = async () => {
+    const titel = $('wt').value.trim(); if (!titel) { $('wmsg').textContent = 'Bitte einen kurzen Titel eingeben.'; return; }
+    $('wsend').disabled = true; $('wmsg').textContent = 'Wird gesendet …';
+    try {
+      const r = await fetch('/_my-van/wunsch', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-My-Van': '1'}, body: JSON.stringify({titel, beschreibung: $('wd').value})});
+      const j = r.ok ? await r.json() : null; $('wmsg').textContent = j ? j.text : 'Das hat nicht geklappt: ' + await r.text();
+      if (j) { $('wt').value = ''; $('wd').value = ''; }
+    } catch (e) { $('wmsg').textContent = 'Keine Verbindung – bitte später noch einmal.'; }
+    $('wsend').disabled = false;
+  };
+})();
+</script>
+</body></html>
