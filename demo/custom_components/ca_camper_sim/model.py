@@ -102,7 +102,9 @@ class State:
     standort: Standort = Standort.FREI_V2L
     ort: str = ""
     circuits: dict[str, bool] = field(
-        default_factory=lambda: {c: c.startswith("ac_03") or c == "ac_02_boiler_heizstab" for c in CIRCUITS}
+        default_factory=lambda: {
+            c: c.startswith("ac_03") or c == "ac_02_boiler_heizstab" for c in CIRCUITS
+        }
     )
     lights: dict[str, int] = field(default_factory=lambda: dict.fromkeys(LIGHTS, 0))  # 0–255
     kuechenlicht_auto: bool = True
@@ -202,7 +204,9 @@ class CamperModel:
         return self.s.kuechenlicht_auto and self.s.bewegung_min > 0
 
     def boiler_target(self) -> float:
-        return {Boiler.AUS: 0.0, Boiler.ECO: 45.0, Boiler.HIGH: 60.0, Boiler.BOOST: 60.0}[self.s.boiler]
+        return {Boiler.AUS: 0.0, Boiler.ECO: 45.0, Boiler.HIGH: 60.0, Boiler.BOOST: 60.0}[
+            self.s.boiler
+        ]
 
     # --- Rechenschritt --------------------------------------------------------------------------
 
@@ -215,8 +219,14 @@ class CamperModel:
         heizung_w = 0.0
         if s.heizung.on:
             heizt = s.innen < s.heizung.target
-            heizung_w = (p.heizung_high_w if s.heizung.preset == "high" else p.heizung_eco_w) if heizt else 30.0
-        infrarot_w = p.infrarot_w if s.wandthermostat.on and s.innen < s.wandthermostat.target else 0.0
+            heizung_w = (
+                (p.heizung_high_w if s.heizung.preset == "high" else p.heizung_eco_w)
+                if heizt
+                else 30.0
+            )
+        infrarot_w = (
+            p.infrarot_w if s.wandthermostat.on and s.innen < s.wandthermostat.target else 0.0
+        )
         dusche_w = p.dusche_w if s.duschen_min > 0 else 0.0
         induktion_w = p.induktion_w if s.kochen_min > 0 else 0.0
 
@@ -248,7 +258,9 @@ class CamperModel:
             + power["ac_07_steckdose_heck"]
         )
         eco_ok = self.eco_avg > p.eco_reserve
-        primaer_w = induktion_w + sum(power[c] for c in CIRCUITS if c.startswith(("ac_02", "ac_03")))
+        primaer_w = induktion_w + sum(
+            power[c] for c in CIRCUITS if c.startswith(("ac_02", "ac_03"))
+        )
         if not eco_ok:
             primaer_w += komfort_w
         return Snapshot(
@@ -305,7 +317,14 @@ class CamperModel:
 
         if s.kochen_min > 0:
             s.bewegung_min = max(s.bewegung_min, 3.0)
-        for name in ("kochen_min", "duschen_min", "bewegung_min", "klima_fahrerhaus_min", "hupe_min", "lichthupe_min"):
+        for name in (
+            "kochen_min",
+            "duschen_min",
+            "bewegung_min",
+            "klima_fahrerhaus_min",
+            "hupe_min",
+            "lichthupe_min",
+        ):
             setattr(s, name, max(0.0, getattr(s, name) - dt_min))
 
         self.last = self.snapshot()
@@ -353,4 +372,6 @@ class CamperModel:
     def restladezeit_min(self) -> float:
         if not self.s.car_charging:
             return 0.0
-        return max(0.0, (self.s.soll_ladestand - self.s.car) / 100 * self.p.car_wh / self.p.wallbox_w * 60)
+        return max(
+            0.0, (self.s.soll_ladestand - self.s.car) / 100 * self.p.car_wh / self.p.wallbox_w * 60
+        )

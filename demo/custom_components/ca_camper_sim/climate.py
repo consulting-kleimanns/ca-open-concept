@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.components.climate import ClimateEntity, ClimateEntityFeature, HVACAction, HVACMode
+from homeassistant.components.climate import (
+    ClimateEntity,
+    ClimateEntityFeature,
+    HVACAction,
+    HVACMode,
+)
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -13,9 +18,16 @@ from . import SimConfigEntry
 from .entity import SimEntity
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
-    add([Heizung(hub, "heizung", "Truma Heizung", True), Heizung(hub, "wandthermostat", "Wandthermostat", False)])
+    add(
+        [
+            Heizung(hub, "heizung", "Truma Heizung", True),
+            Heizung(hub, "wandthermostat", "Wandthermostat", False),
+        ]
+    )
 
 
 class Heizung(SimEntity, ClimateEntity):
@@ -30,7 +42,11 @@ class Heizung(SimEntity, ClimateEntity):
     def __init__(self, hub, key: str, name: str, presets: bool) -> None:
         super().__init__(hub, "climate", key, name, "mdi:radiator" if presets else "mdi:thermostat")
         self._key = key
-        features = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
+        features = (
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.TURN_ON
+            | ClimateEntityFeature.TURN_OFF
+        )
         if presets:
             features |= ClimateEntityFeature.PRESET_MODE
             self._attr_preset_modes = ["eco", "high"]

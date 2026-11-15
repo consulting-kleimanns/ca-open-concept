@@ -24,7 +24,9 @@ KREISE = {
 }
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
     add([KreisSwitch(hub, key, *meta) for key, meta in KREISE.items()] + [KuechenAutomatik(hub)])
 
@@ -53,7 +55,9 @@ class KuechenAutomatik(SimEntity, SwitchEntity):
     """Küchenlicht unter den Oberschränken per Bewegungsmelder."""
 
     def __init__(self, hub) -> None:
-        super().__init__(hub, "switch", "kuechenlicht_automatik", "Küchenlicht Automatik", "mdi:motion-sensor")
+        super().__init__(
+            hub, "switch", "kuechenlicht_automatik", "Küchenlicht Automatik", "mdi:motion-sensor"
+        )
 
     @property
     def is_on(self) -> bool:

@@ -20,7 +20,9 @@ STANDORT_LABEL = {
 }
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
     add([BoilerSelect(hub), StandortSelect(hub), ZeitrafferSelect(hub)])
 
@@ -48,7 +50,9 @@ class StandortSelect(SimEntity, SelectEntity):
     _attr_options = list(STANDORT_LABEL.values())
 
     def __init__(self, hub) -> None:
-        super().__init__(hub, "select", "sim_strom_vor_ort", "Strom vor Ort (Demo)", "mdi:map-marker-radius")
+        super().__init__(
+            hub, "select", "sim_strom_vor_ort", "Strom vor Ort (Demo)", "mdi:map-marker-radius"
+        )
 
     @property
     def current_option(self) -> str:

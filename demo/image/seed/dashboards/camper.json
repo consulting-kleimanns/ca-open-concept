@@ -1,0 +1,1579 @@
+{
+ "title": "Camper",
+ "views": [
+  {
+   "title": "Start",
+   "path": "start",
+   "icon": "mdi:van-utility",
+   "type": "sections",
+   "max_columns": 2,
+   "dense_section_placement": true,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Wärme",
+       "icon": "mdi:fire",
+       "heading_style": "title",
+       "badges": [
+        {
+         "type": "entity",
+         "entity": "sensor.innen_temperatur",
+         "name": "Innen"
+        },
+        {
+         "type": "entity",
+         "entity": "sensor.innen_feuchte",
+         "name": "Feuchte"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "climate",
+       "entity": "climate.heizung",
+       "name": "Truma Heizung",
+       "icon": "mdi:radiator",
+       "step": 0.5,
+       "min_temp": 5,
+       "max_temp": 30,
+       "sub_button": [
+        {
+         "name": "Modus",
+         "select_attribute": "hvac_modes",
+         "show_arrow": false,
+         "state_background": false
+        },
+        {
+         "name": "Stufe",
+         "select_attribute": "preset_modes",
+         "show_arrow": false,
+         "state_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "select",
+       "entity": "select.boiler",
+       "name": "Boiler",
+       "icon": "mdi:water-boiler",
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "230 V",
+       "icon": "mdi:flash",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_1",
+       "name": "Generator 1",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_1_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_2",
+       "name": "Generator 2",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_2_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_04_reserve_1",
+       "name": "Reserve 1",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_04_reserve_1_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_04_reserve_2",
+       "name": "Reserve 2",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_04_reserve_2_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_07_steckdose_heck",
+       "name": "Steckdose Heck",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_07_steckdose_heck_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_08_steckdose_trennwand",
+       "name": "Steckdose Trennwand",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_08_steckdose_trennwand_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.reserve_3",
+       "name": "Reserve 3",
+       "icon": "mdi:power-plug-outline",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.reserve_3_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.reserve_4",
+       "name": "Reserve 4",
+       "icon": "mdi:power-plug-outline",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.reserve_4_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Licht",
+       "icon": "mdi:led-strip-variant",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_links",
+       "name": "Heck links",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_rechts",
+       "name": "Heck rechts",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.kuechenlicht_automatik",
+       "name": "Küche (Bewegung)",
+       "icon": "mdi:motion-sensor",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "sub_button": [
+        {
+         "entity": "light.kueche",
+         "show_icon": false,
+         "show_background": false,
+         "state_content": "state"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.dusche",
+       "name": "Dusche",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Master Yoda",
+       "icon": "mdi:van-utility",
+       "heading_style": "title",
+       "badges": [
+        {
+         "type": "entity",
+         "entity": "sensor.kilometerstand",
+         "name": "km"
+        },
+        {
+         "type": "entity",
+         "entity": "sensor.aussentemperatur",
+         "name": "Außen"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.fahrbatterie",
+       "name": "Fahrbatterie",
+       "icon": "mdi:car-battery",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.reichweite",
+         "state_content": "state",
+         "show_state": true,
+         "show_icon": true,
+         "icon": "mdi:map-marker-distance",
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.ladezustand",
+       "name": "Laden",
+       "icon": "mdi:ev-station",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.restladezeit",
+         "state_content": "state",
+         "show_state": true,
+         "show_icon": true,
+         "icon": "mdi:timer-outline",
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.stecker",
+       "name": "Stecker",
+       "icon": "mdi:power-plug",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.vorklimatisieren",
+       "name": "Vorklimatisieren",
+       "icon": "mdi:fan",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.vorklimatisieren"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Im Camper ausprobieren",
+       "icon": "mdi:gesture-tap",
+       "heading_style": "subtitle"
+      },
+      {
+       "type": "tile",
+       "entity": "select.sim_strom_vor_ort",
+       "name": "Strom vor Ort",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_einsteigen",
+       "name": "Einsteigen",
+       "icon": "mdi:door-open",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_einsteigen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_einsteigen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_kochen",
+       "name": "Kochen",
+       "icon": "mdi:pot-steam",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_kochen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_kochen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_duschen",
+       "name": "Duschen",
+       "icon": "mdi:shower",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_duschen"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_duschen"
+         }
+        }
+       }
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.sim_kueche_betreten",
+       "name": "In die Küche",
+       "icon": "mdi:walk",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.sim_kueche_betreten"
+        }
+       },
+       "button_action": {
+        "tap_action": {
+         "action": "perform-action",
+         "perform_action": "button.press",
+         "target": {
+          "entity_id": "button.sim_kueche_betreten"
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Strom",
+   "path": "strom",
+   "icon": "mdi:flash",
+   "type": "sections",
+   "max_columns": 2,
+   "dense_section_placement": true,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "230-V-Kreise",
+       "icon": "mdi:flash",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_1",
+       "name": "Generator 1",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_1_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_03_generator_2",
+       "name": "Generator 2",
+       "icon": "mdi:generator-portable",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_03_generator_2_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_04_reserve_1",
+       "name": "Reserve 1",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_04_reserve_1_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_04_reserve_2",
+       "name": "Reserve 2",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_04_reserve_2_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_07_steckdose_heck",
+       "name": "Steckdose Heck",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_07_steckdose_heck_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.ac_08_steckdose_trennwand",
+       "name": "Steckdose Trennwand",
+       "icon": "mdi:power-socket-de",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.ac_08_steckdose_trennwand_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.reserve_3",
+       "name": "Reserve 3",
+       "icon": "mdi:power-plug-outline",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.reserve_3_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.reserve_4",
+       "name": "Reserve 4",
+       "icon": "mdi:power-plug-outline",
+       "tap_action": {
+        "action": "toggle"
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "sub_button": [
+        {
+         "entity": "sensor.reserve_4_leistung",
+         "state_content": "state",
+         "show_icon": false,
+         "show_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Klima",
+   "path": "klima",
+   "icon": "mdi:thermometer",
+   "type": "sections",
+   "max_columns": 2,
+   "dense_section_placement": true,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Heizen & Wasser",
+       "icon": "mdi:fire",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "climate",
+       "entity": "climate.heizung",
+       "name": "Truma Heizung",
+       "icon": "mdi:radiator",
+       "step": 0.5,
+       "min_temp": 5,
+       "max_temp": 30,
+       "sub_button": [
+        {
+         "name": "Modus",
+         "select_attribute": "hvac_modes",
+         "show_arrow": false,
+         "state_background": false
+        },
+        {
+         "name": "Stufe",
+         "select_attribute": "preset_modes",
+         "show_arrow": false,
+         "state_background": false
+        }
+       ],
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "select",
+       "entity": "select.boiler",
+       "name": "Boiler",
+       "icon": "mdi:water-boiler",
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "climate",
+       "entity": "climate.wandthermostat",
+       "name": "Wandthermostat",
+       "icon": "mdi:thermostat",
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Raumklima",
+       "icon": "mdi:home-thermometer",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_temperatur",
+       "name": "Innen (Wanddisplay)",
+       "icon": "mdi:thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_feuchte",
+       "name": "Feuchte (Wanddisplay)",
+       "icon": "mdi:water-percent",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_temperatur",
+       "name": "Innen (BB)",
+       "icon": "mdi:thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.innen_feuchte",
+       "name": "Feuchte (BB)",
+       "icon": "mdi:water-percent",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.taupunkt",
+       "name": "Taupunkt",
+       "icon": "mdi:water-thermometer",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.wasser_temperatur",
+       "name": "Wasser Truma",
+       "icon": "mdi:water-boiler",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Licht",
+   "path": "licht",
+   "icon": "mdi:led-strip-variant",
+   "type": "sections",
+   "max_columns": 2,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Licht",
+       "icon": "mdi:led-strip-variant",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_links",
+       "name": "Heck links",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.heck_rechts",
+       "name": "Heck rechts",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "switch",
+       "entity": "switch.kuechenlicht_automatik",
+       "name": "Küche (Bewegung)",
+       "icon": "mdi:motion-sensor",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large",
+       "sub_button": [
+        {
+         "entity": "light.kueche",
+         "show_icon": false,
+         "show_background": false,
+         "state_content": "state"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "light.dusche",
+       "name": "Dusche",
+       "icon": "mdi:led-strip-variant",
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Fahrzeug",
+   "path": "fahrzeug",
+   "icon": "mdi:car-electric",
+   "type": "sections",
+   "max_columns": 2,
+   "dense_section_placement": true,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Master Yoda",
+       "icon": "mdi:van-utility",
+       "heading_style": "title",
+       "badges": [
+        {
+         "type": "entity",
+         "entity": "sensor.kilometerstand",
+         "name": "km"
+        },
+        {
+         "type": "entity",
+         "entity": "sensor.aussentemperatur",
+         "name": "Außen"
+        }
+       ]
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.fahrbatterie",
+       "name": "Fahrbatterie",
+       "icon": "mdi:car-battery",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.reichweite",
+       "name": "Reichweite",
+       "icon": "mdi:map-marker-distance",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "heading",
+       "heading": "Laden",
+       "icon": "mdi:ev-station",
+       "heading_style": "subtitle"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.ladezustand",
+       "name": "Ladezustand",
+       "icon": "mdi:ev-station",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.stecker",
+       "name": "Stecker",
+       "icon": "mdi:power-plug",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.ladeleistung",
+       "name": "Ladeleistung",
+       "icon": "mdi:flash",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "sensor.restladezeit",
+       "name": "Restladezeit",
+       "icon": "mdi:timer-outline",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "number.soll_ladestand",
+       "name": "Ziel-Ladestand",
+       "icon": "mdi:battery-charging-80",
+       "show_state": true,
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "slider",
+       "entity": "number.mindest_ladestand",
+       "name": "Mindest-Ladestand",
+       "icon": "mdi:battery-10",
+       "show_state": true,
+       "tap_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 12
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.laden_starten",
+       "name": "Laden starten",
+       "icon": "mdi:play-circle",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.laden_starten"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Klima & Standort",
+       "icon": "mdi:map-marker",
+       "heading_style": "title"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.vorklimatisieren",
+       "name": "Vorklimatisieren",
+       "icon": "mdi:fan",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.vorklimatisieren"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "state",
+       "entity": "binary_sensor.klima_fahrerhaus",
+       "name": "Klima aktiv",
+       "icon": "mdi:air-conditioner",
+       "tap_action": {
+        "action": "more-info"
+       },
+       "sub_button": [],
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.hupe",
+       "name": "Hupe",
+       "icon": "mdi:bullhorn",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.hupe"
+        },
+        "confirmation": {
+         "text": "Hupe am Master Yoda auslösen?"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      },
+      {
+       "type": "custom:bubble-card",
+       "card_type": "button",
+       "button_type": "name",
+       "entity": "button.lichthupe",
+       "name": "Lichthupe",
+       "icon": "mdi:car-light-high",
+       "tap_action": {
+        "action": "perform-action",
+        "perform_action": "button.press",
+        "target": {
+         "entity_id": "button.lichthupe"
+        },
+        "confirmation": {
+         "text": "Lichthupe am Master Yoda auslösen?"
+        }
+       },
+       "hold_action": {
+        "action": "more-info"
+       },
+       "grid_options": {
+        "columns": 6
+       },
+       "card_layout": "large"
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Umgebung",
+   "path": "umgebung",
+   "icon": "mdi:compass-outline",
+   "type": "sections",
+   "max_columns": 2,
+   "sections": [
+    {
+     "type": "grid",
+     "cards": [
+      {
+       "type": "heading",
+       "heading": "Rund um deinen Standort",
+       "icon": "mdi:compass-outline",
+       "heading_style": "title"
+      },
+      {
+       "type": "tile",
+       "entity": "text.standort",
+       "name": "Standort (Ort oder PLZ)",
+       "grid_options": {
+        "columns": 12
+       }
+      },
+      {
+       "type": "markdown",
+       "content": "Gib einen Ort oder eine PLZ ein – die Vorschläge passend zu deinen Interessen erscheinen hier. Im Fahrzeug kommt der Standort automatisch per GPS.",
+       "grid_options": {
+        "columns": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "grid",
+     "column_span": 2,
+     "cards": [
+      {
+       "type": "custom:bubble-card",
+       "card_type": "horizontal-buttons-stack",
+       "highlight_current_view": true,
+       "1_name": "Start",
+       "1_icon": "mdi:van-utility",
+       "1_link": "/__DASH_CAMPER__/start",
+       "2_name": "Strom",
+       "2_icon": "mdi:flash",
+       "2_link": "/__DASH_CAMPER__/strom",
+       "3_name": "Klima",
+       "3_icon": "mdi:thermometer",
+       "3_link": "/__DASH_CAMPER__/klima",
+       "4_name": "Licht",
+       "4_icon": "mdi:led-strip-variant",
+       "4_link": "/__DASH_CAMPER__/licht",
+       "5_name": "Fahrzeug",
+       "5_icon": "mdi:car-electric",
+       "5_link": "/__DASH_CAMPER__/fahrzeug",
+       "6_name": "Umgebung",
+       "6_icon": "mdi:compass-outline",
+       "6_link": "/__DASH_CAMPER__/umgebung"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+# Verwaltet vom Image my-van-ha – wird bei jedem Start überschrieben.
+# Eigene Einstellungen gehören in Automationen, Szenen, Skripte und Dashboards.
+default_config:
+
+homeassistant:
+  name: Mein Master
+  unit_system: metric
+  currency: EUR
+  country: DE
+  language: de
+  time_zone: Europe/Berlin
+  # Anmeldung: der my-van-manager meldet den Interessenten per trusted_networks an (SSO über login.ca-camping.de)
+  auth_providers: !include myvan_auth.yaml
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies: !include myvan_proxies.yaml
+
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /local/my-van/bubble-card/bubble-card.js
+
+automation: !include automations.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
+
+logger:
+  default: warning

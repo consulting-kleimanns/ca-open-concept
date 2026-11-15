@@ -34,11 +34,18 @@ AKTIONEN = (
     Aktion("sim_einsteigen", "Einsteigen (Demo)", "mdi:door-open", lambda m: m.einsteigen()),
     Aktion("sim_kochen", "Kochen mit 2 Feldern (Demo)", "mdi:pot-steam", lambda m: m.kochen()),
     Aktion("sim_duschen", "Duschen (Demo)", "mdi:shower", lambda m: m.duschen()),
-    Aktion("sim_kueche_betreten", "In die Küche gehen (Demo)", "mdi:walk", lambda m: m.kueche_betreten()),
+    Aktion(
+        "sim_kueche_betreten",
+        "In die Küche gehen (Demo)",
+        "mdi:walk",
+        lambda m: m.kueche_betreten(),
+    ),
 )
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
     add([AktionButton(hub, a) for a in AKTIONEN])
 

@@ -24,18 +24,38 @@ class Zustand:
 
 
 ZUSTAENDE = (
-    Zustand("landstrom", "Landstrom", lambda m: m.landstrom, "mdi:power-plug", BinarySensorDeviceClass.POWER),
+    Zustand(
+        "landstrom",
+        "Landstrom",
+        lambda m: m.landstrom,
+        "mdi:power-plug",
+        BinarySensorDeviceClass.POWER,
+    ),
     Zustand("v2l", "V2L", lambda m: m.v2l, "mdi:car-electric", BinarySensorDeviceClass.POWER),
     Zustand("kochfeld_an", "Kochfeld", lambda m: m.s.kochen_min > 0, "mdi:stove"),
     Zustand("dusche_an", "Dusche", lambda m: m.s.duschen_min > 0, "mdi:shower"),
     Zustand("heizung_laeuft", "Heizung läuft", lambda m: m.last.heizung_w > 0, "mdi:radiator"),
-    Zustand("infrarot_laeuft", "Infrarotheizung läuft", lambda m: m.last.infrarot_w > 0, "mdi:heat-wave"),
-    Zustand("bewegung_kueche", "Bewegung Küche", lambda m: m.s.bewegung_min > 0, device_class=BinarySensorDeviceClass.MOTION),
-    Zustand("klima_fahrerhaus", "Klima aktiv", lambda m: m.s.klima_fahrerhaus_min > 0, "mdi:air-conditioner"),
+    Zustand(
+        "infrarot_laeuft", "Infrarotheizung läuft", lambda m: m.last.infrarot_w > 0, "mdi:heat-wave"
+    ),
+    Zustand(
+        "bewegung_kueche",
+        "Bewegung Küche",
+        lambda m: m.s.bewegung_min > 0,
+        device_class=BinarySensorDeviceClass.MOTION,
+    ),
+    Zustand(
+        "klima_fahrerhaus",
+        "Klima aktiv",
+        lambda m: m.s.klima_fahrerhaus_min > 0,
+        "mdi:air-conditioner",
+    ),
 )
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
     add([SimBinary(hub, z) for z in ZUSTAENDE])
 

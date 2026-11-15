@@ -15,7 +15,9 @@ class SimEntity(Entity):
     _attr_should_poll = False
     _attr_has_entity_name = False
 
-    def __init__(self, hub: SimHub, domain: str, object_id: str, name: str, icon: str | None = None) -> None:
+    def __init__(
+        self, hub: SimHub, domain: str, object_id: str, name: str, icon: str | None = None
+    ) -> None:
         self.hub = hub
         self.entity_id = f"{domain}.{object_id}"
         self._attr_unique_id = f"{DOMAIN}_{domain}_{object_id}"

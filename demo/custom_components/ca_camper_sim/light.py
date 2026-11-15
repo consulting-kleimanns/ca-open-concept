@@ -18,7 +18,9 @@ LEISTEN = {
 }
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: SimConfigEntry, add: AddEntitiesCallback
+) -> None:
     hub = entry.runtime_data
     add([Leiste(hub, key, name) for key, name in LEISTEN.items()] + [Kuechenlicht(hub)])
 
@@ -42,7 +44,9 @@ class Leiste(SimEntity, LightEntity):
         return self.m.s.lights[self._key]
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        self.m.s.lights[self._key] = int(kwargs.get(ATTR_BRIGHTNESS, self.m.s.lights[self._key] or 178))
+        self.m.s.lights[self._key] = int(
+            kwargs.get(ATTR_BRIGHTNESS, self.m.s.lights[self._key] or 178)
+        )
         self.hub.async_update()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
