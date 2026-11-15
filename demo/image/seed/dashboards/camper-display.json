@@ -651,7 +651,7 @@
       },
       {
        "type": "markdown",
-       "content": "{% set s = states['sensor.umgebung_standort'] %}{% if s is none %}Gib einen Ort oder eine PLZ ein.{% elif s.attributes.status == 'ok' %}📍 **{{ s.state }}**  \nVorschläge aus OpenStreetMap, Stand {{ as_timestamp(s.attributes.stand) | timestamp_custom('%d.%m. %H:%M') }}. Antippen öffnet die Karte.{% elif s.attributes.status == 'sucht' %}🔎 Suche rund um „{{ s.attributes.ort }}“ …{% else %}{{ s.state }}{% if s.attributes.ort %} – „{{ s.attributes.ort }}“{% endif %}. Probier eine PLZ oder einen anderen Ortsnamen.{% endif %}",
+       "content": "{% set s = states['sensor.umgebung_standort'] %}{% if s is none %}Gib einen Ort oder eine PLZ ein.{% elif s.attributes.status == 'ok' %}📍 **{{ s.state }}**  \nVorschläge aus OpenStreetMap, Stand {{ as_timestamp(s.attributes.stand) | timestamp_custom('%d.%m. %H:%M') }}. Antippen öffnet die Karte.{% elif s.attributes.status == 'sucht' %}🔎 Suche rund um „{{ s.attributes.ort }}“ …{% elif s.attributes.status == 'wartet' %}⏳ OpenStreetMap ist gerade ausgelastet. Dein Master versucht es gleich noch einmal.{% else %}{{ s.state }}{% if s.attributes.ort %} – „{{ s.attributes.ort }}“{% endif %}. Probier eine PLZ oder einen anderen Ortsnamen.{% endif %}",
        "grid_options": {
         "columns": 12
        }

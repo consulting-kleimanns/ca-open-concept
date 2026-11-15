@@ -223,6 +223,7 @@ class SimSensor(SimEntity, SensorEntity):
 STATUS_TEXT = {
     "bereit": "Kein Standort",
     "sucht": "Wird gesucht …",
+    "wartet": "OpenStreetMap ausgelastet – neuer Versuch gleich",
     "fehler": "Suche gerade nicht möglich",
     "nicht_gefunden": "Ort nicht gefunden",
 }

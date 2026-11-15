@@ -113,19 +113,31 @@ class SimHub:
         self.async_update()
 
     async def _async_suche(self, ort: str) -> None:
-        try:
-            res = await async_suche(async_get_clientsession(self.hass), ort)
-        except asyncio.CancelledError:
-            raise
-        except Exception as err:  # noqa: BLE001 – Netzfehler sichtbar im Status
-            _LOGGER.warning("Umgebungssuche für %s fehlgeschlagen: %s", ort, err)
-            self.umgebung_status = "fehler"
+        """Sucht die Umgebung; bei überlasteten OSM-Servern mit wachsender Pause erneut."""
+        for versuch, pause in enumerate((0, 30, 90, 300, 900)):
+            if pause:
+                self.umgebung_status = "wartet"
+                self.async_update()
+                await asyncio.sleep(pause)
+                self.umgebung_status = "sucht"
+                self.async_update()
+            try:
+                res = await async_suche(async_get_clientsession(self.hass), ort)
+            except asyncio.CancelledError:
+                raise
+            except Exception as err:  # noqa: BLE001 – Netzfehler sichtbar im Status
+                _LOGGER.info(
+                    "Umgebungssuche für %s, Versuch %s: %s", ort, versuch + 1, repr(err)[:160]
+                )
+                continue
+            res["stand"] = datetime.now().isoformat(timespec="minutes")
+            self.umgebung = res
+            self.umgebung_status = "ok" if res.get("gefunden") else "nicht_gefunden"
+            await self.async_save()
             self.async_update()
             return
-        res["stand"] = datetime.now().isoformat(timespec="minutes")
-        self.umgebung = res
-        self.umgebung_status = "ok" if res.get("gefunden") else "nicht_gefunden"
-        await self.async_save()
+        _LOGGER.warning("Umgebungssuche für %s aufgegeben – OpenStreetMap nicht erreichbar", ort)
+        self.umgebung_status = "fehler"
         self.async_update()
 
     # --- Entitäten ------------------------------------------------------------------------------

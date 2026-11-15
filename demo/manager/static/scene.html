@@ -465,6 +465,7 @@ function cardHTML(c, r){
     let body;
     if (!ort) body = '<div style="color:var(--tx2)">Gib einen Ort oder eine PLZ ein. Dann erscheinen hier Wanderwege, Einkehr, Badestellen und mehr in der Nähe.</div>';
     else if (u.status === 'sucht') body = `<div style="color:var(--tx2)">🔎 Suche rund um „${esc(ort)}“ …</div>`;
+    else if (u.status === 'wartet') body = '<div style="color:var(--tx2)">⏳ OpenStreetMap ist gerade ausgelastet. Neuer Versuch gleich …</div>';
     else if (u.status === 'fehler') body = '<div style="color:var(--tx2)">Die Suche ist gerade nicht möglich. Bitte später noch einmal.</div>';
     else if (u.status === 'nicht_gefunden') body = `<div style="color:var(--tx2)">„${esc(ort)}“ nicht gefunden. Probier eine PLZ oder einen anderen Ortsnamen.</div>`;
     else body = `<b>📍 ${esc((u.anzeige || ort).split(',').slice(0, 2).join(','))}</b>` + UMG_KAT.map(([k, n, ic]) => {
@@ -916,8 +917,10 @@ let umgTimer = null, umgSeq = 0;
 function umgLaden(ort){
   clearTimeout(umgTimer); UMGD = {ort, status: ort ? 'sucht' : 'bereit', kat: {}};
   if (!ort) return;
-  umgTimer = setTimeout(async () => {
-    const seq = ++umgSeq;
+  umgTimer = setTimeout(() => umgVersuch(ort, ++umgSeq, 0), 700);
+}
+async function umgVersuch(ort, seq, n){
+  {
     try {
       const q = /^\d{5}$/.test(ort) ? `postalcode=${ort}&countrycodes=de` : `q=${encodeURIComponent(ort)}`;
       const g = await (await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&${q}`)).json();
@@ -946,8 +949,12 @@ function umgLaden(ort){
       }
       Object.keys(kat).forEach(k => kat[k].sort((a, b) => a.km - b.km));
       UMGD = {ort, status: 'ok', anzeige: g[0].display_name, kat}; render();
-    } catch (e) { if (seq === umgSeq) { UMGD = {ort, status: 'fehler', kat: {}}; render(); } }
-  }, 700);
+    } catch (e) {
+      if (seq !== umgSeq) return;
+      if (n < 3) { UMGD = {ort, status: 'wartet', kat: {}}; render(); setTimeout(() => seq === umgSeq && umgVersuch(ort, seq, n + 1), [20000, 60000, 180000][n]); }
+      else { UMGD = {ort, status: 'fehler', kat: {}}; render(); }
+    }
+  }
 }
 function setOrt(v, src){ S.ort = v.trim(); if (!LIVE) umgLaden(S.ort); if (src !== 'head') document.getElementById('ort').value = S.ort; log('Standort: ' + (S.ort || '–'));
   if (S.dev === 'phone') S.view.phone = 'umgebung'; else if (S.dev === 'display') S.view.display = 'umgebung';
