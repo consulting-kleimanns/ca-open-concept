@@ -823,6 +823,10 @@ async def wunsch_post(request: web.Request) -> web.Response:
     return web.json_response({"ok": True, "text": text})
 
 
+async def anleitung(request: web.Request) -> web.Response:
+    return web.FileResponse(core.STATIC / "claude.html", headers={"Cache-Control": "no-cache"})
+
+
 def setup(app: web.Application, manager_module: ModuleType) -> None:
     global core
     core = manager_module
@@ -836,3 +840,4 @@ def setup(app: web.Application, manager_module: ModuleType) -> None:
     r.add_post("/mcp/token", token)
     r.add_route("*", "/mcp", mcp)
     r.add_post("/_my-van/wunsch", wunsch_post)
+    r.add_get("/claude", anleitung)

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mein Master mit Claude anpassen – CA Camping</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef0f3;color:#1d2430;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:#1c232b;color:#ecedea;padding:36px 20px 30px}
+.in{max-width:760px;margin:0 auto}
+.logo{font-weight:800;letter-spacing:.5px;margin-bottom:18px}.logo b{color:#e96b21}
+h1{font-size:30px;line-height:1.2;margin:0 0 10px}header p{color:#c5cad1;margin:0}
+main{padding:10px 20px 50px}
+section{background:#fff;border-radius:16px;padding:22px 24px;margin:18px 0;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+h2{font-size:20px;margin:0 0 10px}h3{font-size:16px;margin:16px 0 6px}
+p,li{color:#3c4452}ol,ul{padding-left:22px}li{margin:6px 0}
+.url{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.url code{background:#eef0f3;padding:8px 12px;border-radius:8px;font-size:15px;user-select:all}
+button{border:0;border-radius:9px;padding:8px 14px;font:inherit;cursor:pointer;background:#e96b21;color:#fff;font-weight:600}
+.ex{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:8px}
+.ex div{background:#f6f2ec;border-left:4px solid #e96b21;border-radius:8px;padding:10px 12px;font-size:15px;color:#1d2430}
+.ex small{display:block;color:#5d6675;margin-top:4px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.ok li::marker{content:"✓  ";color:#4c9a2a}.no li::marker{content:"✗  ";color:#b3261e}
+.note{background:#fff7ec;border-radius:10px;padding:10px 14px;color:#5d4a2e;font-size:15px}
+a{color:#c4561a}.back{display:inline-block;margin-top:6px}
+</style></head><body>
+<header><div class="in">
+  <div class="logo"><b>CA</b> camping · Mein Master</div>
+  <h1>Deinen Master mit Claude anpassen</h1>
+  <p>Du beschreibst in deinen eigenen Worten, wie dein Camper sich verhalten soll. Claude richtet es in deinem Master ein: Dashboards, Lichtstimmungen, Automationen. Programmieren musst du dafür nicht.</p>
+</div></header>
+<main><div class="in">
+
+<section>
+  <h2>So funktioniert es</h2>
+  <p><b>Claude</b> ist ein KI-Assistent von Anthropic. Über eine gesicherte Verbindung (einen sogenannten <i>MCP-Connector</i>) darf Claude in deinem Master Dinge anlegen und ändern, aber nur deine eigenen.</p>
+  <p>Du schreibst zum Beispiel: <i>„Ich möchte abends mit einem Tipp gemütliches Licht im Heck und die Küche aus.“</i> Claude schaut sich die Geräte in deinem Master an, baut daraus eine Szene und einen Knopf auf deinem Dashboard und erklärt dir, was er gemacht hat. Links in „Mein Master“ siehst du das Ergebnis sofort.</p>
+  <p class="note">Alles, was du so einrichtest, gehört zu deinem Konzept. Bei der Auslieferung übernehmen wir es in dein Fahrzeug.</p>
+</section>
+
+<section>
+  <h2>Einmal einrichten (etwa 3 Minuten)</h2>
+  <ol>
+    <li><b>Claude-Konto anlegen</b> auf <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a>, falls du noch keins hast. Das kostenlose Konto reicht. Dort kannst du einen eigenen Connector hinzufügen, und genau den brauchst du.</li>
+    <li><b>Am Rechner</b> (Browser oder Claude-Desktop-App) die Connector-Einstellungen öffnen: <b>Customize → Connectors</b>, dann <b>Add custom connector</b>. Auf dem Smartphone lässt sich ein neuer Connector nicht anlegen, nutzen kannst du ihn danach aber auch dort.</li>
+    <li><b>Eintragen</b>:
+      <div>Name: <b>Mein Master</b></div>
+      <div class="url">Adresse: <code id="u">https://my-van.ca-camping.de/mcp</code><button id="cp" type="button">Kopieren</button></div>
+      Die erweiterten Einstellungen (OAuth Client ID/Secret) lässt du leer.</li>
+    <li><b>Verbinden</b> klicken. Es öffnet sich unsere Anmeldung. Melde dich mit deinem Konto von ca-camping.de an und bestätige „Verbinden“.</li>
+    <li><b>Loslegen</b>: Neuen Chat starten, über das Werkzeug-Menü „Mein Master“ einschalten und deinen Wunsch hineinschreiben.</li>
+  </ol>
+  <p>Damit Claude arbeiten kann, startet dein Master im Hintergrund. Beim allerersten Mal dauert das etwa eine Minute. Meldet Claude „startet gerade“, schick die Nachricht einfach noch einmal.</p>
+</section>
+
+<section>
+  <h2>Ideen zum Ausprobieren</h2>
+  <div class="ex">
+    <div>„Was kann mein Master alles? Erklär mir die Geräte.“<small>guter Einstieg</small></div>
+    <div>„Bau mir eine Szene ‚Gute Nacht‘: alles aus, nur die Dusche gedimmt auf 10 %.“<small>Szene</small></div>
+    <div>„Wenn ich das Fahrzeug abends betrete, soll das Licht im Heck warm angehen.“<small>Automation</small></div>
+    <div>„Mach mir ein Dashboard ‚Unterwegs‘ mit Batteriestand, Wasser und Reichweite ganz oben.“<small>Dashboard</small></div>
+    <div>„Auf dem Wall Display am Einstieg will ich nur drei große Knöpfe: Licht an, Nacht, Alles aus.“<small>Wall Display</small></div>
+    <div>„Heize den Boiler nur, wenn Landstrom da ist.“<small>Energie</small></div>
+  </div>
+  <p>Du kannst jederzeit nachbessern: <i>„Mach die Knöpfe größer“</i>, <i>„nimm lieber 30 % Helligkeit“</i>, <i>„lösch das wieder“</i>.</p>
+</section>
+
+<section class="cols">
+  <div>
+    <h3>Das darf Claude bei dir</h3>
+    <ul class="ok">
+      <li>Geräte und Messwerte deines Masters ansehen</li>
+      <li>Licht, Heizung, Boiler und Steckdosen bedienen</li>
+      <li>eigene Dashboards, Szenen, Automationen, Skripte und Helfer anlegen, ändern und löschen</li>
+      <li>Wünsche an uns weitergeben</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Das bleibt gesperrt</h3>
+    <ul class="no">
+      <li>Integrationen und Apps hinzufügen</li>
+      <li>Benutzer und Systemeinstellungen</li>
+      <li>Einträge anderer Personen</li>
+      <li>Neustarts, Updates und Ähnliches</li>
+    </ul>
+  </div>
+  <p style="grid-column:1/-1">Was Claude anlegt, trägt deine E-Mail im Namen. So sieht jeder, was zu dir gehört. Geht etwas nur mit unserer Hilfe, schickt Claude einen Wunsch an uns. Du findest ihn in deinem Board „Mein E-Camper“.</p>
+</section>
+
+<section>
+  <h2>Gut zu wissen</h2>
+  <ul>
+    <li><b>Kostenloses Claude-Konto:</b> Das reicht zum Ausprobieren. Es hat aber ein begrenztes Nachrichtenkontingent. Für größere Umbauten in einem Rutsch lohnt sich Claude Pro.</li>
+    <li><b>Ohne Claude:</b> In „Mein Master“ gibt es oben den Knopf <b>„Wunsch an CA Camping“</b>. Dort beschreibst du deine Idee, und wir setzen sie mit dir um.</li>
+    <li><b>Verbindung trennen:</b> In Claude unter Connectors „Mein Master“ entfernen, fertig.</li>
+    <li><b>Daten:</b> Claude sieht nur deinen simulierten Master, keine anderen Daten von dir. Was du im Chat schreibst, verarbeitet Anthropic nach seinen eigenen Bedingungen.</li>
+  </ul>
+  <a class="back" href="/">← Zurück zu Mein Master</a>
+</section>
+
+</div></main>
+<script>
+const u = document.getElementById('u'); u.textContent = location.origin + '/mcp';
+document.getElementById('cp').onclick = async e => { try { await navigator.clipboard.writeText(u.textContent); e.target.textContent = 'Kopiert'; } catch (_) {} };
+</script>
+</body></html>
