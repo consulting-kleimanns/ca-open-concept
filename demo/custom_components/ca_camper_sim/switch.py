@@ -12,6 +12,9 @@ from . import SimConfigEntry
 from .entity import SimEntity
 
 KREISE = {
+    "ac_01_induktion": ("Kochfeld", "mdi:stove"),
+    "ac_05_dusche": ("Dusche", "mdi:shower"),
+    "ac_06_kuehlschrank": ("Kühlschrank", "mdi:fridge"),
     "ac_03_generator_1": ("Generator 1", "mdi:generator-portable"),
     "ac_03_generator_2": ("Generator 2", "mdi:generator-portable"),
     "ac_04_reserve_1": ("Reserve 1", "mdi:power-socket-de"),

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interessenten – Mein Master</title>
+<style>
+:root{--pg:#eef0f3;--pc:#fff;--pl:#dde1e7;--pt:#1d2430;--pt2:#5d6675;--or:#e96b21}
+*{box-sizing:border-box}body{margin:0;background:var(--pg);color:var(--pt);font:14px/1.45 Roboto,system-ui,sans-serif}
+.top{display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--pc);border-bottom:1px solid var(--pl)}
+.top b{font-weight:700}.sp{flex:1}a{color:var(--pt2)}
+main{max-width:980px;margin:24px auto;padding:0 20px;display:grid;gap:18px}
+.card{background:var(--pc);border:1px solid var(--pl);border-radius:14px;padding:18px 20px}
+h2{margin:0 0 4px;font-size:17px}.muted{color:var(--pt2);font-size:13px;margin:0 0 14px}
+form{display:grid;grid-template-columns:1fr 1.3fr auto;gap:10px}
+input{padding:10px 12px;border:1px solid var(--pl);border-radius:10px;font:inherit}
+button{background:var(--or);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}
+#msg{margin-top:10px;font-size:13px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--pl);font-size:13px}
+th{color:var(--pt2);font-weight:500}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#c5cad1}
+.dot.ok{background:#27ae60}.dot.run{background:var(--or)}
+@media (max-width:700px){form{grid-template-columns:1fr}}
+</style></head><body>
+<header class="top"><b>CA Camping · Mein Master</b> <span>Interessenten</span><span class="sp"></span><span style="color:var(--pt2)">{{EMAIL}}</span><a href="/">zu meinem Master</a><a href="/auth/logout">Abmelden</a></header>
+<main>
+  <section class="card">
+    <h2>Interessent freischalten</h2>
+    <p class="muted">Legt das Konto in nc.ca-camping.de an (bzw. ordnet ein vorhandenes zu) und fügt es der Gruppe „{{GROUP}}“ hinzu. Damit bekommt der Interessent auch sein Deck-Board und seinen Projektordner. Anmelden kann er sich auf my-van.ca-camping.de, sobald der Abgleich mit login.ca-camping.de gelaufen ist (spätestens nach 15 Minuten).</p>
+    <form id="f"><input name="name" placeholder="Name, z. B. Familie Muster" required><input name="email" type="email" placeholder="E-Mail-Adresse" required><button id="b">Freischalten</button></form>
+    <div id="msg"></div>
+  </section>
+  <section class="card">
+    <h2>Freigeschaltete Interessenten</h2>
+    <p class="muted"><span class="dot ok"></span>Camper eingerichtet · <span class="dot run"></span>läuft gerade</p>
+    <table><thead><tr><th>Name</th><th>E-Mail</th><th>Letzte Anmeldung (Nextcloud)</th><th>Mein Master</th></tr></thead><tbody id="t"><tr><td colspan="4">Lade …</td></tr></tbody></table>
+  </section>
+</main>
+<script>
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function load(){
+  const r = await fetch('/admin/api/interessenten'); const t = document.getElementById('t');
+  if (!r.ok) { t.innerHTML = `<tr><td colspan="4">Fehler: ${esc(await r.text())}</td></tr>`; return; }
+  const list = await r.json();
+  t.innerHTML = list.length ? list.map(u => `<tr><td>${esc(u.name)}${u.enabled ? '' : ' (deaktiviert)'}</td><td>${esc(u.email)}</td>
+    <td>${u.lastLogin ? new Date(u.lastLogin).toLocaleString('de-DE') : '–'}</td>
+    <td>${u.running ? '<span class="dot run"></span>läuft' : u.instance ? '<span class="dot ok"></span>eingerichtet' : '<span class="dot"></span>noch nicht angemeldet'}</td></tr>`).join('')
+    : '<tr><td colspan="4">Noch keine Interessenten.</td></tr>';
+}
+document.getElementById('f').addEventListener('submit', async e => {
+  e.preventDefault(); const b = document.getElementById('b'), m = document.getElementById('msg'); b.disabled = true; m.textContent = '';
+  const fd = new FormData(e.target);
+  const r = await fetch('/admin/api/interessenten', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-My-Van': '1'}, body: JSON.stringify({name: fd.get('name'), email: fd.get('email')})});
+  b.disabled = false;
+  if (r.ok) { const j = await r.json(); m.style.color = '#27ae60'; m.textContent = `${fd.get('email')} wurde ${j.result}.`; e.target.reset(); load(); }
+  else { m.style.color = '#eb5757'; m.textContent = 'Fehler: ' + await r.text(); }
+});
+load();
+</script></body></html>
