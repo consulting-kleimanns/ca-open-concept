@@ -126,40 +126,63 @@ def read_session(request: web.Request) -> str | None:
 
 # --- Zugang ------------------------------------------------------------------------------------
 
-_ACCESS: dict[str, tuple[float, bool]] = {}
+_ACCESS: dict[str, tuple[float, str | None]] = {}
 
 
-async def allowed(email: str) -> bool:
-    """Team-Domains immer; sonst Mitglied einer freigegebenen Gruppe in nc.ca-camping.de (5 min Cache)."""
-    if email.rsplit("@", 1)[-1] in S.allowed_domains:
-        return True
-    hit = _ACCESS.get(email)
+def _domain(addr: str) -> str:
+    return addr.rsplit("@", 1)[-1].lower() if "@" in addr else ""
+
+
+async def resolve(login: str) -> str | None:
+    """Ordnet eine Login-E-Mail dem Konto in nc.ca-camping.de zu.
+
+    Das Login-Konto auf login.ca-camping.de trägt die E-Mail des Nextcloud-Kontos; dessen
+    Kennung kann anders lauten (Kennung name@ca-camping.de, E-Mail privat@beispiel.de).
+    Zurück kommt die Kennung, unter der der Master geführt wird, oder None ohne Zugang.
+    Zugang: Team-Domain (Kennung oder E-Mail) oder Mitglied einer freigegebenen Gruppe.
+    """
+    login = login.strip().lower()
+    hit = _ACCESS.get(login)
     if hit and hit[0] > time.time():
         return hit[1]
-    ok = False
-    if S.nc_user and S.nc_app_password:
-        auth = aiohttp.BasicAuth(S.nc_user, S.nc_app_password)
-        hdr = {"OCS-APIRequest": "true", "Accept": "application/json"}
-        try:
-            async with M.http.get(
-                S.nc_url + "/ocs/v2.php/cloud/users/details",
-                params={"search": email},
-                auth=auth,
-                headers=hdr,
-            ) as r:
-                users = (await r.json(content_type=None))["ocs"]["data"].get("users", {}) or {}
-            for user in users.values():
-                if (user.get("email") or "").lower() == email and set(user.get("groups", [])) & set(
-                    S.allowed_groups
-                ):
-                    ok = not user.get("enabled") is False
-                    break
-        except (aiohttp.ClientError, KeyError, ValueError, asyncio.TimeoutError) as err:
-            log.warning("Gruppenprüfung fehlgeschlagen: %s", err)
-            if hit:
-                return hit[1]
-    _ACCESS[email] = (time.time() + 300, ok)
-    return ok
+    if not (S.nc_user and S.nc_app_password):
+        return login if _domain(login) in S.allowed_domains else None
+    best: tuple[int, str] | None = None
+    try:
+        data = await _ocs("GET", "/cloud/users/details", params={"search": login, "limit": "50"})
+        users = data.get("users", {}) or {}
+        if isinstance(users, list):
+            users = {}
+        for uid, user in users.items():
+            uid_l = (user.get("id") or uid or "").lower()
+            mail = (user.get("email") or "").lower()
+            if login not in (uid_l, mail) or user.get("enabled") is False:
+                continue
+            ident = uid_l if "@" in uid_l else mail
+            if not ident:
+                continue
+            if _domain(uid_l) in S.allowed_domains or _domain(mail) in S.allowed_domains:
+                rank = 2
+            elif set(user.get("groups", []) or []) & set(S.allowed_groups):
+                rank = 1
+            else:
+                continue
+            if best is None or rank > best[0]:
+                best = (rank, ident)
+    except (aiohttp.ClientError, KeyError, ValueError, asyncio.TimeoutError, web.HTTPException) as err:
+        log.warning("Zugangspruefung fehlgeschlagen: %s", err)
+        if hit:
+            return hit[1]
+        return login if _domain(login) in S.allowed_domains else None
+    ident = best[1] if best else None
+    if ident is None and _domain(login) in S.allowed_domains:
+        ident = login  # Team-Konto, das (noch) nicht in Nextcloud steht
+    _ACCESS[login] = (time.time() + 300, ident)
+    return ident
+
+
+async def allowed(ident: str) -> bool:
+    return await resolve(ident) is not None
 
 
 def is_team(email: str | None) -> bool:
@@ -618,10 +641,12 @@ async def auth_callback(request: web.Request) -> web.Response:
     email = (me.get("email") or me.get("user_email") or "").strip().lower()
     if "@" not in email:
         raise web.HTTPForbidden(text="Anmeldung fehlgeschlagen.")
-    if not await allowed(email):
+    ident = await resolve(email)
+    if not ident:
         log.info("Kein Zugang: %s", slugify(email))
         return page("denied.html", EMAIL=email)
-    log.info("Anmeldung: %s", slugify(email))
+    log.info("Anmeldung: %s -> %s", slugify(email), slugify(ident))
+    email = ident
     resp = web.HTTPFound("/")
     resp.set_cookie(
         "myvan",
