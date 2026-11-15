@@ -162,6 +162,23 @@ async def allowed(email: str) -> bool:
     return ok
 
 
+def is_team(email: str | None) -> bool:
+    return bool(email) and email.rsplit("@", 1)[-1] in S.allowed_domains
+
+
+async def _ocs(method: str, path: str, **kw) -> dict:
+    auth = aiohttp.BasicAuth(S.nc_user, S.nc_app_password)
+    hdr = {"OCS-APIRequest": "true", "Accept": "application/json"}
+    async with M.http.request(
+        method, S.nc_url + "/ocs/v2.php" + path, auth=auth, headers=hdr, **kw
+    ) as r:
+        data = await r.json(content_type=None)
+    meta = data.get("ocs", {}).get("meta", {})
+    if meta.get("statuscode") not in (100, 200):
+        raise web.HTTPBadRequest(text=meta.get("message") or "Nextcloud hat die Anfrage abgelehnt")
+    return data["ocs"]["data"]
+
+
 # --- Docker -----------------------------------------------------------------------------------
 
 
@@ -670,7 +687,8 @@ async def handler(request: web.Request) -> web.StreamResponse:
     inst = M.get(email)
     inst.last_seen = time.time()
     if path == "/" and request.method == "GET":
-        return page("app.html", EMAIL=email, DASH=inst.dashboard)
+        admin = '<a class="out" href="/admin">Interessenten verwalten</a>' if is_team(email) else ""
+        return page("app.html", EMAIL=email, DASH=inst.dashboard, ADMIN=admin)
     info = await M.docker.inspect(inst.name)
     if not (info and info["State"]["Running"]) or inst.lock.locked():
         if not inst.lock.locked():
@@ -731,6 +749,85 @@ async def _proxy_ws(request: web.Request, inst: Instance) -> web.WebSocketRespon
     return client
 
 
+# --- Admin: Interessenten anlegen (nur Team) ------------------------------------------------------
+
+
+def _team(request: web.Request) -> str:
+    email = read_session(request)
+    if not is_team(email):
+        raise web.HTTPForbidden(text="Nur für Konten von ca-camping.de")
+    return email
+
+
+async def admin_page(request: web.Request) -> web.Response:
+    email = read_session(request)
+    if not email:
+        raise web.HTTPFound("/auth/login")
+    _team(request)
+    return page("admin.html", EMAIL=email, GROUP=S.allowed_groups[0])
+
+
+async def admin_list(request: web.Request) -> web.Response:
+    _team(request)
+    users = (await _ocs("GET", f"/cloud/groups/{S.allowed_groups[0]}/users/details")).get(
+        "users", {}
+    ) or {}
+    running = {c["Labels"].get("my-van.email") for c in await M.docker.running()}
+    out = []
+    for uid, u in users.items():
+        mail = (u.get("email") or "").lower()
+        inst = Instance(mail) if mail else None
+        meta = inst.meta() if inst and inst.meta_file.exists() else {}
+        out.append(
+            {
+                "uid": uid,
+                "name": u.get("displayname") or uid,
+                "email": mail,
+                "enabled": u.get("enabled", True),
+                "lastLogin": u.get("lastLogin", 0),
+                "instance": bool(meta.get("provisioned")),
+                "running": mail in running,
+            }
+        )
+    out.sort(key=lambda x: x["name"].lower())
+    return web.json_response(out)
+
+
+async def admin_create(request: web.Request) -> web.Response:
+    _team(request)
+    if request.headers.get("X-My-Van") != "1":
+        raise web.HTTPForbidden()
+    data = await request.json()
+    email = (data.get("email") or "").strip().lower()
+    name = (data.get("name") or "").strip()
+    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", email) or not name:
+        raise web.HTTPBadRequest(text="Name und gültige E-Mail angeben")
+    found = (await _ocs("GET", "/cloud/users/details", params={"search": email})).get(
+        "users", {}
+    ) or {}
+    uid = next((k for k, u in found.items() if (u.get("email") or "").lower() == email), None)
+    if uid is None:
+        await _ocs(
+            "POST",
+            "/cloud/users",
+            data={
+                "userid": email,
+                "email": email,
+                "displayName": name,
+                "password": secrets.token_urlsafe(24),
+                "groups[]": S.allowed_groups[0],
+                "language": "de",
+            },
+        )
+        result = "angelegt"
+    else:
+        await _ocs("POST", f"/cloud/users/{uid}/groups", data={"groupid": S.allowed_groups[0]})
+        result = "der Gruppe zugeordnet"
+    _ACCESS.pop(email, None)
+    log.info("Admin %s: Interessent %s", slugify(_team(request)), result)
+    return web.json_response({"ok": True, "result": result})
+
+
 async def on_startup(app: web.Application) -> None:
     global M
     M = Manager()
@@ -757,6 +854,9 @@ def main() -> None:
     app.router.add_get("/auth/callback", auth_callback)
     app.router.add_get("/auth/logout", auth_logout)
     app.router.add_get("/_my-van/status", status)
+    app.router.add_get("/admin", admin_page)
+    app.router.add_get("/admin/api/interessenten", admin_list)
+    app.router.add_post("/admin/api/interessenten", admin_create)
     app.router.add_route("*", "/{tail:.*}", handler)
     web.run_app(app, host="0.0.0.0", port=8080, access_log=None)
 
