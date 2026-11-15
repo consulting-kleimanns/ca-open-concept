@@ -67,6 +67,20 @@ class Settings:
     idle_min: float = float(os.environ.get("MYVAN_IDLE_MINUTES", "30"))
     max_running: int = int(os.environ.get("MYVAN_MAX_RUNNING", "4"))
     session_days: int = int(os.environ.get("MYVAN_SESSION_DAYS", "14"))
+    # Zugang: E-Mail-Domains (Team) immer, sonst Mitglied einer dieser Nextcloud-Gruppen
+    allowed_domains: tuple[str, ...] = tuple(
+        d.strip().lower()
+        for d in os.environ.get("MYVAN_ALLOWED_DOMAINS", "ca-camping.de").split(",")
+        if d.strip()
+    )
+    allowed_groups: tuple[str, ...] = tuple(
+        g.strip()
+        for g in os.environ.get("MYVAN_ALLOWED_GROUPS", "Interessent").split(",")
+        if g.strip()
+    )
+    nc_url: str = os.environ.get("MYVAN_NC_URL", "https://nc.ca-camping.de")
+    nc_user: str = os.environ.get("MYVAN_NC_USER", "")
+    nc_app_password: str = os.environ.get("MYVAN_NC_APP_PASSWORD", "")
 
     @property
     def base_url(self) -> str:
@@ -108,6 +122,44 @@ def read_session(request: web.Request) -> str | None:
     except ValueError:
         return None
     return data["e"] if data.get("x", 0) > time.time() else None
+
+
+# --- Zugang ------------------------------------------------------------------------------------
+
+_ACCESS: dict[str, tuple[float, bool]] = {}
+
+
+async def allowed(email: str) -> bool:
+    """Team-Domains immer; sonst Mitglied einer freigegebenen Gruppe in nc.ca-camping.de (5 min Cache)."""
+    if email.rsplit("@", 1)[-1] in S.allowed_domains:
+        return True
+    hit = _ACCESS.get(email)
+    if hit and hit[0] > time.time():
+        return hit[1]
+    ok = False
+    if S.nc_user and S.nc_app_password:
+        auth = aiohttp.BasicAuth(S.nc_user, S.nc_app_password)
+        hdr = {"OCS-APIRequest": "true", "Accept": "application/json"}
+        try:
+            async with M.http.get(
+                S.nc_url + "/ocs/v2.php/cloud/users/details",
+                params={"search": email},
+                auth=auth,
+                headers=hdr,
+            ) as r:
+                users = (await r.json(content_type=None))["ocs"]["data"].get("users", {}) or {}
+            for user in users.values():
+                if (user.get("email") or "").lower() == email and set(user.get("groups", [])) & set(
+                    S.allowed_groups
+                ):
+                    ok = not user.get("enabled") is False
+                    break
+        except (aiohttp.ClientError, KeyError, ValueError, asyncio.TimeoutError) as err:
+            log.warning("Gruppenprüfung fehlgeschlagen: %s", err)
+            if hit:
+                return hit[1]
+    _ACCESS[email] = (time.time() + 300, ok)
+    return ok
 
 
 # --- Docker -----------------------------------------------------------------------------------
@@ -549,6 +601,9 @@ async def auth_callback(request: web.Request) -> web.Response:
     email = (me.get("email") or me.get("user_email") or "").strip().lower()
     if "@" not in email:
         raise web.HTTPForbidden(text="Anmeldung fehlgeschlagen.")
+    if not await allowed(email):
+        log.info("Kein Zugang: %s", slugify(email))
+        return page("denied.html", EMAIL=email)
     log.info("Anmeldung: %s", slugify(email))
     resp = web.HTTPFound("/")
     resp.set_cookie(
@@ -574,7 +629,7 @@ async def auth_logout(request: web.Request) -> web.Response:
 
 async def status(request: web.Request) -> web.Response:
     email = read_session(request)
-    if not email:
+    if not email or not await allowed(email):
         return web.json_response({"state": "anonymous"})
     inst = M.get(email)
     info = await M.docker.inspect(inst.name)
@@ -608,6 +663,10 @@ async def handler(request: web.Request) -> web.StreamResponse:
         raise web.HTTPNotFound()
     if not email:
         return page("landing.html")
+    if not await allowed(email):
+        resp = page("denied.html", EMAIL=email)
+        resp.del_cookie("myvan")
+        return resp
     inst = M.get(email)
     inst.last_seen = time.time()
     if path == "/" and request.method == "GET":
