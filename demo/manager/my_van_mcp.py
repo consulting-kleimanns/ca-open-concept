@@ -58,6 +58,12 @@ HELPER_TYPES = (
     "input_button", "counter", "timer",
 )
 BASE_DASHBOARDS = ("camper", "camper-display", "camper-wall")
+DOMAIN_DE = {
+    "light": "licht lampe", "switch": "schalter steckdose", "climate": "heizung klima temperatur",
+    "sensor": "sensor messwert", "binary_sensor": "sensor kontakt", "select": "auswahl",
+    "number": "zahl wert", "button": "knopf taste", "scene": "szene", "script": "skript",
+    "automation": "automation", "water_heater": "boiler warmwasser",
+}
 HIDDEN_DOMAINS = {"update", "person", "zone", "sun", "conversation", "tts", "event", "stt",
                   "wake_word", "assist_satellite", "todo", "tag", "backup"}
 
@@ -383,7 +389,9 @@ async def t_status(c: Ctx, a: dict) -> str:
             continue
         attr = s.get("attributes", {})
         name = attr.get("friendly_name", "")
-        if such and such not in eid.lower() and such not in name.lower():
+        dom = eid.split(".", 1)[0]
+        hay = f"{eid} {name} {DOMAIN_DE.get(dom, '')}".lower()
+        if such and such not in hay:
             continue
         unit = attr.get("unit_of_measurement", "")
         extra = ""
